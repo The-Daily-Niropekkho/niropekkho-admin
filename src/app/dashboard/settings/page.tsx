@@ -1,34 +1,35 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useState } from "react"
+import { useTheme } from "@/components/theme-context"
 import {
-  Card,
-  Form,
-  Input,
-  Button,
-  Switch,
-  Row,
-  Col,
-  Divider,
-  message,
-  Tabs,
-  Select,
-  Upload,
-  InputNumber,
-  Space,
-  Radio,
-} from "antd"
-import {
-  SaveOutlined,
-  UploadOutlined,
+  ApiOutlined,
+  CloudOutlined,
   GlobalOutlined,
   MailOutlined,
   NotificationOutlined,
+  SaveOutlined,
   SecurityScanOutlined,
   TeamOutlined,
-  CloudOutlined,
-  ApiOutlined,
+  UploadOutlined,
 } from "@ant-design/icons"
-import { useTheme } from "@/components/theme-context"
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Radio,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Tabs,
+  Upload,
+} from "antd"
+import { useState } from "react"
 
 const { Option } = Select
 const { TabPane } = Tabs
@@ -81,7 +82,7 @@ export default function SettingsPage() {
         style={{
           borderRadius: "8px",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-          background: isDark ? "#1f1f1f" : "#fff",
+          background: isDark ? "#1f2937" : "#ffffff",
         }}
       >
         <Form

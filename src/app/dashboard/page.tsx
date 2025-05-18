@@ -2,32 +2,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useTheme } from "@/components/theme-context";
-import { Area, Pie } from "@ant-design/charts";
+import { Column, Pie } from "@ant-design/charts";
 import {
-    ArrowDownOutlined,
-    ArrowUpOutlined,
-    BarChartOutlined,
     CommentOutlined,
     EditOutlined,
-    EyeOutlined,
     FileTextOutlined,
-    LineChartOutlined,
-    PieChartOutlined,
     TeamOutlined,
     UserAddOutlined,
 } from "@ant-design/icons";
-import {
-    Avatar,
-    Button,
-    Card,
-    Col,
-    List,
-    Progress,
-    Row,
-    Table,
-    Tag,
-    Tooltip,
-} from "antd";
+import { Card, Col, Input, Row, Table, Tag } from "antd";
 
 export default function DashboardPage() {
     const { theme } = useTheme();
@@ -114,19 +97,19 @@ export default function DashboardPage() {
     ];
 
     // Performance data for area chart
-    const areaData = [
-        { month: "Jun 2024", value: 0 },
-        { month: "Jul 2024", value: 0 },
-        { month: "Aug 2024", value: 0 },
-        { month: "Sep 2024", value: 0 },
-        { month: "Oct 2024", value: 0 },
-        { month: "Nov 2024", value: 0 },
-        { month: "Dec 2024", value: 0 },
-        { month: "Jan 2025", value: 18000 },
-        { month: "Feb 2025", value: 32000 },
-        { month: "Mar 2025", value: 52000 },
-        { month: "Apr 2025", value: 38000 },
-        { month: "May 2025", value: 15000 },
+    const barData = [
+        { month: "Jun-2024", value: 0 },
+        { month: "Jul-2024", value: 39000 },
+        { month: "Aug-2024", value: 50000 },
+        { month: "Sep-2024", value: 0 },
+        { month: "Oct-2024", value: 0 },
+        { month: "Nov-2024", value: 0 },
+        { month: "Dec-2024", value: 0 },
+        { month: "Jan-2025", value: 18000 },
+        { month: "Feb-2025", value: 32000 },
+        { month: "Mar-2025", value: 92000 },
+        { month: "Apr-2025", value: 38000 },
+        { month: "May-2025", value: 15000 },
     ];
 
     // Recent posts data
@@ -175,6 +158,70 @@ export default function DashboardPage() {
             views: 0,
             date: "2 days ago",
             author: "Sarah Wilson",
+        },
+    ];
+
+    // Popular posts data
+    const popularPosts = [
+        {
+            id: 101,
+            title: "10 Tips for Healthy Living That Actually Work",
+            category: "Health",
+            views: 15245,
+            date: "1 week ago",
+            author: "Dr. Emily Chen",
+            image: "/healthy-living-tips.png",
+            comments: 187,
+            likes: 2453,
+            shares: 892,
+        },
+        {
+            id: 102,
+            title: "The Future of Artificial Intelligence in Healthcare",
+            category: "Technology",
+            views: 12890,
+            date: "2 weeks ago",
+            author: "Prof. David Miller",
+            image: "/placeholder.svg?height=100&width=150&query=ai healthcare",
+            comments: 156,
+            likes: 1987,
+            shares: 745,
+        },
+        {
+            id: 103,
+            title: "Global Climate Change: What You Need to Know",
+            category: "Environment",
+            views: 10567,
+            date: "3 weeks ago",
+            author: "Dr. Sarah Johnson",
+            image: "/placeholder.svg?height=100&width=150&query=climate change",
+            comments: 234,
+            likes: 1876,
+            shares: 1023,
+        },
+        {
+            id: 104,
+            title: "Financial Planning for Millennials: A Complete Guide",
+            category: "Finance",
+            views: 9876,
+            date: "1 month ago",
+            author: "James Wilson",
+            image: "/placeholder.svg?height=100&width=150&query=financial planning",
+            comments: 145,
+            likes: 1543,
+            shares: 687,
+        },
+        {
+            id: 105,
+            title: "The Most Anticipated Movies of the Year",
+            category: "Entertainment",
+            views: 8765,
+            date: "1 month ago",
+            author: "Lisa Thompson",
+            image: "/placeholder.svg?height=100&width=150&query=upcoming movies",
+            comments: 198,
+            likes: 1432,
+            shares: 576,
         },
     ];
 
@@ -283,93 +330,126 @@ export default function DashboardPage() {
             dataIndex: "author",
             key: "author",
         },
-        {
-            title: "Action",
-            key: "action",
-            render: (_: any, record: any) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Tooltip title="View">
-                        <Button
-                            type="text"
-                            icon={<EyeOutlined />}
-                            size="small"
-                        />
-                    </Tooltip>
-                    <Tooltip title="Edit">
-                        <Button
-                            type="text"
-                            icon={<EditOutlined />}
-                            size="small"
-                        />
-                    </Tooltip>
-                </div>
-            ),
-        },
     ];
 
     const pieConfig = {
+        appendPadding: 10,
         data: pieData,
         angleField: "value",
         colorField: "type",
         radius: 0.8,
-        innerRadius: 0.6,
-        label: {
-            type: "outer",
-            content: "{name} {percentage}",
-        },
-        interactions: [{ type: "element-active" }],
+        innerRadius: 0.5,
+        // label: {
+        //     type: "inner",
+        //     offset: "-50%",
+        //     content: "{value}",
+        //     style: {
+        //         textAlign: "center",
+        //         fontSize: 14,
+        //     },
+        // },
+        // label: {
+        //     type: "inner",
+        //     offset: "-50%",
+        //     content: ({ percent } : {percent : number}) => `${(percent * 100).toFixed(0)}%`,
+        //     style: {
+        //         fontSize: 14,
+        //         textAlign: "center",
+        //     },
+        // },
+        interactions: [
+            { type: "element-selected" },
+            { type: "element-active" },
+        ],
         legend: {
             position: "bottom",
         },
         color: [primaryColor, secondaryColor],
         statistic: {
-            title: {
-                style: {
-                    color: isDark ? "#ffffff" : "#000000",
-                },
-                content: "Performance",
-            },
+            title: false as const,
             content: {
                 style: {
-                    color: isDark ? "#ffffff" : "#000000",
+                    whiteSpace: "pre-wrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                },
+                formatter: function formatter() {
+                    return `total\n134`;
                 },
             },
         },
+        theme: isDark ? "dark" : "light",
     };
 
-    const areaConfig = {
-        data: areaData,
+    const barConfig = {
+        data: barData,
         xField: "month",
         yField: "value",
-        smooth: true,
-        areaStyle: {
-            fill: `l(270) 0:${
-                isDark ? "rgba(16, 185, 129, 0.01)" : "rgba(16, 185, 129, 0.01)"
-            } 1:${
-                isDark ? "rgba(16, 185, 129, 0.3)" : "rgba(16, 185, 129, 0.3)"
-            }`,
+        legend: false,
+        columnStyle: {
+            fill: primaryColor,
+            radius: [4, 4, 0, 0],
         },
-        line: {
-            color: primaryColor,
-        },
+        widthRatio: 0.6,
         xAxis: {
+            title: null,
             label: {
+                autoRotate: false,
+                rotate: -45,
                 style: {
-                    fill: isDark
-                        ? "rgba(255, 255, 255, 0.65)"
-                        : "rgba(0, 0, 0, 0.65)",
+                    fill: isDark ? "rgba(255, 255, 255, 0.65)" : "#4B5563",
+                    fontSize: 12,
+                },
+            },
+            grid: {
+                line: {
+                    style: {
+                        stroke: "#e5e7eb", // Tailwind gray-200
+                        lineDash: [4, 4],
+                    },
                 },
             },
         },
         yAxis: {
-            label: {
+            title: {
+                text: "Performance",
                 style: {
-                    fill: isDark
-                        ? "rgba(255, 255, 255, 0.65)"
-                        : "rgba(0, 0, 0, 0.65)",
+                    fill: isDark ? "#fff" : "#111827",
+                    fontSize: 14,
+                    fontWeight: 600,
+                },
+            },
+            label: {
+                formatter: (val: number) => val.toLocaleString(),
+                style: {
+                    fill: isDark ? "#d1d5db" : "#4B5563",
+                    fontSize: 12,
+                },
+            },
+            grid: {
+                line: {
+                    style: {
+                        stroke: "#e5e7eb",
+                    },
                 },
             },
         },
+        tooltip: {
+            title: "Month",
+            formatter: (datum: any) => ({
+                name: "Value",
+                value: datum.value.toLocaleString(),
+            }),
+        },
+        theme: isDark ? "dark" : "light",
+        interactions: [{ type: "active-region" }],
+        animation: {
+            appear: {
+                animation: "scale-in-y",
+                duration: 600,
+            },
+        },
+        appendPadding: [20, 20, 20, 20],
     };
 
     return (
@@ -415,35 +495,6 @@ export default function DashboardPage() {
                                     >
                                         {stat.value.toLocaleString()}
                                     </div>
-                                    {stat.change > 0 && (
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                color: "#10b981",
-                                                fontSize: "13px",
-                                                marginTop: "4px",
-                                            }}
-                                        >
-                                            <ArrowUpOutlined /> {stat.change}%
-                                            from last month
-                                        </div>
-                                    )}
-                                    {stat.change < 0 && (
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                color: "#ef4444",
-                                                fontSize: "13px",
-                                                marginTop: "4px",
-                                            }}
-                                        >
-                                            <ArrowDownOutlined />{" "}
-                                            {Math.abs(stat.change)}% from last
-                                            month
-                                        </div>
-                                    )}
                                 </div>
                                 <div
                                     style={{
@@ -531,106 +582,97 @@ export default function DashboardPage() {
 
             {/* Performance Charts */}
             <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
-                <Col xs={24} md={12}>
+                <Col xs={24} md={8}>
                     <Card
                         title="Last Week Performance"
                         className="dashboard-card"
-                        bodyStyle={{
-                            padding: "20px",
+                        style={{
+                            padding: "10px 5px",
                             background: isDark ? "#1f2937" : "#ffffff",
-                            height: "380px",
+                            height: "580px",
                         }}
                     >
                         <Pie {...pieConfig} />
                     </Card>
                 </Col>
-                <Col xs={24} md={12}>
+                <Col xs={24} md={16}>
                     <Card
                         title="Performance Overview"
                         className="dashboard-card"
-                        bodyStyle={{
-                            padding: "20px",
+                        style={{
+                            padding: "10px 5px",
                             background: isDark ? "#1f2937" : "#ffffff",
-                            height: "380px",
+                            height: "580px",
                         }}
                         extra={
-                            <div style={{ display: "flex", gap: "8px" }}>
-                                <Button
-                                    type="text"
-                                    icon={<BarChartOutlined />}
-                                    size="small"
-                                />
-                                <Button
-                                    type="text"
-                                    icon={<LineChartOutlined />}
-                                    size="small"
-                                />
-                                <Button
-                                    type="text"
-                                    icon={<PieChartOutlined />}
-                                    size="small"
-                                />
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    gap: 15,
+                                }}
+                            >
+                                <div>
+                                    <h3
+                                        style={{
+                                            fontSize: "14px",
+                                            color: isDark
+                                                ? "rgba(255, 255, 255, 0.6)"
+                                                : "rgba(0, 0, 0, 0.6)",
+                                            textAlign: "right",
+                                            marginBottom: 0,
+                                        }}
+                                    >
+                                        Posts
+                                    </h3>
+                                    <span
+                                        style={{
+                                            fontSize: "18px",
+                                            fontWeight: 500,
+                                            color: isDark
+                                                ? "#ffffff"
+                                                : "#111827",
+                                        }}
+                                    >
+                                        13902
+                                    </span>
+                                </div>
+                                <div>
+                                    <h3
+                                        style={{
+                                            fontSize: "14px",
+                                            color: isDark
+                                                ? "rgba(255, 255, 255, 0.6)"
+                                                : "rgba(0, 0, 0, 0.6)",
+                                            textAlign: "right",
+                                            marginBottom: 0,
+                                        }}
+                                    >
+                                        Read Hit
+                                    </h3>
+                                    <span
+                                        style={{
+                                            fontSize: "18px",
+                                            fontWeight: 500,
+                                            color: isDark
+                                                ? "#ffffff"
+                                                : "#111827",
+                                        }}
+                                    >
+                                        168125
+                                    </span>
+                                </div>
                             </div>
                         }
                     >
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                marginBottom: "16px",
-                            }}
-                        >
-                            <div>
-                                <div
-                                    style={{
-                                        fontSize: "14px",
-                                        color: isDark
-                                            ? "rgba(255, 255, 255, 0.6)"
-                                            : "rgba(0, 0, 0, 0.6)",
-                                    }}
-                                >
-                                    Posts
-                                </div>
-                                <div
-                                    style={{
-                                        fontSize: "24px",
-                                        fontWeight: "bold",
-                                        color: isDark ? "#ffffff" : "#111827",
-                                    }}
-                                >
-                                    13902
-                                </div>
-                            </div>
-                            <div>
-                                <div
-                                    style={{
-                                        fontSize: "14px",
-                                        color: isDark
-                                            ? "rgba(255, 255, 255, 0.6)"
-                                            : "rgba(0, 0, 0, 0.6)",
-                                    }}
-                                >
-                                    Read Hit
-                                </div>
-                                <div
-                                    style={{
-                                        fontSize: "24px",
-                                        fontWeight: "bold",
-                                        color: isDark ? "#ffffff" : "#111827",
-                                    }}
-                                >
-                                    168125
-                                </div>
-                            </div>
-                        </div>
-                        <Area {...areaConfig} />
+                        <Column {...barConfig} />
                     </Card>
                 </Col>
             </Row>
 
-            {/* Recent Posts Table */}
-            <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
-                <Col span={24}>
+            {/* Recent and Popular Posts Table */}
+            <Row gutter={[16, 16]} style={{ margin: "16px 0px" }}>
+                <Col xs={24} md={12}>
                     <Card
                         title="Recent Posts"
                         className="dashboard-card"
@@ -639,10 +681,12 @@ export default function DashboardPage() {
                             background: isDark ? "#1f2937" : "#ffffff",
                         }}
                         extra={
-                            <Button type="primary" icon={<EditOutlined />}>
-                                Create New Post
-                            </Button>
+                            <Input type="text" placeholder="Search here ..." />
                         }
+                        style={{
+                            paddingLeft: 0,
+                            paddingRight: 0,
+                        }}
                     >
                         <Table
                             columns={columns}
@@ -652,127 +696,27 @@ export default function DashboardPage() {
                         />
                     </Card>
                 </Col>
-            </Row>
-
-            {/* Top Reporters */}
-            <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
-                <Col span={24}>
+                <Col xs={24} md={12}>
                     <Card
-                        title="Top Reporters"
+                        title="Popular Posts"
                         className="dashboard-card"
                         bodyStyle={{
-                            padding: "20px",
+                            padding: "0",
                             background: isDark ? "#1f2937" : "#ffffff",
                         }}
+                        extra={
+                            <Input type="text" placeholder="Search here ..." />
+                        }
+                        style={{
+                            paddingLeft: 0,
+                            paddingRight: 0,
+                        }}
                     >
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={topReporters}
-                            renderItem={(item, index) => (
-                                <List.Item
-                                    actions={[
-                                        <Button key="view" type="link">
-                                            View Profile
-                                        </Button>,
-                                    ]}
-                                >
-                                    <List.Item.Meta
-                                        avatar={
-                                            <Avatar
-                                                src={item.avatar}
-                                                size={48}
-                                            />
-                                        }
-                                        title={
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                }}
-                                            >
-                                                <span
-                                                    style={{
-                                                        marginRight: "8px",
-                                                        fontWeight: "600",
-                                                    }}
-                                                >
-                                                    {item.name}
-                                                </span>
-                                                <Tag
-                                                    color={
-                                                        index === 0
-                                                            ? "gold"
-                                                            : index === 1
-                                                            ? "silver"
-                                                            : index === 2
-                                                            ? "bronze"
-                                                            : "default"
-                                                    }
-                                                >
-                                                    {index === 0
-                                                        ? "Top"
-                                                        : `#${index + 1}`}
-                                                </Tag>
-                                            </div>
-                                        }
-                                        description={
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    flexDirection: "column",
-                                                    gap: "4px",
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        display: "flex",
-                                                        gap: "16px",
-                                                    }}
-                                                >
-                                                    <span>
-                                                        <FileTextOutlined
-                                                            style={{
-                                                                marginRight:
-                                                                    "4px",
-                                                            }}
-                                                        />
-                                                        {item.articles} Articles
-                                                    </span>
-                                                    <span>
-                                                        <EyeOutlined
-                                                            style={{
-                                                                marginRight:
-                                                                    "4px",
-                                                            }}
-                                                        />
-                                                        {item.views.toLocaleString()}{" "}
-                                                        Views
-                                                    </span>
-                                                    <span>
-                                                        <span
-                                                            style={{
-                                                                color: "#f59e0b",
-                                                            }}
-                                                        >
-                                                            ★
-                                                        </span>{" "}
-                                                        {item.rating} Rating
-                                                    </span>
-                                                </div>
-                                                <Progress
-                                                    percent={Math.round(
-                                                        (item.articles / 200) *
-                                                            100
-                                                    )}
-                                                    showInfo={false}
-                                                    strokeColor={primaryColor}
-                                                    size="small"
-                                                />
-                                            </div>
-                                        }
-                                    />
-                                </List.Item>
-                            )}
+                        <Table
+                            columns={columns}
+                            dataSource={popularPosts}
+                            rowKey="id"
+                            pagination={{ pageSize: 5 }}
                         />
                     </Card>
                 </Col>

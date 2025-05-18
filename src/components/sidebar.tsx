@@ -52,7 +52,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         {
             key: "/components-showcase",
             icon: <AppstoreOutlined />,
-            label: <Link href="/dashboard/components-showcase">Components</Link>,
+            label: (
+                <Link href="/dashboard/components-showcase">Components</Link>
+            ),
         },
         {
             key: "news",
@@ -191,7 +193,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 bottom: 0,
                 zIndex: 1000,
                 boxShadow: "0 0 20px rgba(0, 0, 0, 0.05)",
-                background: isDark ? "#111827" : "#ffffff",
+                borderRight: `1px solid ${
+                    isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"
+                }`,
+                // background: isDark ? "#111827" : "#ffffff",
+                background: isDark ? "#1f2937" : "#ffffff",
                 transition: "all 0.3s ease",
             }}
             width={285}
@@ -205,8 +211,8 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     alignItems: "center",
                     justifyContent: collapsed ? "center" : "flex-start",
                     padding: collapsed ? "16px" : "16px 24px",
-                    background: isDark ? "#111827" : "#ffffff",
-                    color: isDark ? "#ffffff" : "#111827",
+                    background: isDark ? "#1f2937" : "#ffffff",
+                    color: isDark ? "#ffffff" : "#1f2937",
                     borderBottom: `1px solid ${
                         isDark
                             ? "rgba(255, 255, 255, 0.1)"
@@ -323,7 +329,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
             <style jsx global>{`
                 .custom-sidebar-menu .ant-menu-item {
-                    margin: 4px 12px !important;
+                    margin: 4px 5px !important;
                     padding-left: ${collapsed ? "12px" : "24px"} !important;
                     border-radius: 8px !important;
                     height: 44px !important;
@@ -332,7 +338,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 }
 
                 .custom-sidebar-menu .ant-menu-submenu-title {
-                    margin: 4px 12px !important;
+                    margin: 4px 5px !important;
                     padding-left: ${collapsed ? "12px" : "24px"} !important;
                     border-radius: 8px !important;
                     height: 44px !important;
