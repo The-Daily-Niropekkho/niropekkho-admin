@@ -1,0 +1,48 @@
+{
+    "user": {
+        "profile": "Profile",
+        "settings": "Settings",
+        "billing": "Billing",
+        "activity": "Activity",
+        "help": "Help",
+        "sign_out": "Sign Out",
+        "avatar_alt": "User Avatar",
+        "select_language": "Select Language",
+        "language_flag_alt": "Language Flag"
+    },
+    "menu": {
+        "dashboard": "Dashboard",
+        "social_media": "Social Media",
+        "business": "Business",
+        "apps": "Apps",
+        "email": "Email",
+        "inbox": "Inbox",
+        "chat": "Chat",
+        "pages": "Pages",
+        "settings": "Settings",
+        "gallery": "Gallery",
+        "components": "Components",
+        "alert": "Alert",
+        "avatar": "Avatar"
+    },
+    "notification": {
+        "notifications": "Notifications",
+        "title": "Notification List",
+        "no_notifications": "No notifications available",
+        "read_more": "Read more"
+    },
+    "message": {
+        "messages": "Messages",
+        "title": "Messages",
+        "software": "Software",
+        "three_hours_ago": "3 hrs ago",
+        "lorem_ipsum": "Lorem ipsum dolor amet cosec...",
+        "avatar_alt": "Message Avatar",
+        "see_all": "See all messages"
+    },
+    "layout": {
+        "expand_sidebar": "Expand Sidebar",
+        "collapse_sidebar": "Collapse Sidebar",
+        "footer": "Dashboard App"
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "user": {
+        "profile": "Profile",
+        "settings": "Settings",
+        "billing": "Billing",
+        "activity": "Activity",
+        "help": "Help",
+        "sign_out": "Sign Out",
+        "avatar_alt": "User Avatar",
+        "select_language": "Select Language",
+        "language_flag_alt": "Language Flag"
+    },
+    "menu": {
+        "dashboard": "ড্যাশবোর্ড",
+        "social_media": "সামাজিক মাধ্যম",
+        "business": "ব্যবসা",
+        "apps": "অ্যাপস",
+        "email": "ইমেইল",
+        "inbox": "ইনবক্স",
+        "chat": "চ্যাট",
+        "pages": "পৃষ্ঠা",
+        "settings": "সেটিংস",
+        "gallery": "গ্যালারি",
+        "components": "কম্পোনেন্ট",
+        "alert": "সতর্কতা",
+        "avatar": "অবতার"
+    },
+    "notification": {
+        "notifications": "বিজ্ঞপ্তি",
+        "title": "বিজ্ঞপ্তি তালিকা",
+        "no_notifications": "কোন বিজ্ঞপ্তি উপলব্ধ নেই",
+        "read_more": "আরও পড়ুন"
+    },
+    "message": {
+        "messages": "বার্তা",
+        "title": "বার্তা",
+        "software": "সফটওয়্যার",
+        "three_hours_ago": "৩ ঘন্টা আগে",
+        "lorem_ipsum": "লোরেম ইপসাম ডলর আমেট কোসেক...",
+        "avatar_alt": "বার্তা অবতার",
+        "see_all": "সমস্ত বার্তা দেখুন"
+    },
+    "layout": {
+        "expand_sidebar": "সাইডবার প্রসারিত করুন",
+        "collapse_sidebar": "সাইডবার সংকুচিত করুন",
+        "footer": "ড্যাশবোর্ড অ্যাপ"
+    }
+}
