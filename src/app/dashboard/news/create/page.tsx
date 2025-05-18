@@ -1,32 +1,53 @@
 "use client"
-import { useState } from "react"
+import { useTheme } from "@/components/theme-context"
 import {
-  Card,
-  Form,
-  Input,
-  Button,
-  Select,
-  DatePicker,
-  Switch,
-  Upload,
-  Row,
-  Col,
-  Divider,
-  message,
-  Space,
-  Tabs,
-} from "antd"
-import {
-  SaveOutlined,
+  ClockCircleOutlined,
   CloseOutlined,
-  PictureOutlined,
+  EyeOutlined,
   FileTextOutlined,
   GlobalOutlined,
-  ClockCircleOutlined,
-  EyeOutlined,
+  PictureOutlined,
+  SaveOutlined,
   SendOutlined,
 } from "@ant-design/icons"
-import { useTheme } from "@/components/theme-context"
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  message,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Tabs,
+  Upload,
+} from "antd"
+import dynamic from "next/dynamic"
+import { useState } from "react"
+
+// Dynamically import the CKEditor component
+const CKEditor = dynamic(() => import("@/components/ui/ckeditor"), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        height: "400px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: "1px solid #d9d9d9",
+        borderRadius: "6px",
+        background: "#f5f5f5",
+      }}
+    >
+      Loading editor...
+    </div>
+  ),
+})
 
 const { Option } = Select
 const { TextArea } = Input
@@ -36,10 +57,15 @@ export default function CreateNewsPage() {
   const [form] = Form.useForm()
   const { theme } = useTheme()
   const [loading, setLoading] = useState(false)
+  const [editorContent, setEditorContent] = useState("")
   const isDark = theme === "dark"
 
   const onFinish = (values: any) => {
     setLoading(true)
+
+    // Add the editor content to the form values
+    values.content = editorContent
+
     console.log("Form values:", values)
 
     // Simulate API call
@@ -51,6 +77,7 @@ export default function CreateNewsPage() {
 
   const onReset = () => {
     form.resetFields()
+    setEditorContent("")
   }
 
   const normFile = (e: any) => {
@@ -109,7 +136,7 @@ export default function CreateNewsPage() {
         style={{
           borderRadius: "8px",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-          background: isDark ? "#1f1f1f" : "#fff",
+          background: isDark ? "#1f2937" : "#ffffff",
         }}
       >
         <Form
@@ -142,7 +169,7 @@ export default function CreateNewsPage() {
                 label="Content"
                 rules={[{ required: true, message: "Please enter the article content" }]}
               >
-                <TextArea rows={15} placeholder="Enter article content" />
+                <CKEditor  />
               </Form.Item>
 
               <Form.Item
