@@ -1,7 +1,7 @@
 "use client"
 
-import AppHeader from "@/components/header"
-import Sidebar from "@/components/sidebar"
+import AppHeader from "@/components/shared/header"
+import Sidebar from "@/components/shared/sidebar"
 import { useTheme } from "@/components/theme-context"
 import { useMobile } from "@/hooks/use-mobile"
 import { ConfigProvider, Layout, theme as antTheme } from "antd"

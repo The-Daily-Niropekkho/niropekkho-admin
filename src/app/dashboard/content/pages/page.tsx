@@ -1,6 +1,6 @@
 "use client"
-import { Card, Row, Col } from "antd"
 import { useTheme } from "@/components/theme-context"
+import { Card, Col, Row } from "antd"
 
 export default function ContentPagesPage() {
   const { theme } = useTheme()
@@ -28,7 +28,7 @@ export default function ContentPagesPage() {
         <Col span={24}>
           <Card
             title={<span style={{ color: isDark ? "#fff" : "#000" }}>Pages Manager</span>}
-            bordered={false}
+            variant="borderless"
             style={{
               borderRadius: "8px",
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

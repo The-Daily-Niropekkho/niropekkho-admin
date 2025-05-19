@@ -1,27 +1,27 @@
 "use client";
 import { useTheme } from "@/components/theme-context";
 import {
-  EditOutlined,
-  HomeOutlined,
-  LockOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  UserOutlined,
+    EditOutlined,
+    HomeOutlined,
+    LockOutlined,
+    MailOutlined,
+    PhoneOutlined,
+    UserOutlined,
 } from "@ant-design/icons";
 import {
-  Avatar,
-  Button,
-  Card,
-  Col,
-  Divider,
-  Form,
-  Input,
-  List,
-  Row,
-  Tabs,
-  Tag,
-  Upload,
-  message,
+    Avatar,
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form,
+    Input,
+    List,
+    Row,
+    Tabs,
+    Tag,
+    Upload,
+    message,
 } from "antd";
 import { useState } from "react";
 
@@ -103,7 +103,7 @@ export default function ProfilePage() {
             <Row gutter={[16, 16]}>
                 <Col xs={24} md={8}>
                     <Card
-                        bordered={false}
+                        variant="borderless"
                         style={{
                             borderRadius: "8px",
                             boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
@@ -219,7 +219,7 @@ export default function ProfilePage() {
                 </Col>
                 <Col xs={24} md={16}>
                     <Card
-                        bordered={false}
+                        variant="borderless"
                         style={{
                             borderRadius: "8px",
                             boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

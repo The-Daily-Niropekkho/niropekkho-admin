@@ -402,7 +402,7 @@ export default function CategoriesPage() {
             <Row gutter={[16, 16]}>
                 <Col xs={24} lg={18}>
                     <Card
-                        bordered={false}
+                        variant="borderless"
                         style={{
                             borderRadius: "8px",
                             boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

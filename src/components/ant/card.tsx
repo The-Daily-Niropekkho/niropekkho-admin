@@ -1,10 +1,10 @@
 "use client"
 
-import { Card as AntCard } from "antd"
-import type { CardProps as AntCardProps } from "antd"
 import { useTheme } from "@/components/theme-context"
+import type { CardProps as AntCardProps } from "antd"
+import { Card as AntCard } from "antd"
 import type React from "react"
-import { forwardRef, useState, useEffect } from "react"
+import { forwardRef, useEffect, useState } from "react"
 
 export interface CardProps extends AntCardProps {
   variant?: "default" | "elevated" | "outlined" | "filled" | "gradient"
@@ -160,7 +160,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
             className={cardClasses}
             style={cardStyles}
             hoverable={isHoverable}
-            bordered={false}
+            variant="borderless"
             {...props}
           >
             {children}

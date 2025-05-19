@@ -245,10 +245,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
                 colorBgContainer: tokens.colorBgContainer,
             },
             Menu: {
-                colorItemBgSelected: isDark
+                itemSelectedBg: isDark
                     ? `rgba(16, 185, 129, 0.2)`
                     : `rgba(16, 185, 129, 0.1)`,
-                colorItemTextSelected: tokens.colorPrimary,
+                itemSelectedColor: tokens.colorPrimary,
             },
             Select: {
                 colorPrimary: tokens.colorPrimary,

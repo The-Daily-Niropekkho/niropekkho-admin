@@ -4,38 +4,38 @@ import { Card as EnhancedCard } from "@/components/ant";
 import { useTheme } from "@/components/theme-context";
 import { Area } from "@ant-design/charts";
 import {
-  BarChartOutlined,
-  DeleteOutlined,
-  DollarOutlined,
-  EditOutlined,
-  EyeOutlined,
-  FileImageOutlined,
-  LineChartOutlined,
-  LinkOutlined,
-  PictureOutlined,
-  PlusOutlined,
-  SearchOutlined,
+    BarChartOutlined,
+    DeleteOutlined,
+    DollarOutlined,
+    EditOutlined,
+    EyeOutlined,
+    FileImageOutlined,
+    LineChartOutlined,
+    LinkOutlined,
+    PictureOutlined,
+    PlusOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  message,
-  Modal,
-  Popconfirm,
-  Progress,
-  Row,
-  Select,
-  Space,
-  Statistic,
-  Table,
-  Tabs,
-  Tag,
-  Tooltip,
-  Upload,
+    Button,
+    Card,
+    Col,
+    DatePicker,
+    Form,
+    Input,
+    message,
+    Modal,
+    Popconfirm,
+    Progress,
+    Row,
+    Select,
+    Space,
+    Statistic,
+    Table,
+    Tabs,
+    Tag,
+    Tooltip,
+    Upload,
 } from "antd";
 import { useState } from "react";
 
@@ -592,7 +592,7 @@ export default function AdvertisementPage() {
                     </EnhancedCard>
 
                     <Card
-                        bordered={false}
+                        variant="borderless"
                         style={{
                             borderRadius: "8px",
                             boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

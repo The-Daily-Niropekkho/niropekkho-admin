@@ -1,12 +1,9 @@
-"use client";
-import { useTheme } from "@/components/theme-context";
-import { ArrowLeftOutlined, HomeOutlined } from "@ant-design/icons";
+import BackButton from "@/components/shared/back-button";
+import { HomeOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Result, Space } from "antd";
 import Link from "next/link";
 
 export default function NotFound() {
-    const { isDark } = useTheme();
-
     const styles = {
         pageContainer: {
             display: "flex",
@@ -15,7 +12,7 @@ export default function NotFound() {
             alignItems: "center",
             justifyContent: "center",
             padding: "24px",
-            backgroundColor: isDark ? "#111827" : "#f9fafb",
+            backgroundColor: "#f9fafb",
         },
         card: {
             maxWidth: "480px",
@@ -23,8 +20,8 @@ export default function NotFound() {
             textAlign: "center" as const,
             borderRadius: "12px",
             overflow: "hidden",
-            backgroundColor: isDark ? "#1f2937" : "#ffffff",
-            borderColor: isDark ? "#374151" : "#e5e7eb",
+            backgroundColor: "#ffffff",
+            borderColor: "#e5e7eb",
         },
         cardContent: {
             display: "flex",
@@ -40,7 +37,7 @@ export default function NotFound() {
             width: "80px",
             height: "80px",
             borderRadius: "50%",
-            backgroundColor: isDark ? "rgba(220, 38, 38, 0.1)" : "#fee2e2",
+            backgroundColor: "#fee2e2",
         },
         buttonContainer: {
             display: "flex",
@@ -62,16 +59,10 @@ export default function NotFound() {
         },
     };
 
-    // Media query for button container
-    const buttonContainerStyle = {
-        ...styles.buttonContainer,
-        flexDirection:
-            window.innerWidth >= 640 ? ("row" as const) : ("column" as const),
-    };
 
     return (
         <div style={styles.pageContainer}>
-            <Card style={styles.card} bordered>
+            <Card style={styles.card} variant="outlined">
                 <div style={styles.cardContent}>
                     <Result
                         status="404"
@@ -112,25 +103,18 @@ export default function NotFound() {
                     <Divider style={{ margin: "0" }} />
 
                     <Space direction="vertical" style={{ width: "100%" }}>
-                        <div style={buttonContainerStyle}>
+                        <div className="grid grid-cols-2 gap-2">
                             <Link href="/" style={{ width: "100%" }}>
                                 <Button
                                     type="primary"
-                                    icon={<HomeOutlined />}
                                     size="large"
+                                    icon={<HomeOutlined />}
                                     style={styles.primaryButton}
                                 >
                                     Back to Home
                                 </Button>
                             </Link>
-                            <Button
-                                icon={<ArrowLeftOutlined />}
-                                size="large"
-                                onClick={() => window.history.back()}
-                                style={styles.secondaryButton}
-                            >
-                                Go Back
-                            </Button>
+                            <BackButton/>
                         </div>
                     </Space>
                 </div>

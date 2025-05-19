@@ -1,15 +1,15 @@
 "use client"
-import { useState } from "react"
-import { Card, Table, Button, Input, Space, Tag, Modal, message } from "antd"
-import {
-  SearchOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ExportOutlined,
-  FilterOutlined,
-} from "@ant-design/icons"
 import { useTheme } from "@/components/theme-context"
+import {
+    DeleteOutlined,
+    EditOutlined,
+    ExportOutlined,
+    FilterOutlined,
+    PlusOutlined,
+    SearchOutlined,
+} from "@ant-design/icons"
+import { Button, Card, Input, Modal, Space, Table, Tag, message } from "antd"
+import { useState } from "react"
 
 export default function TablesPage() {
   const [searchText, setSearchText] = useState("")
@@ -149,7 +149,7 @@ export default function TablesPage() {
       </div>
 
       <Card
-        bordered={false}
+        variant="borderless"
         style={{
           borderRadius: "8px",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

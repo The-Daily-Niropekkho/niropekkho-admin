@@ -1,6 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Oswald&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
+@font-face {
+    font-family: "SolaimanLipi";
+    src: url("/fonts/SolaimanLipi.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Nikosh";
+    src: url("/fonts/Nikosh.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Siyam Rupali";
+    src: url("/fonts/SiyamRupali.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Kalpurush";
+    src: url("/fonts/Kalpurush.ttf") format("truetype");
+}
+
 @layer theme, base, antd, components, utilities;
 
 @import "tailwindcss";
@@ -723,6 +742,7 @@ html {
 .ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
     border-top-left-radius: 6px !important;
     border-top-right-radius: 6px !important;
+    border-bottom: none !important;
 }
 
 /* Word count styling */
@@ -741,34 +761,67 @@ html {
 }
 
 /* Custom content styles */
-.ck-content h3.category {
-    font-family: "Oswald";
-    font-size: 20px;
+.ck-content h1 {
+    font-size: 2em;
     font-weight: bold;
-    color: #555;
-    letter-spacing: 10px;
-    margin: 0;
-    padding: 0;
+    margin: 1em 0 0.5em;
 }
 
-.ck-content h2.document-title {
-    font-family: "Oswald";
-    font-size: 50px;
+.ck-content h2 {
+    font-size: 1.5em;
     font-weight: bold;
-    margin: 0;
-    padding: 0;
-    border: 0;
+    margin: 1em 0 0.5em;
 }
 
-.ck-content h3.document-subtitle {
-    font-family: "Oswald";
-    font-size: 20px;
-    color: #555;
-    margin: 0 0 1em;
+.ck-content h3 {
+    font-size: 1.17em;
     font-weight: bold;
-    padding: 0;
+    margin: 0.75em 0 0.4em;
 }
 
+.ck-content h4 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0.75em 0 0.4em;
+}
+
+.ck-content h5 {
+    font-size: 0.83em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.ck-content h6 {
+    font-size: 0.67em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+.ck-content h1,
+.ck-content h2,
+.ck-content h3,
+.ck-content h4,
+.ck-content h5,
+.ck-content h6 {
+    color: #111;
+    line-height: 1.3;
+}
+.ck-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0.5em 0;
+    color: #374151;
+}
+.ck-content ul {
+    list-style-type: disc;
+    padding-left: 2em;
+}
+.ck-content ol {
+    list-style-type: decimal;
+    padding-left: 2em;
+}
+.ck-content li {
+    margin: 0.5em 0;
+}
 .ck-content p.info-box {
     --background-size: 30px;
     --background-color: var(--editor-primary);
@@ -826,6 +879,33 @@ html {
     background-color: #141517;
 }
 
+.ck .ck-sticky-panel__content {
+    border-radius: 10px 10px 0px 0px !important;
+}
+.ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
+    border : 1px solid var(--color-border) !important;
+}
+
+.ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+    border : 1px solid var(--color-border) !important;
+}
+
+.ck-content .ck-sticky-panel__content {
+    border: 1px solid var(--color-border) !important;
+    background-color: var(--color-bg-elevated) !important;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+        0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+}
+.ck-content .ck-sticky-panel__content {
+    border-radius: 10px 10px 0px 0px !important;
+}
+.ck-content .ck-sticky-panel__content {
+    border: 1px solid var(--color-border) !important;
+    background-color: var(--color-bg-elevated) !important;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+        0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Table styles */
 .ck-content .table table {
     border-color: #e5e7eb !important;
@@ -846,6 +926,10 @@ html {
     text-decoration: underline;
 }
 
+.ck-rounded-corners {
+    border-radius: 10px;
+}
+
 /* List styles */
 .ck-content ul,
 .ck-content ol {
@@ -864,7 +948,41 @@ html {
     font-style: italic;
 }
 
-
 .ck .ck-sticky-panel {
-  border-radius: 10px;
+    border-radius: 10px;
+}
+
+/*  */
+
+.marker-green {
+    background-color: #62f962;
+    color: #14532d;
+}
+
+.marker-pink {
+    background-color: #fc7899;
+    color: #831843;
+}
+.marker-blue {
+    background-color: #72ccfd;
+    color: #1e3a8a;
+}
+.marker-yellow {
+    background-color: #fdfd77;
+    color: #78350f;
+}
+.pen-red {
+    color: #e71313;
+}
+.pen-green {
+    color: #128a00;
+}
+
+.ck-content .ad-placeholder {
+  background: #fef9c3;
+  border: 1px dashed #eab308;
+  padding: 12px;
+  margin: 16px 0;
+  text-align: center;
+  font-style: italic;
 }

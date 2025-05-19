@@ -1,11 +1,9 @@
-"use client";
-import { useTheme } from "@/components/theme-context";
-import { ArrowLeftOutlined, HomeOutlined } from "@ant-design/icons";
+import BackButton from "@/components/shared/back-button";
+import { HomeOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Result, Space } from "antd";
 import Link from "next/link";
 
 export default function NotFound() {
-    const { isDark } = useTheme();
 
     const styles = {
         container: {
@@ -22,8 +20,8 @@ export default function NotFound() {
             textAlign: "center" as const,
             borderRadius: "12px",
             overflow: "hidden",
-            backgroundColor: isDark ? "#1f2937" : "#ffffff",
-            borderColor: isDark ? "#374151" : "#e5e7eb",
+            backgroundColor: "#ffffff",
+            borderColor: "#e5e7eb",
         },
         cardContent: {
             display: "flex",
@@ -39,7 +37,7 @@ export default function NotFound() {
             width: "80px",
             height: "80px",
             borderRadius: "50%",
-            backgroundColor: isDark ? "rgba(220, 38, 38, 0.1)" : "#fee2e2",
+            backgroundColor: "#fee2e2",
         },
         buttonContainer: {
             display: "flex",
@@ -59,13 +57,6 @@ export default function NotFound() {
         secondaryButton: {
             width: "100%",
         },
-    };
-
-    // Media query for button container
-    const buttonContainerStyle = {
-        ...styles.buttonContainer,
-        flexDirection:
-            window.innerWidth >= 640 ? ("row" as const) : ("column" as const),
     };
 
     return (
@@ -111,7 +102,7 @@ export default function NotFound() {
                     <Divider style={{ margin: "0" }} />
 
                     <Space direction="vertical" style={{ width: "100%" }}>
-                        <div style={buttonContainerStyle}>
+                        <div>
                             <Link href="/dashboard" style={{ width: "100%" }}>
                                 <Button
                                     type="primary"
@@ -122,14 +113,7 @@ export default function NotFound() {
                                     Back to Dashboard
                                 </Button>
                             </Link>
-                            <Button
-                                icon={<ArrowLeftOutlined />}
-                                size="large"
-                                onClick={() => window.history.back()}
-                                style={styles.secondaryButton}
-                            >
-                                Go Back
-                            </Button>
+                            <BackButton/>
                         </div>
                     </Space>
                 </div>

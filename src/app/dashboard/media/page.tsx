@@ -3,39 +3,39 @@ import { useState } from "react"
 
 import { useTheme } from "@/components/theme-context"
 import {
-  AudioOutlined,
-  CopyOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  EyeOutlined,
-  FileImageOutlined,
-  FileOutlined,
-  FileTextOutlined,
-  FileZipOutlined,
-  FilterOutlined,
-  PictureOutlined,
-  SearchOutlined,
-  UploadOutlined,
-  VideoCameraOutlined,
+    AudioOutlined,
+    CopyOutlined,
+    DeleteOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    EyeOutlined,
+    FileImageOutlined,
+    FileOutlined,
+    FileTextOutlined,
+    FileZipOutlined,
+    FilterOutlined,
+    PictureOutlined,
+    SearchOutlined,
+    UploadOutlined,
+    VideoCameraOutlined,
 } from "@ant-design/icons"
 import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Form,
-  Image,
-  Input,
-  List,
-  Modal,
-  Row,
-  Select,
-  Space,
-  Tabs,
-  Tag,
-  Upload,
-  message,
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form,
+    Image,
+    Input,
+    List,
+    Modal,
+    Row,
+    Select,
+    Space,
+    Tabs,
+    Tag,
+    Upload,
+    message,
 } from "antd"
 
 const { Option } = Select
@@ -148,7 +148,7 @@ export default function MediaLibraryPage() {
       </div>
 
       <Card
-        bordered={false}
+        variant="borderless"
         style={{
           borderRadius: "8px",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

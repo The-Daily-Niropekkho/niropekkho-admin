@@ -1,21 +1,21 @@
 "use client"
-import {
-  Form,
-  Input,
-  Button,
-  Select,
-  DatePicker,
-  InputNumber,
-  Switch,
-  Upload,
-  Card,
-  Row,
-  Col,
-  Divider,
-  message,
-} from "antd"
-import { UploadOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons"
 import { useTheme } from "@/components/theme-context"
+import { CloseOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons"
+import {
+    Button,
+    Card,
+    Col,
+    DatePicker,
+    Divider,
+    Form,
+    Input,
+    InputNumber,
+    message,
+    Row,
+    Select,
+    Switch,
+    Upload,
+} from "antd"
 
 const { Option } = Select
 const { TextArea } = Input
@@ -63,7 +63,7 @@ export default function FormsPage() {
         <Col xs={24} lg={16}>
           <Card
             title={<span style={{ color: isDark ? "#fff" : "#000" }}>Product Information Form</span>}
-            bordered={false}
+            variant="borderless"
             style={{
               borderRadius: "8px",
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
@@ -202,7 +202,7 @@ export default function FormsPage() {
         <Col xs={24} lg={8}>
           <Card
             title={<span style={{ color: isDark ? "#fff" : "#000" }}>Form Help</span>}
-            bordered={false}
+            variant="borderless"
             style={{
               borderRadius: "8px",
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",

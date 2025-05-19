@@ -2,32 +2,32 @@
 "use client"
 import { useTheme } from "@/components/theme-context"
 import {
-  ApiOutlined,
-  CloudOutlined,
-  GlobalOutlined,
-  MailOutlined,
-  NotificationOutlined,
-  SaveOutlined,
-  SecurityScanOutlined,
-  TeamOutlined,
-  UploadOutlined,
+    ApiOutlined,
+    CloudOutlined,
+    GlobalOutlined,
+    MailOutlined,
+    NotificationOutlined,
+    SaveOutlined,
+    SecurityScanOutlined,
+    TeamOutlined,
+    UploadOutlined,
 } from "@ant-design/icons"
 import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Form,
-  Input,
-  InputNumber,
-  message,
-  Radio,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Tabs,
-  Upload,
+    Button,
+    Card,
+    Col,
+    Divider,
+    Form,
+    Input,
+    InputNumber,
+    message,
+    Radio,
+    Row,
+    Select,
+    Space,
+    Switch,
+    Tabs,
+    Upload,
 } from "antd"
 import { useState } from "react"
 
@@ -78,7 +78,7 @@ export default function SettingsPage() {
       </div>
 
       <Card
-        bordered={false}
+        variant="borderless"
         style={{
           borderRadius: "8px",
           boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
