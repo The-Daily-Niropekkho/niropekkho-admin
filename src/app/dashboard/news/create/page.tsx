@@ -260,17 +260,14 @@ export default function CreateNewsPage() {
                                                 label="Category Position"
                                                 rules={[
                                                     {
-                                                        required: true,
+                                                        required: false,
                                                         message:
                                                             "Please select a category position",
                                                     },
                                                 ]}
                                             >
-                                                <Select placeholder="Select a category position">
-                                                    {[
-                                                        0, 1, 2, 3, 4, 5, 6, 7,
-                                                        8, 9, 10,
-                                                    ].map((position) => (
+                                                <Select placeholder="Select a category position" allowClear>
+                                                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((position) => (
                                                         <Option
                                                             key={position}
                                                             value={position}
@@ -293,7 +290,7 @@ export default function CreateNewsPage() {
                                                     },
                                                 ]}
                                             >
-                                                <Select placeholder="Select a home position">
+                                                <Select placeholder="Select a home position" allowClear>
                                                     {[
                                                         0, 1, 2, 3, 4, 5, 6, 7,
                                                         8, 9, 10,
@@ -323,7 +320,7 @@ export default function CreateNewsPage() {
                                                     },
                                                 ]}
                                             >
-                                                <Select placeholder="Select a topic">
+                                                <Select placeholder="Select a topic" allowClear>
                                                     {categories.map((topic) => (
                                                         <Option
                                                             key={topic}
@@ -347,7 +344,7 @@ export default function CreateNewsPage() {
                                                     },
                                                 ]}
                                             >
-                                                <Select placeholder="Select a topic position">
+                                                <Select placeholder="Select a topic position" allowClear>
                                                     {[
                                                         0, 1, 2, 3, 4, 5, 6, 7,
                                                         8, 9, 10,

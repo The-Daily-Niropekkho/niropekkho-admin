@@ -19,20 +19,6 @@ export const baseApi = createApi({
   endpoints: () => ({}),
   tagTypes: [
     "user",
-    "airlines",
-    "company",
-    "specialFareAirlines",
-    "flightGroupRequest",
-    "specialFlightBooking",
-    "specialFlightRequest",
-    "hotelDeals",
-    "bookings",
-    "bankDetails",
-    "SpecialFlightBookingTickets",
-    "depositRequest",
-    "quickPassenger",
-    "SpecialGroupRequest",
-    "bank-accounts",
-    "wallet"
+    "Media",
   ],
 });

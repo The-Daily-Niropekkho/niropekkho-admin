@@ -1,10 +1,18 @@
-"use client"
-import { useState } from "react"
+"use client";
 
-import { useTheme } from "@/components/theme-context"
+import FileCard from "@/components/features/media/file-card";
+import { useTheme } from "@/components/theme-context";
+import { useMediaSelection } from "@/hooks/use-media-selection";
+import { useMediaUtils } from "@/hooks/use-media-utils";
 import {
-    AudioOutlined,
-    CopyOutlined,
+    useGetMediaQuery,
+    useUploadMediaMutation
+} from "@/redux/features/media/mediaApi";
+import type { MediaItem } from "@/types/media";
+import {
+    AppstoreOutlined,
+    CloseOutlined,
+    CloudUploadOutlined,
     DeleteOutlined,
     DownloadOutlined,
     EditOutlined,
@@ -13,472 +21,597 @@ import {
     FileOutlined,
     FileTextOutlined,
     FileZipOutlined,
-    FilterOutlined,
-    PictureOutlined,
+    FolderOutlined,
+    InfoCircleOutlined,
     SearchOutlined,
-    UploadOutlined,
-    VideoCameraOutlined,
-} from "@ant-design/icons"
+    SortAscendingOutlined,
+    StarFilled,
+    StarOutlined,
+    UnorderedListOutlined,
+    VideoCameraOutlined
+} from "@ant-design/icons";
 import {
     Button,
     Card,
+    Checkbox,
     Col,
-    Divider,
-    Form,
-    Image,
     Input,
-    List,
-    Modal,
+    Progress,
     Row,
     Select,
     Space,
-    Tabs,
     Tag,
-    Upload,
-    message,
-} from "antd"
-
-const { Option } = Select
-const { TabPane } = Tabs
-const { Dragger } = Upload
+    message
+} from "antd";
+import { useState } from "react";
+import "./media.css";
 
 export default function MediaLibraryPage() {
-  const { theme } = useTheme()
-  const [searchText, setSearchText] = useState("")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [selectedMedia, setSelectedMedia] = useState<any>(null)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
-  const isDark = theme === "dark"
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
+    const [searchText, setSearchText] = useState("");
+    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [activeFolder, setActiveFolder] = useState<string>("all");
+    const [sortBy, setSortBy] = useState<string>("date");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    const [filterType, setFilterType] = useState<string>("all");
 
-  // Sample media data
-  const mediaItems = Array.from({ length: 20 }, (_, i) => ({
-    id: i + 1,
-    name: `Image ${i + 1}.jpg`,
-    type: i % 5 === 0 ? "video" : i % 7 === 0 ? "document" : "image",
-    url: `/placeholder.svg?height=200&width=300&query=newspaper image ${i + 1}`,
-    size: Math.floor(Math.random() * 5000) + 100, // Size in KB
-    dimensions: "1920x1080",
-    uploadedBy: ["Admin User", "John Doe", "Jane Smith"][Math.floor(Math.random() * 3)],
-    uploadedAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toLocaleDateString(),
-    tags: ["news", "featured", "article", "banner", "gallery"][Math.floor(Math.random() * 5)],
-  }))
+    // RTK Query hooks
+    const { data: mediaItems = [], isLoading } = useGetMediaQuery();
+    const [uploadMedia, { isLoading: isUploading }] = useUploadMediaMutation();
 
-  const filteredMedia = mediaItems.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.tags.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.uploadedBy.toLowerCase().includes(searchText.toLowerCase()),
-  )
+    // Custom hooks
+    const { selectedItems, selectItems, clearSelection } = useMediaSelection();
+    const { filterMedia, getMediaStats } = useMediaUtils();
 
-  const handleDelete = (item: any) => {
-    setSelectedMedia(item)
-    setIsDetailsModalOpen(false)
-    setIsDeleteModalOpen(true)
-  }
+    // Filter and sort media items
+    const sortedMedia = filterMedia(
+        mediaItems,
+        searchText,
+        filterType,
+        activeFolder,
+        sortBy,
+        sortOrder
+    );
+    const mediaStats = getMediaStats(mediaItems);
 
-  const confirmDelete = () => {
-    message.success(`${selectedMedia.name} has been deleted`)
-    setIsDeleteModalOpen(false)
-  }
+    const handleDelete = (item: MediaItem) => {
+        setSelectedMedia(item);
+        setIsDetailsModalOpen(false);
+        setIsDeleteModalOpen(true);
+    };
 
-  const showDetails = (item: any) => {
-    setSelectedMedia(item)
-    setIsDetailsModalOpen(true)
-  }
 
-  const getIconByType = (type: string) => {
-    switch (type) {
-      case "image":
-        return <FileImageOutlined />
-      case "video":
-        return <VideoCameraOutlined />
-      case "audio":
-        return <AudioOutlined />
-      case "document":
-        return <FileTextOutlined />
-      case "archive":
-        return <FileZipOutlined />
-      default:
-        return <FileOutlined />
-    }
-  }
 
-  const getColorByType = (type: string) => {
-    switch (type) {
-      case "image":
-        return "blue"
-      case "video":
-        return "red"
-      case "audio":
-        return "purple"
-      case "document":
-        return "green"
-      case "archive":
-        return "orange"
-      default:
-        return "default"
-    }
-  }
+    const handleBulkDelete = () => {
+        if (selectedItems.length > 0) {
+            deleteMedia(selectedItems)
+                .unwrap()
+                .then(() => {
+                    message.success(
+                        `${selectedItems.length} items have been deleted`
+                    );
+                    clearSelection();
+                })
+                .catch((error) => {
+                    message.error(`Failed to delete: ${error.message}`);
+                });
+        }
+    };
 
-  const formatFileSize = (sizeInKB: number) => {
-    if (sizeInKB < 1024) {
-      return `${sizeInKB} KB`
-    } else {
-      return `${(sizeInKB / 1024).toFixed(2)} MB`
-    }
-  }
+    const showDetails = (item: MediaItem) => {
+        setSelectedMedia(item);
+        setIsDetailsModalOpen(true);
+    };
 
-  return (
-    <>
-      <div style={{ marginBottom: 24 }}>
-        <h1
-          style={{
-            fontSize: "24px",
-            fontWeight: "bold",
-            marginBottom: "8px",
-            color: isDark ? "#fff" : "#000",
-          }}
-        >
-          Media Library
-        </h1>
-        <p style={{ color: isDark ? "rgba(255, 255, 255, 0.65)" : "rgba(0, 0, 0, 0.45)" }}>
-          Manage your media files including images, videos, and documents.
-        </p>
-      </div>
+    const handleUpload = (files: FileList) => {
+        uploadMedia({
+            files: Array.from(files),
+            folder: activeFolder === "all" ? "Uncategorized" : activeFolder,
+        })
+            .unwrap()
+            .then((newItems) => {
+                message.success(
+                    `${newItems.length} files uploaded successfully`
+                );
+            })
+            .catch((error) => {
+                message.error(`Upload failed: ${error.message}`);
+            });
+    };
 
-      <Card
-        variant="borderless"
-        style={{
-          borderRadius: "8px",
-          boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-          background: isDark ? "#1f1f1f" : "#fff",
-        }}
-      >
-        <Tabs defaultActiveKey="1">
-          <TabPane
-            tab={
-              <span>
-                <PictureOutlined /> Media Library
-              </span>
-            }
-            key="1"
-          >
-            <div
-              style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}
+    const handleSelectItem = (id: number, selected: boolean) => {
+        const newSelectedItems = selected
+            ? [...selectedItems, id]
+            : selectedItems.filter((itemId) => itemId !== id);
+        selectItems(newSelectedItems);
+    };
+
+    const handleSelectAll = (selected: boolean) => {
+        if (selected) {
+            selectItems(sortedMedia.map((item) => item.id));
+        } else {
+            clearSelection();
+        }
+    };
+
+    return (
+        <>
+            <div className="media-header">
+                <h1 className={`media-title ${isDark ? "dark" : ""}`}>
+                    Media Library
+                </h1>
+                <p className={`media-description ${isDark ? "dark" : ""}`}>
+                    Manage your media files including images, videos, and
+                    documents.
+                </p>
+            </div>
+
+            <Card
+                bordered={false}
+                className={`media-card`}
             >
-              <Space wrap>
-                <Input
-                  placeholder="Search media"
-                  prefix={<SearchOutlined />}
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  style={{ width: 250 }}
-                />
-                <Select defaultValue="all" style={{ width: 120 }}>
-                  <Option value="all">All Media</Option>
-                  <Option value="image">Images</Option>
-                  <Option value="video">Videos</Option>
-                  <Option value="document">Documents</Option>
-                </Select>
-                <Button icon={<FilterOutlined />}>Filter</Button>
-              </Space>
-              <Space wrap>
-                <Button
-                  icon={viewMode === "grid" ? <FileOutlined /> : <PictureOutlined />}
-                  onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-                >
-                  {viewMode === "grid" ? "List View" : "Grid View"}
-                </Button>
-                <Upload>
-                  <Button type="primary" icon={<UploadOutlined />}>
-                    Upload
-                  </Button>
-                </Upload>
-              </Space>
-            </div>
+                <div className="flex justify-between align-center" style={{ marginBottom: 16 }}>
+                    <div className="flex justify-start align-center gap-2">
+                        <Input
+                            placeholder="Search media"
+                            prefix={<SearchOutlined />}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            style={{ maxWidth: 220 }}
+                        />
 
-            {viewMode === "grid" ? (
-              <Row gutter={[16, 16]}>
-                {filteredMedia.map((item) => (
-                  <Col xs={24} sm={12} md={8} lg={6} key={item.id}>
-                    <Card
-                      hoverable
-                      cover={
-                        item.type === "image" ? (
-                          <Image
-                            alt={item.name}
-                            src={item.url || "/placeholder.svg"}
-                            style={{ height: 150, objectFit: "cover" }}
-                            preview={false}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              height: 150,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                            }}
-                          >
-                            {getIconByType(item.type)}
-                            <div style={{ marginTop: 8 }}>{item.type.toUpperCase()}</div>
-                          </div>
-                        )
-                      }
-                      actions={[
-                        <EyeOutlined key="view" onClick={() => showDetails(item)} />,
-                        <EditOutlined key="edit" />,
-                        <DeleteOutlined key="delete" onClick={() => handleDelete(item)} />,
-                      ]}
-                      bodyStyle={{ padding: "12px" }}
-                    >
-                      <Card.Meta
-                        title={
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div
-                              style={{
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {item.name}
-                            </div>
-                            <Tag color={getColorByType(item.type)}>{item.type}</Tag>
-                          </div>
-                        }
-                        description={
-                          <div
-                            style={{
-                              fontSize: "12px",
-                              color: isDark ? "rgba(255, 255, 255, 0.45)" : "rgba(0, 0, 0, 0.45)",
-                            }}
-                          >
-                            {formatFileSize(item.size)} • {item.uploadedAt}
-                          </div>
-                        }
-                      />
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            ) : (
-              <List
-                itemLayout="horizontal"
-                dataSource={filteredMedia}
-                renderItem={(item) => (
-                  <List.Item
-                    actions={[
-                      <Button key="view" type="text" icon={<EyeOutlined />} onClick={() => showDetails(item)} />,
-                      <Button key="edit" type="text" icon={<EditOutlined />} />,
-                      <Button
-                        key="delete"
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleDelete(item)}
-                      />,
-                    ]}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        item.type === "image" ? (
-                          <Image
-                            alt={item.name}
-                            src={item.url || "/placeholder.svg"}
-                            style={{ width: 60, height: 60, objectFit: "cover" }}
-                            preview={false}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: 60,
-                              height: 60,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                              fontSize: "24px",
-                            }}
-                          >
-                            {getIconByType(item.type)}
-                          </div>
-                        )
-                      }
-                      title={
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          {item.name}
-                          <Tag color={getColorByType(item.type)}>{item.type}</Tag>
-                        </div>
-                      }
-                      description={
-                        <div>
-                          <div>
-                            {formatFileSize(item.size)} • {item.dimensions}
-                          </div>
-                          <div>
-                            Uploaded by {item.uploadedBy} on {item.uploadedAt}
-                          </div>
-                        </div>
-                      }
-                    />
-                  </List.Item>
-                )}
-              />
-            )}
-          </TabPane>
+                        <Select
+                            defaultValue="all"
+                            value={filterType}
+                            onChange={setFilterType}
+                            
+                        >
+                            <Select.Option value="all">All Types</Select.Option>
+                            <Select.Option value="image">Images</Select.Option>
+                            <Select.Option value="video">Videos</Select.Option>
+                            <Select.Option value="document">
+                                Documents
+                            </Select.Option>
+                            <Select.Option value="archive">
+                                Archives
+                            </Select.Option>
+                        </Select>
+                    </div>
 
-          <TabPane
-            tab={
-              <span>
-                <UploadOutlined /> Upload
-              </span>
-            }
-            key="2"
-          >
-            <Dragger multiple beforeUpload={() => false} style={{ padding: "20px" }}>
-              <p className="ant-upload-drag-icon">
-                <UploadOutlined style={{ fontSize: "48px", color: "#10b981" }} />
-              </p>
-              <p className="ant-upload-text" style={{ fontSize: "16px", fontWeight: "500" }}>
-                Click or drag files to this area to upload
-              </p>
-              <p
-                className="ant-upload-hint"
-                style={{ color: isDark ? "rgba(255, 255, 255, 0.45)" : "rgba(0, 0, 0, 0.45)" }}
-              >
-                Support for single or bulk upload. Strictly prohibited from uploading company data or other banned
-                files.
-              </p>
-            </Dragger>
+                    <div className="flex gap-2">
+                        <Select
+                            defaultValue="date"
+                            value={sortBy}
+                            onChange={setSortBy}
+                            className="media-sort"
+                        >
+                            <Select.Option value="date">Date</Select.Option>
+                            <Select.Option value="name">Name</Select.Option>
+                            <Select.Option value="size">Size</Select.Option>
+                            <Select.Option value="type">Type</Select.Option>
+                        </Select>
 
-            <Divider style={{ borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.06)" }} />
+                        <Button
+                            icon={
+                                sortOrder === "asc" ? (
+                                    <SortAscendingOutlined />
+                                ) : (
+                                    <SortAscendingOutlined className="sort-desc" />
+                                )
+                            }
+                            onClick={() =>
+                                setSortOrder(
+                                    sortOrder === "asc" ? "desc" : "asc"
+                                )
+                            }
+                            className="media-sort-order"
+                        >
+                            {sortOrder === "asc" ? "Asc" : "Desc"}
+                        </Button>
+                        <Button
+                            icon={
+                                viewMode === "grid" ? (
+                                    <UnorderedListOutlined />
+                                ) : (
+                                    <AppstoreOutlined />
+                                )
+                            }
+                            onClick={() =>
+                                setViewMode(
+                                    viewMode === "grid" ? "list" : "grid"
+                                )
+                            }
+                            className="media-view-toggle"
+                        >
+                            {viewMode === "grid" ? "List View" : "Grid View"}
+                        </Button>
 
-            <div>
-              <h3 style={{ marginBottom: "16px", color: isDark ? "#fff" : "#000" }}>Upload Settings</h3>
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item label="Max File Size">
-                    <Input defaultValue="10MB" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item label="Allowed File Types">
-                    <Select
-                      mode="multiple"
-                      defaultValue={["jpg", "png", "gif", "pdf", "doc"]}
-                      style={{ width: "100%" }}
-                    >
-                      <Option value="jpg">JPG</Option>
-                      <Option value="png">PNG</Option>
-                      <Option value="gif">GIF</Option>
-                      <Option value="pdf">PDF</Option>
-                      <Option value="doc">DOC</Option>
-                      <Option value="mp4">MP4</Option>
-                      <Option value="mp3">MP3</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
-        </Tabs>
-      </Card>
+                        <Button
+                            type="primary"
+                            icon={<CloudUploadOutlined />}
+                            onClick={() =>
+                                document
+                                    .getElementById("media-upload-input")
+                                    ?.click()
+                            }
+                            className="media-upload-btn"
+                        >
+                            Upload
+                        </Button>
 
-      <Modal
-        title="Confirm Delete"
-        open={isDeleteModalOpen}
-        onOk={confirmDelete}
-        onCancel={() => setIsDeleteModalOpen(false)}
-        okText="Delete"
-        okButtonProps={{ danger: true }}
-      >
-        {selectedMedia && (
-          <p>
-            Are you sure you want to delete <strong>{selectedMedia.name}</strong>? This action cannot be undone.
-          </p>
-        )}
-      </Modal>
-
-      <Modal
-        title="Media Details"
-        open={isDetailsModalOpen}
-        onCancel={() => setIsDetailsModalOpen(false)}
-        footer={[
-          <Button key="close" onClick={() => setIsDetailsModalOpen(false)}>
-            Close
-          </Button>,
-        ]}
-        width={700}
-      >
-        {selectedMedia && (
-          <Row gutter={16}>
-            <Col xs={24} md={12}>
-              {selectedMedia.type === "image" ? (
-                <Image
-                  alt={selectedMedia.name}
-                  src={selectedMedia.url || "/placeholder.svg"}
-                  style={{ width: "100%", objectFit: "contain" }}
-                />
-              ) : (
-                <div
-                  style={{
-                    height: 200,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
-                    fontSize: "64px",
-                  }}
-                >
-                  {getIconByType(selectedMedia.type)}
+                        <input
+                            id="media-upload-input"
+                            type="file"
+                            multiple
+                            onChange={(e) =>
+                                e.target.files && handleUpload(e.target.files)
+                            }
+                            style={{ display: "none" }}
+                        />
+                    </div>
                 </div>
-              )}
-            </Col>
-            <Col xs={24} md={12}>
-              <h3 style={{ marginTop: 0, marginBottom: "16px", color: isDark ? "#fff" : "#000" }}>
-                {selectedMedia.name}
-              </h3>
-              <p>
-                <Tag color={getColorByType(selectedMedia.type)}>{selectedMedia.type.toUpperCase()}</Tag>
-              </p>
-              <Divider
-                style={{ margin: "12px 0", borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.06)" }}
-              />
-              <p>
-                <strong>Size:</strong> {formatFileSize(selectedMedia.size)}
-              </p>
-              <p>
-                <strong>Dimensions:</strong> {selectedMedia.dimensions}
-              </p>
-              <p>
-                <strong>Uploaded by:</strong> {selectedMedia.uploadedBy}
-              </p>
-              <p>
-                <strong>Upload date:</strong> {selectedMedia.uploadedAt}
-              </p>
-              <p>
-                <strong>Tags:</strong> <Tag>{selectedMedia.tags}</Tag>
-              </p>
-              <Divider
-                style={{ margin: "12px 0", borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.06)" }}
-              />
-              <Space>
-                <Button icon={<DownloadOutlined />}>Download</Button>
-                <Button icon={<CopyOutlined />}>Copy URL</Button>
-                <Button icon={<EditOutlined />}>Edit</Button>
-                <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(selectedMedia)}>
-                  Delete
-                </Button>
-              </Space>
-            </Col>
-          </Row>
-        )}
-      </Modal>
-    </>
-  )
+
+                {isUploading && (
+                    <div className="upload-progress">
+                        <Progress percent={50} status="active" />
+                    </div>
+                )}
+
+                {selectedItems.length > 0 && (
+                    <div className="bulk-actions">
+                        <span className="selected-count">
+                            {selectedItems.length} items selected
+                        </span>
+                        <Space>
+                            <Button icon={<DownloadOutlined />}>
+                                Download
+                            </Button>
+                            <Button
+                                icon={<DeleteOutlined />}
+                                danger
+                                onClick={handleBulkDelete}
+                            >
+                                Delete
+                            </Button>
+                            <Button
+                                icon={<CloseOutlined />}
+                                onClick={clearSelection}
+                            >
+                                Clear Selection
+                            </Button>
+                        </Space>
+                    </div>
+                )}
+
+                <div className="media-container">
+                    <div className="media-sidebar">
+                        <div className="media-folders">
+                            <h3
+                                className={`sidebar-title ${
+                                    isDark ? "dark" : ""
+                                }`}
+                            >
+                                <FolderOutlined /> Folders
+                            </h3>
+                            <ul className="folder-list">
+                                <li
+                                    className={`folder-item ${
+                                        activeFolder === "all" ? "active" : ""
+                                    } ${isDark ? "dark" : ""}`}
+                                    onClick={() => setActiveFolder("all")}
+                                >
+                                    <FolderOutlined /> All Files
+                                    <span className="folder-count">
+                                        {mediaItems.length}
+                                    </span>
+                                </li>
+                                {Array.from(
+                                    new Set(
+                                        mediaItems.map((item) => item.folder)
+                                    )
+                                ).map((folder) => (
+                                    <li
+                                        key={folder}
+                                        className={`folder-item ${
+                                            activeFolder === folder
+                                                ? "active"
+                                                : ""
+                                        } ${isDark ? "dark" : ""}`}
+                                        onClick={() => setActiveFolder(folder)}
+                                    >
+                                        <FolderOutlined /> {folder}
+                                        <span className="folder-count">
+                                            {
+                                                mediaItems.filter(
+                                                    (item) =>
+                                                        item.folder === folder
+                                                ).length
+                                            }
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="media-stats">
+                            <h3
+                                className={`sidebar-title ${
+                                    isDark ? "dark" : ""
+                                }`}
+                            >
+                                <InfoCircleOutlined /> Statistics
+                            </h3>
+                            <ul className="stats-list">
+                                <li
+                                    className={`stats-item ${
+                                        isDark ? "dark" : ""
+                                    }`}
+                                >
+                                    <span className="stats-label">
+                                        Total Files
+                                    </span>
+                                    <span className="stats-value">
+                                        {mediaStats.total}
+                                    </span>
+                                </li>
+                                <li
+                                    className={`stats-item ${
+                                        isDark ? "dark" : ""
+                                    }`}
+                                >
+                                    <span className="stats-label">Images</span>
+                                    <span className="stats-value">
+                                        {mediaStats.images}
+                                    </span>
+                                </li>
+                                <li
+                                    className={`stats-item ${
+                                        isDark ? "dark" : ""
+                                    }`}
+                                >
+                                    <span className="stats-label">Videos</span>
+                                    <span className="stats-value">
+                                        {mediaStats.videos}
+                                    </span>
+                                </li>
+                                <li
+                                    className={`stats-item ${
+                                        isDark ? "dark" : ""
+                                    }`}
+                                >
+                                    <span className="stats-label">
+                                        Documents
+                                    </span>
+                                    <span className="stats-value">
+                                        {mediaStats.documents}
+                                    </span>
+                                </li>
+                                <li
+                                    className={`stats-item ${
+                                        isDark ? "dark" : ""
+                                    }`}
+                                >
+                                    <span className="stats-label">Other</span>
+                                    <span className="stats-value">
+                                        {mediaStats.other}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="media-content">
+                        {isLoading ? (
+                            <div
+                                className={`empty-state ${
+                                    isDark ? "dark" : ""
+                                }`}
+                            >
+                                <Progress type="circle" />
+                                <h3>Loading media from S3...</h3>
+                            </div>
+                        ) : sortedMedia.length === 0 ? (
+                            <div
+                                className={`empty-state ${
+                                    isDark ? "dark" : ""
+                                }`}
+                            >
+                                <FileOutlined className="empty-icon" />
+                                <h3>No files found</h3>
+                                <p>
+                                    Upload files or change your search criteria
+                                </p>
+                                <Button
+                                    type="primary"
+                                    icon={<CloudUploadOutlined />}
+                                    onClick={() =>
+                                        document
+                                            .getElementById(
+                                                "media-upload-input"
+                                            )
+                                            ?.click()
+                                    }
+                                >
+                                    Upload Files
+                                </Button>
+                            </div>
+                        ) : viewMode === "grid" ? (
+                            <div className="media-grid">
+                                <Row gutter={[16, 16]}>
+                                    {sortedMedia.map((item) => (
+                                        <Col
+                                            xs={24}
+                                            sm={12}
+                                            md={8}
+                                            lg={6}
+                                            xl={4}
+                                            key={item.id}
+                                        >
+                                            <FileCard
+                                                item={item}
+                                            />
+                                        </Col>
+                                    ))}
+                                </Row>
+                            </div>
+                        ) : (
+                            <div className="media-list">
+                                <div className="list-header">
+                                    <Checkbox
+                                        onChange={(e) =>
+                                            handleSelectAll(e.target.checked)
+                                        }
+                                        checked={
+                                            selectedItems.length ===
+                                                sortedMedia.length &&
+                                            sortedMedia.length > 0
+                                        }
+                                        indeterminate={
+                                            selectedItems.length > 0 &&
+                                            selectedItems.length <
+                                                sortedMedia.length
+                                        }
+                                    />
+                                    <span className="header-name">Name</span>
+                                    <span className="header-type">Type</span>
+                                    <span className="header-size">Size</span>
+                                    <span className="header-date">Date</span>
+                                    <span className="header-actions">
+                                        Actions
+                                    </span>
+                                </div>
+
+                                {sortedMedia.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className={`list-item ${
+                                            isDark ? "dark" : ""
+                                        } ${
+                                            selectedItems.includes(item.id)
+                                                ? "selected"
+                                                : ""
+                                        }`}
+                                    >
+                                        <Checkbox
+                                            checked={selectedItems.includes(
+                                                item.id
+                                            )}
+                                            onChange={(e) =>
+                                                handleSelectItem(
+                                                    item.id,
+                                                    e.target.checked
+                                                )
+                                            }
+                                        />
+
+                                        <div
+                                            className="item-name"
+                                            onClick={() => showDetails(item)}
+                                        >
+                                            {item.type === "image" && (
+                                                <FileImageOutlined className="item-icon" />
+                                            )}
+                                            {item.type === "video" && (
+                                                <VideoCameraOutlined className="item-icon" />
+                                            )}
+                                            {item.type === "document" && (
+                                                <FileTextOutlined className="item-icon" />
+                                            )}
+                                            {item.type === "archive" && (
+                                                <FileZipOutlined className="item-icon" />
+                                            )}
+                                            {![
+                                                "image",
+                                                "video",
+                                                "document",
+                                                "archive",
+                                            ].includes(item.type) && (
+                                                <FileOutlined className="item-icon" />
+                                            )}
+                                            <span className="name-text">
+                                                {item.name}
+                                            </span>
+                                            {item.favorite && (
+                                                <StarFilled className="favorite-icon" />
+                                            )}
+                                        </div>
+
+                                        <div className="item-type">
+                                            <Tag
+                                                color={
+                                                    item.type === "image"
+                                                        ? "blue"
+                                                        : item.type === "video"
+                                                        ? "red"
+                                                        : item.type ===
+                                                          "document"
+                                                        ? "green"
+                                                        : item.type ===
+                                                          "archive"
+                                                        ? "orange"
+                                                        : "default"
+                                                }
+                                            >
+                                                {item.type}
+                                            </Tag>
+                                        </div>
+
+                                        <div className="item-size">
+                                            {item.size < 1024
+                                                ? `${item.size} KB`
+                                                : `${(item.size / 1024).toFixed(
+                                                      2
+                                                  )} MB`}
+                                        </div>
+
+                                        <div className="item-date">
+                                            {item.uploadedAt}
+                                        </div>
+
+                                        <div className="item-actions">
+                                            <Button
+                                                type="text"
+                                                icon={<EyeOutlined />}
+                                                onClick={() =>
+                                                    showDetails(item)
+                                                }
+                                            />
+                                            <Button
+                                                type="text"
+                                                icon={<EditOutlined />}
+                                            />
+                                            <Button
+                                                type="text"
+                                                icon={
+                                                    item.favorite ? (
+                                                        <StarFilled className="favorite-icon" />
+                                                    ) : (
+                                                        <StarOutlined />
+                                                    )
+                                                }
+                                            />
+                                            <Button
+                                                type="text"
+                                                danger
+                                                icon={<DeleteOutlined />}
+                                                onClick={() =>
+                                                    handleDelete(item)
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </Card>
+
+
+        </>
+    );
 }

@@ -4,6 +4,7 @@ import authReducer from "./features/auth/authSlice";
 import languageReducer from "./features/lang/langSlice";
 import headerSearchReducer from "./features/layout/headerSlice";
 import themeLayoutReducer from "./features/layout/themeSlice";
+import mediaReducer from "./features/media/mediaSlice";
 import menuReducer from "./features/menu/menuSlice";
 import messagesReducer from "./features/message/messageSlice";
 import notificationReducer from "./features/notification/notificationSlice";
@@ -18,6 +19,7 @@ export const store = configureStore({
         notification: notificationReducer,
         messages: messagesReducer,
         menu: menuReducer,
+        media: mediaReducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({ serializableCheck: false }).concat(

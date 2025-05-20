@@ -4,7 +4,6 @@
 import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
 import {
-    AppstoreOutlined,
     BarChartOutlined,
     DashboardOutlined,
     FileOutlined,
@@ -17,10 +16,9 @@ import {
     SearchOutlined,
     SettingOutlined,
     TagsOutlined,
-    TeamOutlined,
-    UserOutlined,
+    UserOutlined
 } from "@ant-design/icons";
-import { Avatar, Badge, Layout, Menu } from "antd";
+import { Avatar, Badge, Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -38,23 +36,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     const { theme } = useTheme();
     const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
 
-    const isDark = theme === "dark";
-
-    const primaryColor = "#10b981"; // Green color for primary elements
-    const secondaryColor = "#8b5cf6"; // Purple for secondary elements
-
     const menuItems = [
         {
             key: "/dashboard",
             icon: <DashboardOutlined />,
             label: <Link href="/dashboard">Dashboard</Link>,
-        },
-        {
-            key: "/components-showcase",
-            icon: <AppstoreOutlined />,
-            label: (
-                <Link href="/dashboard/components-showcase">Components</Link>
-            ),
         },
         {
             key: "news",
@@ -83,9 +69,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/media">Media Library</Link>,
         },
         {
-            key: "/dashboard/menu",
+            key: "/dashboard/menus",
             icon: <MenuOutlined />,
-            label: <Link href="/dashboard/menu">Menu</Link>,
+            label: <Link href="/dashboard/menus">Menu</Link>,
         },
         {
             key: "/dashboard/categories",
@@ -101,37 +87,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             key: "/dashboard/advertisement",
             icon: <NotificationOutlined />,
             label: <Link href="/dashboard/advertisement">Advertisement</Link>,
-        },
-        {
-            key: "reporters",
-            icon: <TeamOutlined />,
-            label: "Reporters",
-            children: [
-                {
-                    key: "/dashboard/reporters/all",
-                    label: (
-                        <Link href="/dashboard/reporters/all">
-                            All Reporters
-                        </Link>
-                    ),
-                },
-                {
-                    key: "/dashboard/reporters/add",
-                    label: (
-                        <Link href="/dashboard/reporters/add">
-                            Add Reporter
-                        </Link>
-                    ),
-                },
-                {
-                    key: "/dashboard/reporters/performance",
-                    label: (
-                        <Link href="/dashboard/reporters/performance">
-                            Performance
-                        </Link>
-                    ),
-                },
-            ],
         },
         {
             key: "/dashboard/pages",
@@ -178,10 +133,8 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 },
                 {
                     key: "/dashboard/users/add",
-                    label: (
-                        <Link href="/dashboard/users/add">Create User</Link>
-                    ),
-                }
+                    label: <Link href="/dashboard/users/add">Create User</Link>,
+                },
             ],
         },
         {
@@ -189,12 +142,64 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             icon: <SettingOutlined />,
             label: <Link href="/dashboard/settings">Settings</Link>,
         },
-        {
-            key: "/dashboard/web-setup",
-            icon: <SettingOutlined />,
-            label: <Link href="/dashboard/web-setup">Web Setup</Link>,
-        },
     ];
+
+    interface LevelKeysProps {
+        key?: string;
+        children?: LevelKeysProps[];
+    }
+
+    const getLevelKeys = (items1: LevelKeysProps[]) => {
+        const key: Record<string, number> = {};
+        const func = (items2: LevelKeysProps[], level = 1) => {
+            items2.forEach((item) => {
+                if (item.key) {
+                    key[item.key] = level;
+                }
+                if (item.children) {
+                    func(item.children, level + 1);
+                }
+            });
+        };
+        func(items1);
+        return key;
+    };
+
+    const levelKeys = getLevelKeys(menuItems as LevelKeysProps[]);
+
+    const [stateOpenKeys, setStateOpenKeys] = useState([pathname.split("/")[1]]);
+
+    const onOpenChange: MenuProps["onOpenChange"] = (openKeys) => {
+        const currentOpenKey = openKeys.find(
+            (key) => stateOpenKeys.indexOf(key) === -1
+        );
+        // open
+        if (currentOpenKey !== undefined) {
+            const repeatIndex = openKeys
+                .filter((key) => key !== currentOpenKey)
+                .findIndex(
+                    (key) => levelKeys[key] === levelKeys[currentOpenKey]
+                );
+
+            setStateOpenKeys(
+                openKeys
+                    // remove repeat key
+                    .filter((_, index) => index !== repeatIndex)
+                    // remove current level all child
+                    .filter(
+                        (key) => levelKeys[key] <= levelKeys[currentOpenKey]
+                    )
+            );
+        } else {
+            // close
+            setStateOpenKeys(openKeys);
+        }
+    };
+
+    const isDark = theme === "dark";
+
+    const primaryColor = "#10b981"; // Green color for primary elements
+    const secondaryColor = "#8b5cf6"; // Purple for secondary elements
 
     return (
         <Sider
@@ -289,6 +294,8 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                         borderRight: 0,
                         background: "transparent",
                     }}
+                   openKeys={stateOpenKeys}
+                    onOpenChange={onOpenChange}
                     items={menuItems}
                     theme={isDark ? "dark" : "light"}
                     className="custom-sidebar-menu"
