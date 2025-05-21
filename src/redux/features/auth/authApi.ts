@@ -6,11 +6,13 @@ const authApi = baseApi.injectEndpoints({
         // Login
         // This endpoint is used to login a user
         sendLoginRequest: builder.mutation({
-            query: (data) => ({
-                url: "/auth/send-login-request",
-                method: "POST",
-                body: data,
-            }),
+            query: (data) => {
+                return {
+                    url: "/auth/send-login-request",
+                    method: "POST",
+                    body: data,
+                };
+            },
         }),
         // Register
         // This endpoint is used to register a new user
@@ -96,6 +98,7 @@ const authApi = baseApi.injectEndpoints({
             }),
         }),
     }),
+    overrideExisting: false,
 });
 
 export const {

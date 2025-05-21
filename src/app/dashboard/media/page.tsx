@@ -2,6 +2,7 @@
 
 import FileCard from "@/components/features/media/file-card";
 import FileCardInline from "@/components/features/media/file-card-inline";
+import { GlobalFilePicker } from "@/components/features/media/global-file-picker";
 import MediaFolders from "@/components/features/media/media-folders";
 import MediaStats from "@/components/features/media/media-stats";
 import { useTheme } from "@/components/theme-context";
@@ -10,6 +11,7 @@ import {
     useGetMediaQuery,
     useUploadMediaMutation,
 } from "@/redux/features/media/mediaApi";
+import { TFileDocument } from "@/types";
 import {
     AppstoreOutlined,
     CloudUploadOutlined,
@@ -31,7 +33,7 @@ export default function MediaLibraryPage() {
     const [sortBy, setSortBy] = useState<string>("date");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [filterType, setFilterType] = useState<string>("all");
-
+    const [openFilePicker, setOpenFilePicker] = useState(false);
     // RTK Query hooks
     const { data: mediaItems = [], isLoading } = useGetMediaQuery();
     const [uploadMedia, { isLoading: isUploading }] = useUploadMediaMutation();
@@ -179,6 +181,13 @@ export default function MediaLibraryPage() {
                             }
                             style={{ display: "none" }}
                         />
+                        <Button
+                            type="default"
+                            icon={<CloudUploadOutlined />}
+                            onClick={() => setOpenFilePicker(true)}
+                        >
+                            Upload Pop Up
+                        </Button>
                     </div>
                 </div>
 
@@ -278,6 +287,9 @@ export default function MediaLibraryPage() {
                     </div>
                 </div>
             </Card>
+            <GlobalFilePicker open={openFilePicker} onCancel={()=>setOpenFilePicker(false)} onSelect={(selectedFiles: TFileDocument[]) => {
+                console.log(selectedFiles);
+            }}/>
         </>
     );
 }

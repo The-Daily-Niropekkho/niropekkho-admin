@@ -5,7 +5,7 @@
 import { useTheme } from "@/components/theme-context"
 import { useMediaUtils } from "@/hooks/use-media-utils"
 import { useGetMediaQuery, useUploadMediaMutation } from "@/redux/features/media/mediaApi"
-import type { MediaItem } from "@/types/media"
+import { TFileDocument } from "@/types"
 import {
   CloudUploadOutlined,
   FileImageOutlined,
@@ -16,7 +16,7 @@ import {
   SearchOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons"
-import { Button, Col, Empty, Image, Input, Modal, Row, Select, Tabs, Tag, Upload } from "antd"
+import { Button, Col, Empty, Image, Input, Modal, Row, Select, Tabs, Upload } from "antd"
 import { useEffect, useState } from "react"
 import "./media-components.css"
 
@@ -25,7 +25,7 @@ const { TabPane } = Tabs
 interface GlobalFilePickerProps {
   open: boolean
   onCancel: () => void
-  onSelect: (selectedFiles: MediaItem[]) => void
+  onSelect: (selectedFiles: TFileDocument[]) => void
   multiple?: boolean
   fileTypes?: string[]
   initialSelected?: number[]
@@ -159,14 +159,14 @@ export function GlobalFilePicker({
                   <FolderOutlined /> All Files
                   <span className="folder-count">{mediaItems.length}</span>
                 </li>
-                {Array.from(new Set(mediaItems.map((item) => item.folder))).map((folder) => (
+                {Array.from(new Set(mediaItems.map((item) => item.fileType))).map((folder) => (
                   <li
                     key={folder}
                     className={`folder-item ${activeFolder === folder ? "active" : ""} ${isDark ? "dark" : ""}`}
                     onClick={() => setActiveFolder(folder)}
                   >
                     <FolderOutlined /> {folder}
-                    <span className="folder-count">{mediaItems.filter((item) => item.folder === folder).length}</span>
+                    <span className="folder-count">{mediaItems.filter((item) => item.fileType === folder).length}</span>
                   </li>
                 ))}
               </ul>
@@ -188,27 +188,16 @@ export function GlobalFilePicker({
                         onClick={() => handleSelect(item.id)}
                       >
                         <div className="file-preview">
-                          {item.type === "image" ? (
+                          {item.fileType === "image" ? (
                             <Image
-                              alt={item.name}
+                              alt={item.filename}
                               src={item.url || "/placeholder.png"}
                               preview={false}
                               className="file-image"
                             />
                           ) : (
-                            <div className="file-icon">{getIconByType(item.type)}</div>
+                            <div className="file-icon">{getIconByType(item.fileType)}</div>
                           )}
-                        </div>
-                        <div className="file-details">
-                          <h5 className={`file-name ${isDark ? "dark" : ""}`}>{item.name}</h5>
-                          <div className="file-tags">
-                            {item.tags &&
-                              item.tags.map((tag) => (
-                                <Tag key={tag} className={`file-tag ${isDark ? "dark" : ""}`}>
-                                  {tag}
-                                </Tag>
-                              ))}
-                          </div>
                         </div>
                       </div>
                     </Col>

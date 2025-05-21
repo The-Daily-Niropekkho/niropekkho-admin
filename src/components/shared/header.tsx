@@ -16,11 +16,29 @@ import {
     SearchOutlined,
     SettingOutlined,
     TranslationOutlined,
-    UserOutlined
+    UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Input, Layout, Tooltip } from "antd";
+import {
+    Avatar,
+    Button,
+    Dropdown,
+    Input,
+    Layout,
+    message,
+    Skeleton,
+    Tooltip,
+} from "antd";
 
+import useAuth from "@/hooks/useAuth";
+import { useSession } from "@/provider/session-provider";
+import { baseApi } from "@/redux/api/baseApi";
+import { useGetUserProfileQuery } from "@/redux/features/auth/authApi";
+import { useAppDispatch } from "@/redux/hooks";
+import { signout } from "@/service/auth";
+import { TFileDocument } from "@/types";
+import fileObjectToLink from "@/utils/fileObjectToLink";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import NotificationMenu from "./notification-menu";
 
 const { Header } = Layout;
@@ -38,7 +56,25 @@ export default function AppHeader({
 }: HeaderProps) {
     const { theme, toggleTheme } = useTheme();
     const isMobile = useMobile();
+    const { data: user, isLoading } = useGetUserProfileQuery(undefined);
+    const router = useRouter();
+    const { setIsLoading } = useSession();
+    const { logout } = useAuth();
+    const dispatch = useAppDispatch();
 
+    console.log(user);
+
+    async function handleLogout() {
+        setIsLoading(true);
+
+        localStorage.removeItem("token");
+        await signout();
+        router.push("/auth/signin");
+        router.refresh();
+        logout();
+        dispatch(baseApi.util.resetApiState());
+        message.success("Logged out successfully");
+    }
 
     const isDark = theme === "dark";
     const primaryColor = "#10b981";
@@ -47,12 +83,12 @@ export default function AppHeader({
         {
             key: "1",
             icon: <UserOutlined />,
-            label: <Link href="/profile">My Profile</Link>,
+            label: <Link href="/dashboard/profile">My Profile</Link>,
         },
         {
             key: "2",
             icon: <SettingOutlined />,
-            label: <Link href="/settings">Settings</Link>,
+            label: <Link href="/dashboard/settings">Settings</Link>,
         },
         {
             type: "divider" as const,
@@ -60,7 +96,11 @@ export default function AppHeader({
         {
             key: "4",
             icon: <LogoutOutlined />,
-            label: <Link href="/login">Sign Out</Link>,
+            label: (
+                <Button type="link" onClick={handleLogout}>
+                    Sign Out
+                </Button>
+            ),
         },
     ];
 
@@ -223,83 +263,109 @@ export default function AppHeader({
                     />
                 </Tooltip>
 
-                <NotificationMenu/>
-
-                <Dropdown
-                    menu={{ items: userMenuItems as any }}
-                    placement="bottomRight"
-                    trigger={["click"]}
-                >
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            padding: "6px 8px 6px 6px",
-                            borderRadius: "30px",
-                            background: isDark
-                                ? "rgba(255, 255, 255, 0.05)"
-                                : "rgba(0, 0, 0, 0.03)",
-                            transition: "all 0.2s ease",
-                            border: `1px solid ${
-                                isDark
-                                    ? "rgba(255, 255, 255, 0.1)"
-                                    : "rgba(0, 0, 0, 0.05)"
-                            }`,
-                        }}
+                <NotificationMenu />
+                <div>
+                    <Dropdown
+                        menu={{ items: userMenuItems as any }}
+                        placement="bottomRight"
+                        trigger={["click"]}
                     >
-                        <Avatar
-                            src="/placeholder.png"
-                            size={32}
-                            style={{
-                                marginRight: !isMobile ? "8px" : 0,
-                                border: `2px solid ${primaryColor}`,
-                            }}
-                        />
-                        {!isMobile && (
-                            <>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        marginRight: "4px",
-                                        lineHeight: 1.2,
-                                    }}
-                                >
-                                    <span
+                        <div
+                            style={{ padding: "0 5px" }}
+                            className="flex justify-between cursor-pointer border border-gray-200 dark:border-gray-700 bg-gray-200 dark:bg-gray-800 rounded-3xl h-9"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Skeleton.Avatar active size={32} />
+                                    {!isMobile && (
+                                        <div
+                                            style={{
+                                                marginRight: "4px",
+                                                lineHeight: 1.2,
+                                            }}
+                                            className="flex flex-col "
+                                        >
+                                            <Skeleton.Input
+                                                active
+                                                size="small"
+                                                style={{
+                                                    width: 40,
+                                                    height: 16,
+                                                    marginBottom: 4,
+                                                }}
+                                            />
+                                            <Skeleton.Input
+                                                active
+                                                size="small"
+                                                style={{
+                                                    width: 20,
+                                                    height: 12,
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <Avatar
+                                        src={fileObjectToLink(
+                                            user?.admin
+                                                ?.profile_image as TFileDocument
+                                        )}
+                                        size={32}
                                         style={{
-                                            color: isDark
-                                                ? "#ffffff"
-                                                : "rgba(0, 0, 0, 0.85)",
-                                            fontWeight: "500",
-                                            fontSize: "14px",
+                                            marginRight: !isMobile ? "8px" : 0,
+                                            border: `2px solid ${primaryColor}`,
                                         }}
-                                    >
-                                        Admin User
-                                    </span>
-                                    <span
-                                        style={{
-                                            color: isDark
-                                                ? "rgba(255, 255, 255, 0.5)"
-                                                : "rgba(0, 0, 0, 0.5)",
-                                            fontSize: "12px",
-                                        }}
-                                    >
-                                        Editor
-                                    </span>
-                                </div>
-                                <DownOutlined
-                                    style={{
-                                        fontSize: "10px",
-                                        color: isDark
-                                            ? "rgba(255, 255, 255, 0.5)"
-                                            : "rgba(0, 0, 0, 0.5)",
-                                    }}
-                                />
-                            </>
-                        )}
-                    </div>
-                </Dropdown>
+                                    />
+                                    {!isMobile && (
+                                        <>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    marginRight: "4px",
+                                                    lineHeight: 1.2,
+                                                }}
+                                            >
+                                                <span
+                                                    style={{
+                                                        color: isDark
+                                                            ? "#ffffff"
+                                                            : "rgba(0, 0, 0, 0.85)",
+                                                        fontWeight: "500",
+                                                        fontSize: "14px",
+                                                    }}
+                                                >
+                                                    {user?.admin?.first_name}{" "}
+                                                    {user?.admin?.last_name}
+                                                </span>
+                                                <span
+                                                    style={{
+                                                        color: isDark
+                                                            ? "rgba(255, 255, 255, 0.5)"
+                                                            : "rgba(0, 0, 0, 0.5)",
+                                                        fontSize: "12px",
+                                                    }}
+                                                >
+                                                    {user?.user_type}
+                                                </span>
+                                            </div>
+                                            <DownOutlined
+                                                style={{
+                                                    fontSize: "10px",
+                                                    color: isDark
+                                                        ? "rgba(255, 255, 255, 0.5)"
+                                                        : "rgba(0, 0, 0, 0.5)",
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </Dropdown>
+                </div>
             </div>
         </Header>
     );
