@@ -2,10 +2,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTheme } from "@/components/theme-context";
 import { useDeleteMediaMutation } from "@/redux/features/media/mediaApi";
+import { TFileDocument } from "@/types";
 import { message, Modal } from "antd";
 
 interface MediaDeleteModalProps {
-    item: any;
+    item: TFileDocument;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -21,7 +22,7 @@ export default function MediaDeleteModal({
         deleteMedia(item.id)
             .unwrap()
             .then(() => {
-                message.success(`${item?.name} has been deleted`);
+                message.success(`${item?.filename} has been deleted`);
                 onClose();
             })
             .catch((error) => {
@@ -41,8 +42,9 @@ export default function MediaDeleteModal({
         >
             {item && (
                 <p>
-                    Are you sure you want to delete <strong>{item.name}</strong>
-                    ? This action cannot be undone.
+                    Are you sure you want to delete{" "}
+                    <strong>{item.filename}</strong>? This action cannot be
+                    undone.
                 </p>
             )}
         </Modal>

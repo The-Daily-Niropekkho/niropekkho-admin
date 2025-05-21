@@ -2,12 +2,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTheme } from "@/components/theme-context";
-import { CopyOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, FileTextOutlined, FileZipOutlined, StarFilled, VideoCameraOutlined } from "@ant-design/icons";
+import { TFileDocument } from "@/types";
+import { CopyOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, FileTextOutlined, FileZipOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { Button, Col, Modal, Row, Tag } from "antd";
 import Image from "next/image";
 
 interface MediaDetailsModalProps {
-    item: any;
+    item: TFileDocument;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -42,13 +43,15 @@ export default function MediaDetailsModal({
                 <Row gutter={16}>
                     <Col xs={24} md={12}>
                         <div className="media-preview-large">
-                            {item.type === "image" ? (
+                            {item.fileType === "image" ? (
                                 <Image
-                                    alt={item.name}
+                                    alt={item.filename || "Media file"}
                                     src={
                                         item.url || "/placeholder.svg"
                                     }
                                     className="preview-image"
+                                    width={400}
+                                    height={400}
                                 />
                             ) : (
                                 <div
@@ -56,13 +59,13 @@ export default function MediaDetailsModal({
                                         isDark ? "dark" : ""
                                     }`}
                                 >
-                                    {item.type === "video" && (
+                                    {item.fileType === "video" && (
                                         <VideoCameraOutlined />
                                     )}
-                                    {item.type === "document" && (
+                                    {item.fileType === "document" && (
                                         <FileTextOutlined />
                                     )}
-                                    {item.type === "archive" && (
+                                    {item.fileType === "archive" && (
                                         <FileZipOutlined />
                                     )}
                                     {![
@@ -70,7 +73,7 @@ export default function MediaDetailsModal({
                                         "document",
                                         "archive",
                                         "image",
-                                    ].includes(item.type) && (
+                                    ].includes(item.fileType) && (
                                         <FileOutlined />
                                     )}
                                 </div>
@@ -84,27 +87,24 @@ export default function MediaDetailsModal({
                                     isDark ? "dark" : ""
                                 }`}
                             >
-                                {item.name}
-                                {item.favorite && (
-                                    <StarFilled className="favorite-icon" />
-                                )}
+                                {item.filename}
                             </h3>
 
                             <div className="details-type">
                                 <Tag
                                     color={
-                                        item.type === "image"
+                                        item.fileType === "image"
                                             ? "blue"
-                                            : item.type === "video"
+                                            : item.fileType === "video"
                                             ? "red"
-                                            : item.type === "document"
+                                            : item.fileType === "document"
                                             ? "green"
-                                            : item.type === "archive"
+                                            : item.fileType === "archive"
                                             ? "orange"
                                             : "default"
                                     }
                                 >
-                                    {item.type.toUpperCase()}
+                                    {item.fileType.toUpperCase()}
                                 </Tag>
                             </div>
 
@@ -120,7 +120,7 @@ export default function MediaDetailsModal({
                                     </span>
                                 </div>
 
-                                {item.dimensions && (
+                                {/* {item.dimensions && (
                                     <div className="details-row">
                                         <span className="details-label">
                                             Dimensions:
@@ -129,50 +129,31 @@ export default function MediaDetailsModal({
                                             {item.dimensions}
                                         </span>
                                     </div>
-                                )}
+                                )} */}
 
-                                <div className="details-row">
+                                {/* <div className="details-row">
                                     <span className="details-label">
                                         Uploaded by:
                                     </span>
                                     <span className="details-value">
                                         {item.uploadedBy}
                                     </span>
-                                </div>
+                                </div> */}
 
                                 <div className="details-row">
                                     <span className="details-label">
                                         Upload date:
                                     </span>
                                     <span className="details-value">
-                                        {item.uploadedAt}
+                                        {item.createdAt}
                                     </span>
                                 </div>
-
                                 <div className="details-row">
                                     <span className="details-label">
-                                        Folder:
+                                        Last modified:
                                     </span>
                                     <span className="details-value">
-                                        {item.folder}
-                                    </span>
-                                </div>
-
-                                <div className="details-row">
-                                    <span className="details-label">
-                                        S3 Key:
-                                    </span>
-                                    <span className="details-value">
-                                        {item.s3Key}
-                                    </span>
-                                </div>
-
-                                <div className="details-row">
-                                    <span className="details-label">Tags:</span>
-                                    <span className="details-value">
-                                        {item.tags.map((tag : string) => (
-                                            <Tag key={tag}>{tag}</Tag>
-                                        ))}
+                                        {item.updatedAt}
                                     </span>
                                 </div>
                             </div>

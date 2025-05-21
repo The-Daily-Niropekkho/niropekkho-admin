@@ -1,17 +1,4 @@
-export interface MediaItem {
-  id: number
-  name: string
-  type: string
-  url: string
-  size: number
-  dimensions?: string
-  uploadedBy: string
-  uploadedAt: string
-  tags: string[]
-  favorite: boolean
-  folder: string
-  s3Key: string
-}
+import { TFileDocument } from "./global"
 
 export interface MediaFilter {
   searchText: string
@@ -28,5 +15,5 @@ export interface UploadMediaRequest {
 
 export interface UpdateMediaRequest {
   id: number
-  updates: Partial<MediaItem>
+  updates: Partial<TFileDocument>
 }

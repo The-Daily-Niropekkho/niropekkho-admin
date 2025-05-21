@@ -55,6 +55,7 @@
 /* Upload Progress */
 .upload-progress {
     margin-bottom: 16px;
+    height: 100%;
 }
 
 /* Bulk Actions */
@@ -304,7 +305,7 @@
 
 .list-header {
     display: grid;
-    grid-template-columns: 40px 3fr 1fr 1fr 1fr 120px;
+    grid-template-columns: 3fr 1fr 1fr 1fr 120px;
     gap: 16px;
     padding: 12px 16px;
     background: #fafafa;
@@ -314,12 +315,12 @@
 
 .dark .list-header {
     background: #2a2a2a;
-    border-bottom-color: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(24, 144, 255, 0.1);
 }
 
 .list-item {
     display: grid;
-    grid-template-columns: 40px 3fr 1fr 1fr 1fr 120px;
+    grid-template-columns: 3fr 1fr 1fr 1fr 120px;
     gap: 16px;
     padding: 12px 16px;
     align-items: center;

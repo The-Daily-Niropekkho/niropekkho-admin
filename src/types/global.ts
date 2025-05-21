@@ -56,7 +56,8 @@ export interface ErrorResponse {
 export type IImagePlatform = "imgbb" | "cloudinary" | "server" | "aws" | string;
 export const I_IMAGE_PLATFORM_ARRAY = ["imgbb", "cloudinary", "server", "aws"];
 
-export type TFileDocument = {
+export interface TFileDocument {
+    id: string;
     mimetype: string;
     server_url?: string;
     filename?: string;
@@ -70,4 +71,7 @@ export type TFileDocument = {
     platform: IImagePlatform;
     fileType: string;
     cdn?: string;
-};
+    size: number;
+    createdAt: string;
+    updatedAt: string;
+}

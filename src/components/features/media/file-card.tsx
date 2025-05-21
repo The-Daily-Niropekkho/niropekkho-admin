@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/components/theme-context";
+import { TFileDocument } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -15,7 +16,7 @@ import { useState } from "react";
 import MediaDeleteModal from "./media-delete-modal";
 import MediaDetailsModal from "./media-details-modal";
 
-export default function FileCard({ item }: { item: any }) {
+export default function FileCard({ item }: { item: TFileDocument }) {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const { isDark } = useTheme();
@@ -31,12 +32,14 @@ export default function FileCard({ item }: { item: any }) {
                     className="media-preview"
                     onClick={() => setIsDetailsModalOpen(true)}
                 >
-                    {item.type === "image" ? (
+                    {item.fileType === "image" ? (
                         <Image
-                            alt={item.name}
+                            alt={item.filename}
                             src={item.url || "/placeholder.svg"}
                             preview={false}
                             className="media-image"
+                            width={200}
+                            height={200}
                         />
                     ) : (
                         <div
@@ -44,23 +47,23 @@ export default function FileCard({ item }: { item: any }) {
                                 isDark ? "dark" : ""
                             }`}
                         >
-                            {item.type === "video" && <VideoCameraOutlined />}
-                            {item.type === "document" && <FileTextOutlined />}
-                            {item.type === "archive" && <FileZipOutlined />}
+                            {item.fileType === "video" && <VideoCameraOutlined />}
+                            {item.fileType === "document" && <FileTextOutlined />}
+                            {item.fileType === "archive" && <FileZipOutlined />}
                             {![
                                 "video",
                                 "document",
                                 "archive",
                                 "image",
-                            ].includes(item.type) && <FileOutlined />}
-                            <div className="file-type">{item.type}</div>
+                            ].includes(item.fileType) && <FileOutlined />}
+                            <div className="file-type">{item.fileType}</div>
                         </div>
                     )}
                 </div>
 
                 <div className="media-info">
-                    <div className="media-name" title={item.name}>
-                        {item.name}
+                    <div className="media-name" title={item.filename}>
+                        {item.filename}
                     </div>
                     <div className="media-meta">
                         <span className="media-size">
@@ -70,18 +73,18 @@ export default function FileCard({ item }: { item: any }) {
                         </span>
                         <Tag
                             color={
-                                item.type === "image"
+                                item.fileType === "image"
                                     ? "blue"
-                                    : item.type === "video"
+                                    : item.fileType === "video"
                                     ? "red"
-                                    : item.type === "document"
+                                    : item.fileType === "document"
                                     ? "green"
-                                    : item.type === "archive"
+                                    : item.fileType === "archive"
                                     ? "orange"
                                     : "default"
                             }
                         >
-                            {item.type}
+                            {item.fileType}
                         </Tag>
                     </div>
                 </div>
@@ -90,14 +93,14 @@ export default function FileCard({ item }: { item: any }) {
                     <Button
                         type="text"
                         icon={<EyeOutlined />}
-                        onClick={() => setIsDetailsModalOpen(item)}
+                        onClick={() => setIsDetailsModalOpen(true)}
                     />
                     <Button type="text" icon={<EditOutlined />} />
                     <Button
                         type="text"
                         danger
                         icon={<DeleteOutlined />}
-                        onClick={() => handleDelete()}
+                        onClick={handleDelete}
                     />
                 </div>
             </div>

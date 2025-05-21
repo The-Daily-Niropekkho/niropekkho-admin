@@ -22,7 +22,10 @@
 
 @layer theme, base, antd, components, utilities;
 
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import "antd/dist/reset.css";
 
 * {

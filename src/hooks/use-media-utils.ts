@@ -1,6 +1,6 @@
 "use client";
 
-import type { MediaItem } from "@/types/media";
+import type { TFileDocument } from "@/types";
 import { useMemo } from "react";
 
 export function useMediaUtils() {
@@ -8,7 +8,7 @@ export function useMediaUtils() {
     const filterMedia = useMemo(
         () =>
             (
-                mediaItems: MediaItem[],
+                mediaItems: TFileDocument[],
                 searchText = "",
                 filterType = "all",
                 activeFolder = "all",
@@ -18,20 +18,14 @@ export function useMediaUtils() {
                 // Filter
                 const filtered = mediaItems.filter((item) => {
                     const matchesSearch =
-                        item.name
+                        (item?.filename ?? "")
                             .toLowerCase()
-                            .includes(searchText.toLowerCase()) ||
-                        item.tags.some((tag) =>
-                            tag.toLowerCase().includes(searchText.toLowerCase())
-                        ) ||
-                        item.uploadedBy
-                            .toLowerCase()
-                            .includes(searchText.toLowerCase());
+                            .includes(searchText.toLowerCase())
 
                     const matchesFolder =
-                        activeFolder === "all" || item.folder === activeFolder;
+                        activeFolder === "all" || item.fileType === activeFolder;
                     const matchesType =
-                        filterType === "all" || item.type === filterType;
+                        filterType === "all" || item.fileType === filterType;
 
                     return matchesSearch && matchesFolder && matchesType;
                 });
@@ -42,19 +36,19 @@ export function useMediaUtils() {
 
                     switch (sortBy) {
                         case "name":
-                            comparison = a.name.localeCompare(b.name);
+                            comparison = (a.filename ?? "").localeCompare(b.filename ?? "");
                             break;
                         case "size":
                             comparison = a.size - b.size;
                             break;
                         case "type":
-                            comparison = a.type.localeCompare(b.type);
+                            comparison = a.fileType.localeCompare(b.fileType);
                             break;
                         case "date":
                         default:
                             comparison =
-                                new Date(a.uploadedAt).getTime() -
-                                new Date(b.uploadedAt).getTime();
+                                new Date(a.createdAt).getTime() -
+                                new Date(b.createdAt).getTime();
                             break;
                     }
 
@@ -66,26 +60,26 @@ export function useMediaUtils() {
 
     // Get unique folders from media items
     const getUniqueFolders = useMemo(
-        () => (mediaItems: MediaItem[]) => {
-            return Array.from(new Set(mediaItems.map((item) => item.folder)));
+        () => (mediaItems: TFileDocument[]) => {
+            return Array.from(new Set(mediaItems.map((item) => item.fileType)));
         },
         []
     );
 
     // Get media statistics
     const getMediaStats = useMemo(
-        () => (mediaItems: MediaItem[]) => {
+        () => (mediaItems: TFileDocument[]) => {
             return {
                 total: mediaItems.length,
-                images: mediaItems.filter((item) => item.type === "image")
+                images: mediaItems.filter((item) => item.fileType === "image")
                     .length,
-                videos: mediaItems.filter((item) => item.type === "video")
+                videos: mediaItems.filter((item) => item.fileType === "video")
                     .length,
-                documents: mediaItems.filter((item) => item.type === "document")
+                documents: mediaItems.filter((item) => item.fileType === "document")
                     .length,
                 other: mediaItems.filter(
                     (item) =>
-                        !["image", "video", "document"].includes(item.type)
+                        !["image", "video", "document"].includes(item.fileType)
                 ).length,
             };
         },
