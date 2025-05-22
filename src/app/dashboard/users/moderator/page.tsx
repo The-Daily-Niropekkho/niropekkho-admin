@@ -1,6 +1,9 @@
 "use client";
 
+import DeleteUserModal from "@/components/features/users/delete-user-modal";
 import { useTheme } from "@/components/theme-context";
+import { useGetAllModeratorUserQuery } from "@/redux/features/user/userApi";
+import { User, UserTableData } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -20,246 +23,55 @@ import {
     Col,
     Divider,
     Input,
-    message,
     Modal,
     Row,
     Space,
     Table,
     Tabs,
     Tag,
-    Tooltip,
+    Tooltip
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-// Types based on the database schema
-interface Department {
-    id: string;
-    title: string;
-}
 
-type UserType = "admin" | "editor" | "reporter" | "writer" | "contributor";
-type Gender = "male" | "female" | "other";
-type BloodGroup = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
-type VerificationType =
-    | "national_id"
-    | "passport"
-    | "driving_license"
-    | "other";
-
-interface User {
-    id: string;
-    email: string;
-    password?: string;
-    department_id: string;
-    user_type: UserType;
-    departmentTitle?: string;
-}
-
-interface Reporter {
-    id: string;
-    user_id: string;
-    created_by_id: string;
-    first_name: string;
-    last_name: string;
-    nick_name?: string;
-    profile_image_id?: string;
-    profile_image_url?: string;
-    mobile?: string;
-    designation?: string;
-    gender?: Gender;
-    blood_group?: BloodGroup;
-    date_of_birth?: string;
-    address_line_one?: string;
-    address_line_two?: string;
-    country?: string;
-    state?: string;
-    city?: string;
-    zip_code?: string;
-    verification_type?: VerificationType;
-    document_id_no?: string;
-    about?: string;
-    // Additional fields for UI
-    email?: string;
-    department?: string;
-    articles_count?: number;
-    created_at?: Date;
-    status?: "active" | "inactive" | "pending";
-}
-
-export default function ReportersPage() {
-    const [reporters, setReporters] = useState<Reporter[]>([]);
-    const [departments, setDepartments] = useState<Department[]>([]);
-    const [loading, setLoading] = useState(true);
+export default function ModeratorsPage() {
+    const { data: moderatorUsers, isLoading } =
+        useGetAllModeratorUserQuery(undefined);
     const [searchText, setSearchText] = useState("");
     const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-    const [currentReporter, setCurrentReporter] = useState<Reporter | null>(
-        null
-    );
+    const [currentModerator, setCurrentModerator] =
+        useState<UserTableData | null>(null);
 
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    // Mock data loading
-    useEffect(() => {
-        // Simulate API call to fetch departments
-        const mockDepartments: Department[] = [
-            { id: "d1", title: "News" },
-            { id: "d2", title: "Sports" },
-            { id: "d3", title: "Entertainment" },
-            { id: "d4", title: "Politics" },
-            { id: "d5", title: "Business" },
-            { id: "d6", title: "Technology" },
-        ];
-
-        // Simulate API call to fetch reporters
-        const mockReporters: Reporter[] = Array.from({ length: 20 }, (_, i) => {
-            const id = `r${i + 1}`;
-            const userId = `u${i + 1}`;
-            const deptId =
-                mockDepartments[
-                    Math.floor(Math.random() * mockDepartments.length)
-                ].id;
-            const deptTitle =
-                mockDepartments.find((d) => d.id === deptId)?.title ||
-                "Unknown";
-            const gender: Gender = ["male", "female", "other"][
-                Math.floor(Math.random() * 3)
-            ] as Gender;
-            const bloodGroup: BloodGroup = [
-                "A+",
-                "A-",
-                "B+",
-                "B-",
-                "AB+",
-                "AB-",
-                "O+",
-                "O-",
-            ][Math.floor(Math.random() * 8)] as BloodGroup;
-            const verificationType: VerificationType = [
-                "national_id",
-                "passport",
-                "driving_license",
-                "other",
-            ][Math.floor(Math.random() * 4)] as VerificationType;
-            const status = ["active", "inactive", "pending"][
-                Math.floor(Math.random() * 3)
-            ] as "active" | "inactive" | "pending";
-
-            const createdDate = new Date();
-            createdDate.setDate(
-                createdDate.getDate() - Math.floor(Math.random() * 365)
-            );
-
-            const birthYear = 1970 + Math.floor(Math.random() * 30);
-            const birthMonth = 1 + Math.floor(Math.random() * 12);
-            const birthDay = 1 + Math.floor(Math.random() * 28);
-
-            return {
-                id,
-                user_id: userId,
-                created_by_id: "admin1",
-                first_name: `First${i + 1}`,
-                last_name: `Last${i + 1}`,
-                nick_name: Math.random() > 0.3 ? `Nick${i + 1}` : undefined,
-                profile_image_id:
-                    Math.random() > 0.3 ? `img${i + 1}` : undefined,
-                profile_image_url:
-                    Math.random() > 0.3
-                        ? `/placeholder.svg?height=100&width=100&query=person`
-                        : undefined,
-                mobile: `+1 ${Math.floor(Math.random() * 1000)}-${Math.floor(
-                    Math.random() * 1000
-                )}-${Math.floor(Math.random() * 10000)}`,
-                designation: [
-                    "Senior Reporter",
-                    "Junior Reporter",
-                    "Staff Writer",
-                    "Contributor",
-                    "Editor",
-                ][Math.floor(Math.random() * 5)],
-                gender,
-                blood_group: bloodGroup,
-                date_of_birth: `${birthYear}-${birthMonth
-                    .toString()
-                    .padStart(2, "0")}-${birthDay.toString().padStart(2, "0")}`,
-                address_line_one: `${Math.floor(Math.random() * 1000)} Main St`,
-                address_line_two:
-                    Math.random() > 0.5
-                        ? `Apt ${Math.floor(Math.random() * 100)}`
-                        : undefined,
-                country: "United States",
-                state: [
-                    "California",
-                    "New York",
-                    "Texas",
-                    "Florida",
-                    "Illinois",
-                ][Math.floor(Math.random() * 5)],
-                city: [
-                    "Los Angeles",
-                    "New York",
-                    "Houston",
-                    "Miami",
-                    "Chicago",
-                ][Math.floor(Math.random() * 5)],
-                zip_code: `${Math.floor(Math.random() * 90000) + 10000}`,
-                verification_type: verificationType,
-                document_id_no: `DOC${Math.floor(Math.random() * 1000000)}`,
-                about:
-                    Math.random() > 0.3
-                        ? "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies."
-                        : undefined,
-                // Additional fields for UI
-                email: `reporter${i + 1}@example.com`,
-                department: deptTitle,
-                articles_count: Math.floor(Math.random() * 100),
-                created_at: createdDate,
-                status,
-            };
-        });
-
-        setDepartments(mockDepartments);
-        setReporters(mockReporters);
-        setLoading(false);
-    }, []);
-
-    // Handle reporter deletion
-    const handleDeleteReporter = () => {
-        if (currentReporter) {
-            setLoading(true);
-
-            // Filter out the deleted reporter
-            const updatedReporters = reporters.filter(
-                (reporter) => reporter.id !== currentReporter.id
-            );
-            setReporters(updatedReporters);
-
-            message.success("Reporter deleted successfully");
-            setLoading(false);
-            setIsDeleteModalVisible(false);
-            setCurrentReporter(null);
-        }
-    };
+    // Transform data for table
+    const moderators: UserTableData[] =
+        moderatorUsers?.data?.map((user: User) => ({
+            ...user,
+            full_name: `${user.moderator.first_name} ${user.moderator.last_name}`,
+            profile_image_url: user.moderator.profile_image?.url,
+        })) || [];
 
     // Open view modal
-    const showViewModal = (reporter: Reporter) => {
-        setCurrentReporter(reporter);
+    const showViewModal = (moderator: UserTableData) => {
+        setCurrentModerator(moderator);
         setIsViewModalVisible(true);
     };
 
     // Open delete confirmation modal
-    const showDeleteModal = (reporter: Reporter) => {
-        setCurrentReporter(reporter);
+    const showDeleteModal = (moderator: UserTableData) => {
+        setCurrentModerator(moderator);
         setIsDeleteModalVisible(true);
     };
 
     // Get status tag
     const getStatusTag = (status: string) => {
-        switch (status) {
+        switch (status.toLowerCase()) {
             case "active":
                 return <Tag color="green">Active</Tag>;
             case "inactive":
@@ -272,59 +84,45 @@ export default function ReportersPage() {
     };
 
     // Table columns
-    const columns: ColumnsType<Reporter> = [
+    const columns: ColumnsType<UserTableData> = [
         {
-            title: "Reporter",
-            key: "reporter",
-            render: (_, reporter) => (
+            title: "Moderator",
+            key: "moderator",
+            render: (_, moderator) => (
                 <div style={{ display: "flex", alignItems: "center" }}>
                     <Avatar
-                        src={reporter.profile_image_url}
-                        icon={!reporter.profile_image_url && <UserOutlined />}
+                        src={moderator.profile_image_url}
+                        icon={!moderator.profile_image_url && <UserOutlined />}
                         style={{ marginRight: 12 }}
                         size={40}
                     />
                     <div>
-                        <div
-                            style={{ fontWeight: 500 }}
-                        >{`${reporter.first_name} ${reporter.last_name}`}</div>
+                        <div style={{ fontWeight: 500 }}>
+                            {moderator.full_name}
+                        </div>
                         <div
                             style={{
                                 fontSize: "0.85rem",
                                 color: "rgba(0, 0, 0, 0.45)",
                             }}
                         >
-                            {reporter.email}
+                            {moderator.email}
                         </div>
                     </div>
                 </div>
             ),
-            sorter: (a, b) =>
-                `${a.first_name} ${a.last_name}`.localeCompare(
-                    `${b.first_name} ${b.last_name}`
-                ),
+            sorter: (a, b) => a.full_name.localeCompare(b.full_name),
         },
         {
             title: "Designation",
-            dataIndex: "designation",
+            dataIndex: ["moderator", "designation"],
             key: "designation",
             render: (designation: string) => <span>{designation || "-"}</span>,
         },
         {
-            title: "Department",
-            dataIndex: "department",
-            key: "department",
-            render: (department: string) => <span>{department}</span>,
-            filters: departments.map((dept) => ({
-                text: dept.title,
-                value: dept.title,
-            })),
-            onFilter: (value, record) => record.department === value,
-        },
-        {
             title: "Contact",
             key: "contact",
-            render: (_, reporter) => (
+            render: (_, moderator) => (
                 <div>
                     <div style={{ marginBottom: 4 }}>
                         <PhoneOutlined
@@ -333,7 +131,7 @@ export default function ReportersPage() {
                                 color: "rgba(0, 0, 0, 0.45)",
                             }}
                         />
-                        <span>{reporter.mobile || "-"}</span>
+                        <span>{moderator.moderator.mobile || "-"}</span>
                     </div>
                     <div>
                         <EnvironmentOutlined
@@ -342,17 +140,12 @@ export default function ReportersPage() {
                                 color: "rgba(0, 0, 0, 0.45)",
                             }}
                         />
-                        <span>{reporter.city || "-"}</span>
+                        <span>
+                            {moderator.moderator.address_line_one || "-"}
+                        </span>
                     </div>
                 </div>
             ),
-        },
-        {
-            title: "Articles",
-            dataIndex: "articles_count",
-            key: "articles_count",
-            render: (count: number) => <span>{count}</span>,
-            sorter: (a, b) => (a.articles_count || 0) - (b.articles_count || 0),
         },
         {
             title: "Status",
@@ -364,22 +157,39 @@ export default function ReportersPage() {
                 { text: "Inactive", value: "inactive" },
                 { text: "Pending", value: "pending" },
             ],
-            onFilter: (value, record) => record.status === value,
+            onFilter: (value, record) => record.status.toLowerCase() === value,
+        },
+        {
+            title: "Verification",
+            dataIndex: "is_email_verified",
+            key: "is_email_verified",
+            render: (is_verified: boolean) => (
+                <Tag color={is_verified ? "green" : "red"}>
+                    {is_verified ? "Verified" : "Not Verified"}
+                </Tag>
+            ),
+            filters: [
+                { text: "Verified", value: true },
+                { text: "Not Verified", value: false },
+            ],
+            onFilter: (value, record) => record.is_email_verified === value,
         },
         {
             title: "Actions",
             key: "actions",
-            render: (_, reporter) => (
+            render: (_, moderator) => (
                 <Space>
                     <Tooltip title="View">
                         <Button
                             icon={<EyeOutlined />}
                             size="small"
-                            onClick={() => showViewModal(reporter)}
+                            onClick={() => showViewModal(moderator)}
                         />
                     </Tooltip>
                     <Tooltip title="Edit">
-                        <Link href={`/dashboard/reporters/edit/${reporter.id}`}>
+                        <Link
+                            href={`/dashboard/moderators/edit/${moderator.id}`}
+                        >
                             <Button icon={<EditOutlined />} size="small" />
                         </Link>
                     </Tooltip>
@@ -388,13 +198,25 @@ export default function ReportersPage() {
                             icon={<DeleteOutlined />}
                             size="small"
                             danger
-                            onClick={() => showDeleteModal(reporter)}
+                            onClick={() => showDeleteModal(moderator)}
                         />
                     </Tooltip>
                 </Space>
             ),
         },
     ];
+
+    // Filter moderators based on search text
+    const filteredModerators = moderators.filter(
+        (moderator) =>
+            moderator.full_name
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
+            moderator.email.toLowerCase().includes(searchText.toLowerCase()) ||
+            moderator.userUniqueId
+                .toLowerCase()
+                .includes(searchText.toLowerCase())
+    );
 
     return (
         <>
@@ -407,7 +229,7 @@ export default function ReportersPage() {
                         color: isDark ? "#fff" : "#000",
                     }}
                 >
-                    All Users
+                    All Moderators
                 </h1>
                 <p
                     style={{
@@ -416,8 +238,8 @@ export default function ReportersPage() {
                             : "rgba(0, 0, 0, 0.45)",
                     }}
                 >
-                    Manage and organize all Users with advanced filtering and
-                    sorting options.
+                    Manage and organize all Moderator users with advanced
+                    filtering and sorting options.
                 </p>
             </div>
             <div className="space-y-6">
@@ -440,7 +262,7 @@ export default function ReportersPage() {
                     >
                         <Space wrap>
                             <Input
-                                placeholder="Search users by name, email or ID"
+                                placeholder="Search moderators by name, email, or ID"
                                 prefix={<SearchOutlined />}
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
@@ -450,32 +272,31 @@ export default function ReportersPage() {
                         </Space>
                         <Space wrap>
                             <Button icon={<ExportOutlined />}>Export</Button>
-                            <Link href="/dashboard/users/add">
+                            <Link href="/dashboard/moderators/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
-                                    Add User
+                                    Add Moderator
                                 </Button>
                             </Link>
                         </Space>
                     </div>
                     <Table
                         columns={columns}
-                        dataSource={reporters}
+                        dataSource={filteredModerators}
                         rowKey="id"
-                        loading={loading}
+                        loading={isLoading}
                         pagination={{
                             pageSize: 10,
                             showSizeChanger: true,
                             showTotal: (total, range) =>
                                 `${range[0]}-${range[1]} of ${total} items`,
-
                         }}
                         scroll={{ x: "max-content" }}
                     />
                 </Card>
 
-                {/* View Reporter Modal */}
+                {/* View Moderator Modal */}
                 <Modal
-                    title="Reporter Details"
+                    title="Moderator Details"
                     open={isViewModalVisible}
                     onCancel={() => setIsViewModalVisible(false)}
                     footer={[
@@ -488,8 +309,8 @@ export default function ReportersPage() {
                         <Link
                             key="edit"
                             href={
-                                currentReporter
-                                    ? `/dashboard/users/edit/${currentReporter.id}`
+                                currentModerator
+                                    ? `/dashboard/moderators/edit/${currentModerator.id}`
                                     : "#"
                             }
                         >
@@ -498,36 +319,37 @@ export default function ReportersPage() {
                     ]}
                     width={700}
                 >
-                    {currentReporter && (
+                    {currentModerator && (
                         <div>
                             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6">
                                 <Avatar
-                                    src={currentReporter.profile_image_url}
+                                    src={currentModerator.profile_image_url}
                                     icon={
-                                        !currentReporter.profile_image_url && (
+                                        !currentModerator.profile_image_url && (
                                             <UserOutlined />
                                         )
                                     }
                                     size={100}
                                 />
                                 <div>
-                                    <h2 className="text-xl font-semibold mb-1">{`${currentReporter.first_name} ${currentReporter.last_name}`}</h2>
-                                    {currentReporter.nick_name && (
+                                    <h2 className="text-xl font-semibold mb-1">
+                                        {currentModerator.full_name}
+                                    </h2>
+                                    {currentModerator.moderator.nick_name && (
                                         <p className="text-gray-500 mb-1">
-                                            &quot;{currentReporter.nick_name}
+                                            &quot;
+                                            {
+                                                currentModerator.moderator
+                                                    .nick_name
+                                            }
                                             &quot;
                                         </p>
                                     )}
                                     <p className="mb-1">
-                                        {currentReporter.designation ||
-                                            "No designation"}
+                                        {currentModerator.moderator
+                                            .designation || "No designation"}
                                     </p>
-                                    <p className="text-gray-500 mb-2">
-                                        {currentReporter.department}
-                                    </p>
-                                    {getStatusTag(
-                                        currentReporter.status || "active"
-                                    )}
+                                    {getStatusTag(currentModerator.status)}
                                 </div>
                             </div>
 
@@ -542,7 +364,7 @@ export default function ReportersPage() {
                                                     Email
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.email ||
+                                                    {currentModerator.email ||
                                                         "Not provided"}
                                                 </p>
                                             </div>
@@ -553,7 +375,8 @@ export default function ReportersPage() {
                                                     Mobile
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.mobile ||
+                                                    {currentModerator.moderator
+                                                        .mobile ||
                                                         "Not provided"}
                                                 </p>
                                             </div>
@@ -564,11 +387,12 @@ export default function ReportersPage() {
                                                     Gender
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.gender
-                                                        ? currentReporter.gender
+                                                    {currentModerator.moderator
+                                                        .gender
+                                                        ? currentModerator.moderator.gender
                                                               .charAt(0)
                                                               .toUpperCase() +
-                                                          currentReporter.gender.slice(
+                                                          currentModerator.moderator.gender.slice(
                                                               1
                                                           )
                                                         : "Not provided"}
@@ -581,10 +405,11 @@ export default function ReportersPage() {
                                                     Date of Birth
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.date_of_birth
+                                                    {currentModerator.moderator
+                                                        .date_of_birth
                                                         ? format(
                                                               new Date(
-                                                                  currentReporter.date_of_birth
+                                                                  currentModerator.moderator.date_of_birth
                                                               ),
                                                               "MMMM dd, yyyy"
                                                           )
@@ -598,7 +423,8 @@ export default function ReportersPage() {
                                                     Blood Group
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.blood_group ||
+                                                    {currentModerator.moderator
+                                                        .blood_group ||
                                                         "Not provided"}
                                                 </p>
                                             </div>
@@ -606,24 +432,36 @@ export default function ReportersPage() {
                                         <Col span={12}>
                                             <div className="mb-4">
                                                 <p className="text-gray-500 mb-1">
-                                                    Articles
+                                                    Last Login
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.articles_count ||
-                                                        0}
+                                                    {currentModerator.last_login
+                                                        ? format(
+                                                              new Date(
+                                                                  currentModerator.last_login
+                                                              ),
+                                                              "MMMM dd, yyyy HH:mm"
+                                                          )
+                                                        : "Not provided"}
                                                 </p>
                                             </div>
                                         </Col>
+                                        {currentModerator.moderator.about && (
+                                            <Col span={24}>
+                                                <div className="mb-4">
+                                                    <p className="text-gray-500 mb-1">
+                                                        About
+                                                    </p>
+                                                    <p>
+                                                        {
+                                                            currentModerator
+                                                                .moderator.about
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </Col>
+                                        )}
                                     </Row>
-
-                                    {currentReporter.about && (
-                                        <div className="mt-4">
-                                            <p className="text-gray-500 mb-1">
-                                                About
-                                            </p>
-                                            <p>{currentReporter.about}</p>
-                                        </div>
-                                    )}
                                 </Tabs.TabPane>
 
                                 <Tabs.TabPane tab="Address" key="2">
@@ -634,12 +472,14 @@ export default function ReportersPage() {
                                                     Address Line 1
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.address_line_one ||
+                                                    {currentModerator.moderator
+                                                        .address_line_one ||
                                                         "Not provided"}
                                                 </p>
                                             </div>
                                         </Col>
-                                        {currentReporter.address_line_two && (
+                                        {currentModerator.moderator
+                                            .address_line_two && (
                                             <Col span={24}>
                                                 <div className="mb-4">
                                                     <p className="text-gray-500 mb-1">
@@ -647,7 +487,9 @@ export default function ReportersPage() {
                                                     </p>
                                                     <p className="font-medium">
                                                         {
-                                                            currentReporter.address_line_two
+                                                            currentModerator
+                                                                .moderator
+                                                                .address_line_two
                                                         }
                                                     </p>
                                                 </div>
@@ -656,43 +498,11 @@ export default function ReportersPage() {
                                         <Col span={12}>
                                             <div className="mb-4">
                                                 <p className="text-gray-500 mb-1">
-                                                    City
-                                                </p>
-                                                <p className="font-medium">
-                                                    {currentReporter.city ||
-                                                        "Not provided"}
-                                                </p>
-                                            </div>
-                                        </Col>
-                                        <Col span={12}>
-                                            <div className="mb-4">
-                                                <p className="text-gray-500 mb-1">
-                                                    State
-                                                </p>
-                                                <p className="font-medium">
-                                                    {currentReporter.state ||
-                                                        "Not provided"}
-                                                </p>
-                                            </div>
-                                        </Col>
-                                        <Col span={12}>
-                                            <div className="mb-4">
-                                                <p className="text-gray-500 mb-1">
-                                                    Country
-                                                </p>
-                                                <p className="font-medium">
-                                                    {currentReporter.country ||
-                                                        "Not provided"}
-                                                </p>
-                                            </div>
-                                        </Col>
-                                        <Col span={12}>
-                                            <div className="mb-4">
-                                                <p className="text-gray-500 mb-1">
                                                     ZIP Code
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.zip_code ||
+                                                    {currentModerator.moderator
+                                                        .zip_code ||
                                                         "Not provided"}
                                                 </p>
                                             </div>
@@ -708,8 +518,9 @@ export default function ReportersPage() {
                                                     Verification Type
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.verification_type
-                                                        ? currentReporter.verification_type
+                                                    {currentModerator.moderator
+                                                        .document_type
+                                                        ? currentModerator.moderator.document_type
                                                               .split("_")
                                                               .map(
                                                                   (word) =>
@@ -733,8 +544,82 @@ export default function ReportersPage() {
                                                     Document ID
                                                 </p>
                                                 <p className="font-medium">
-                                                    {currentReporter.document_id_no ||
+                                                    {currentModerator.moderator
+                                                        .document_id_no ||
                                                         "Not provided"}
+                                                </p>
+                                            </div>
+                                        </Col>
+                                        <Col span={12}>
+                                            <div className="mb-4">
+                                                <p className="text-gray-500 mb-1">
+                                                    Email Verified
+                                                </p>
+                                                <p className="font-medium">
+                                                    {currentModerator.is_email_verified
+                                                        ? "Yes"
+                                                        : "No"}
+                                                </p>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Tabs.TabPane>
+
+                                <Tabs.TabPane tab="Account Details" key="4">
+                                    <Row gutter={[16, 16]}>
+                                        <Col span={12}>
+                                            <div className="mb-4">
+                                                <p className="text-gray-500 mb-1">
+                                                    User ID
+                                                </p>
+                                                <p className="font-medium">
+                                                    {currentModerator.userUniqueId ||
+                                                        "Not provided"}
+                                                </p>
+                                            </div>
+                                        </Col>
+                                        <Col span={12}>
+                                            <div className="mb-4">
+                                                <p className="text-gray-500 mb-1">
+                                                    Account Type
+                                                </p>
+                                                <p className="font-medium">
+                                                    {currentModerator.account_type ||
+                                                        "Not provided"}
+                                                </p>
+                                            </div>
+                                        </Col>
+                                        <Col span={12}>
+                                            <div className="mb-4">
+                                                <p className="text-gray-500 mb-1">
+                                                    Created At
+                                                </p>
+                                                <p className="font-medium">
+                                                    {currentModerator.createdAt
+                                                        ? format(
+                                                              new Date(
+                                                                  currentModerator.createdAt
+                                                              ),
+                                                              "MMMM dd, yyyy"
+                                                          )
+                                                        : "Not provided"}
+                                                </p>
+                                            </div>
+                                        </Col>
+                                        <Col span={12}>
+                                            <div className="mb-4">
+                                                <p className="text-gray-500 mb-1">
+                                                    Updated At
+                                                </p>
+                                                <p className="font-medium">
+                                                    {currentModerator.updatedAt
+                                                        ? format(
+                                                              new Date(
+                                                                  currentModerator.updatedAt
+                                                              ),
+                                                              "MMMM dd, yyyy"
+                                                          )
+                                                        : "Not provided"}
                                                 </p>
                                             </div>
                                         </Col>
@@ -746,39 +631,11 @@ export default function ReportersPage() {
                 </Modal>
 
                 {/* Delete Confirmation Modal */}
-                <Modal
-                    title="Delete Reporter"
+                <DeleteUserModal
                     open={isDeleteModalVisible}
-                    onCancel={() => setIsDeleteModalVisible(false)}
-                    footer={[
-                        <Button
-                            key="cancel"
-                            onClick={() => setIsDeleteModalVisible(false)}
-                        >
-                            Cancel
-                        </Button>,
-                        <Button
-                            key="delete"
-                            danger
-                            type="primary"
-                            loading={loading}
-                            onClick={handleDeleteReporter}
-                        >
-                            Delete
-                        </Button>,
-                    ]}
-                >
-                    <p>
-                        Are you sure you want to delete reporter{" "}
-                        <strong>
-                            {currentReporter
-                                ? `${currentReporter.first_name} ${currentReporter.last_name}`
-                                : ""}
-                        </strong>
-                        ?
-                    </p>
-                    <p>This action cannot be undone.</p>
-                </Modal>
+                    close={() => setIsDeleteModalVisible(false)}
+                    user={currentModerator as UserTableData}
+                />
             </div>
         </>
     );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useTheme } from "@/components/theme-context";
 import {
@@ -385,7 +386,7 @@ export default function CreateNewsPage() {
                                             },
                                         ]}
                                     >
-                                        <Select placeholder="Select a reporter">
+                                        <Select placeholder="Select a reporter" showSearch>
                                             <Option value="John Doe">
                                                 John Doe
                                             </Option>

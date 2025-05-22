@@ -2,36 +2,49 @@
 "use client";
 
 import {
-  useForgetPasswordMutation,
-  useGetTokenOTPforgetPasswordMutation,
-  useResetPasswordMutation,
+    useForgetPasswordMutation,
+    useGetTokenOTPforgetPasswordMutation,
+    useResendOtpMutation,
+    useResetPasswordMutation,
 } from "@/redux/features/auth/authApi";
 import {
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-  MailOutlined,
+    EyeInvisibleOutlined,
+    EyeTwoTone,
+    MailOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ForgotPasswordAntd() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
     const [form] = Form.useForm();
     const [otpForm] = Form.useForm();
     const [passwordForm] = Form.useForm();
 
     const [step, setStep] = useState(1);
     const [countdown, setCountdown] = useState(59);
-    const [email, setEmail] = useState("");
-    const [tokenID, setTokenID] = useState("");
     const [resetToken, setResetToken] = useState("");
 
     const [getOtp] = useForgetPasswordMutation();
     const [verifyOtp] = useGetTokenOTPforgetPasswordMutation();
     const [resetPassword] = useResetPasswordMutation();
+    const [resendOtp] = useResendOtpMutation();
 
+    // Auto step forward if email and token are in URL
+    useEffect(() => {
+        const email = searchParams.get("email");
+        const tokenId = searchParams.get("token_id");
+
+        if (email && tokenId) {
+            setStep(2);
+        }
+    }, [searchParams]);
+
+    // Countdown timer for OTP resend
     useEffect(() => {
         if (step === 2 && countdown > 0) {
             const timer = setInterval(() => {
@@ -53,9 +66,14 @@ export default function ForgotPasswordAntd() {
                 email: values.email,
                 user_type: "admin",
             });
+
             if (res.data?.success) {
-                setEmail(values.email);
-                setTokenID(res.data.data.token_id);
+                const searchParams = new URLSearchParams();
+                searchParams.set("email", values.email);
+                searchParams.set("token_id", res.data.data.token_id);
+
+                router.push(`?${searchParams.toString()}`);
+
                 setStep(2);
                 setCountdown(59);
                 message.success("OTP sent to your email.");
@@ -70,14 +88,17 @@ export default function ForgotPasswordAntd() {
     };
 
     const handleOtpSubmit = async (values: { otp: string }) => {
+        const tokenId = searchParams.get("token_id");
+        if (!tokenId) return message.error("Missing token ID");
+
         try {
             const res: any = await verifyOtp({
-                token_id: tokenID,
+                token_id: tokenId,
                 otp: values.otp,
             });
+
             if (res.data?.success) {
                 setResetToken(res.data.data.resetPasswordToken);
-                setTokenID(res.data.data.token_id);
                 setStep(3);
                 message.success("OTP verified. Please reset your password.");
             } else {
@@ -88,16 +109,24 @@ export default function ForgotPasswordAntd() {
         }
     };
 
-    const handlePasswordSubmit = async (values: { newPassword: string; confirmPassword: string }) => {
+    const handlePasswordSubmit = async (values: {
+        newPassword: string;
+        confirmPassword: string;
+    }) => {
+        const tokenId = searchParams.get("token_id");
+        if (!tokenId) return message.error("Missing token ID");
+
         if (values.newPassword !== values.confirmPassword) {
             return message.error("Passwords do not match");
         }
+
         try {
             const res: any = await resetPassword({
                 resetPasswordToken: resetToken,
                 newPassword: values.newPassword,
-                token_id: tokenID,
+                token_id: tokenId,
             });
+
             if (res.data?.success) {
                 message.success(
                     "Password changed successfully. Redirecting..."
@@ -114,16 +143,19 @@ export default function ForgotPasswordAntd() {
     };
 
     const handleResendOtp = async () => {
-        try {
-            const res: any = await getOtp({ email, user_type: "b2b" });
-            if (res.data?.success) {
-                setCountdown(59);
-                message.success("OTP resent");
-            } else {
-                message.error("Failed to resend OTP");
-            }
-        } catch {
-            message.error("Error resending OTP");
+        const tokenId = searchParams.get("token_id");
+        if (!tokenId) {
+            message.error("No token ID found");
+            return;
+        }
+
+        const response: any = await resendOtp({ token_id: tokenId });
+
+        if (response?.data?.success) {
+            setCountdown(59);
+            message.success(response?.data?.data?.message || "OTP resent.");
+        } else {
+            message.error("Failed to resend OTP.");
         }
     };
 

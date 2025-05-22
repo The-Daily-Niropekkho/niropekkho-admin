@@ -97,9 +97,9 @@ export default function AppHeader({
             key: "4",
             icon: <LogoutOutlined />,
             label: (
-                <Button type="link" onClick={handleLogout}>
+                <span onClick={handleLogout}>
                     Sign Out
-                </Button>
+                </span>
             ),
         },
     ];
@@ -264,6 +264,7 @@ export default function AppHeader({
                 </Tooltip>
 
                 <NotificationMenu />
+                {/* User Menu */}
                 <div>
                     <Dropdown
                         menu={{ items: userMenuItems as any }}

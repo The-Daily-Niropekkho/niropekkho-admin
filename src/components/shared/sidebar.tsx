@@ -128,8 +128,16 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: "Users",
             children: [
                 {
-                    key: "/dashboard/users/all",
-                    label: <Link href="/dashboard/users/all">All Users</Link>,
+                    key: "/dashboard/users/admin",
+                    label: <Link href="/dashboard/users/admin">Admins</Link>,
+                },
+                {
+                    key: "/dashboard/users/reporter",
+                    label: <Link href="/dashboard/users/reporter">Reporters</Link>,
+                },
+                {
+                    key: "/dashboard/users/moderator",
+                    label: <Link href="/dashboard/users/moderator">Moderator</Link>,
                 },
                 {
                     key: "/dashboard/users/add",

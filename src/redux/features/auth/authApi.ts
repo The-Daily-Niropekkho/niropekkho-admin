@@ -4,7 +4,6 @@ import { baseApi } from "../../api/baseApi";
 const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Login
-        // This endpoint is used to login a user
         sendLoginRequest: builder.mutation({
             query: (data) => {
                 return {
@@ -14,25 +13,39 @@ const authApi = baseApi.injectEndpoints({
                 };
             },
         }),
-        // Register
-        // This endpoint is used to register a new user
-        register: builder.mutation({
+        // Rsend OTP
+        resendOtp: builder.mutation({
             query: (data) => ({
-                url: "/users",
+                url: "/auth/resend-otp",
                 method: "POST",
                 body: data,
             }),
         }),
-        createSubUser: builder.mutation({
+
+        // Register
+        createModerator: builder.mutation({
             query: (data) => ({
-                url: "/users/create-sub-b2b-account",
+                url: "/users/create-moderator-account",
+                method: "POST",
+                body: data,
+            }),
+        }),
+        createWriter: builder.mutation({
+            query: (data) => ({
+                url: "/users/create-writer-account",
+                method: "POST",
+                body: data,
+            }),
+        }),
+        createSubAdmin: builder.mutation({
+            query: (data) => ({
+                url: "/users/create-sub-admin-account",
                 method: "POST",
                 body: data,
             }),
         }),
         // Temp User Register
-        // This endpoint is used to register a temp user
-        tempUserRegister: builder.mutation({
+        createTempUser: builder.mutation({
             query: (data) => ({
                 url: "/users/temp-user",
                 method: "POST",
@@ -41,7 +54,6 @@ const authApi = baseApi.injectEndpoints({
         }),
 
         // Get user profile
-        // This endpoint is used to fetch the user profile data
         getUserProfile: builder.query({
             query: () => ({
                 url: "/auth/profile",
@@ -103,9 +115,11 @@ const authApi = baseApi.injectEndpoints({
 
 export const {
     useSendLoginRequestMutation,
-    useRegisterMutation,
-    useCreateSubUserMutation,
-    useTempUserRegisterMutation,
+    useResendOtpMutation,
+    useCreateTempUserMutation,
+    useCreateModeratorMutation,
+    useCreateWriterMutation,
+    useCreateSubAdminMutation,
     useGetUserProfileQuery,
     useUpdateUserProfileMutation,
     useGetTokenOTPforgetPasswordMutation,

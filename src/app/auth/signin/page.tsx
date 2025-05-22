@@ -1,8 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import useAuth from "@/hooks/useAuth";
-import { useSendLoginRequestMutation } from "@/redux/features/auth/authApi";
+import {
+    useResendOtpMutation,
+    useSendLoginRequestMutation,
+} from "@/redux/features/auth/authApi";
 import { signin } from "@/service/auth";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message, Spin } from "antd";
@@ -27,6 +31,7 @@ export default function LoginPage() {
     const { login } = useAuth();
 
     const [getLoginOTP] = useSendLoginRequestMutation();
+    const [resendOtp] = useResendOtpMutation();
 
     useEffect(() => {
         setMounted(true);
@@ -54,32 +59,25 @@ export default function LoginPage() {
     }, [showOtpForm, countdown]);
 
     const handleLogin = async (values: { email: string; password: string }) => {
-
         try {
-            console.log("Login values: ", {
-                ...values,
-                user_type: "admin",
-            });
-            
             const response: any = await getLoginOTP({
                 ...values,
                 user_type: "admin",
             }).unwrap();
-            console.log("Login response: ", response);
 
-            if (response?.success) {
-                const tokenId = response.data.token_id;
+            if (response?.data?.success) {
+                const tokenId = response?.data?.data?.token_id;
                 setTokenID(tokenId);
                 setShowOtpForm(true);
                 router.replace(`/auth/signin?token_id=${tokenId}`);
                 message.success("OTP sent to your email.");
                 setCountdown(59);
             } else {
-                message.error(response?.error?.data?.message || "Failed to send OTP");
+                message.error(
+                    response?.data?.message || "Failed to send OTP"
+                );
             }
-        } catch (error) {
-            console.error("Login error: ", error);
-
+        } catch {
             message.error("Something went wrong.");
         } finally {
             setLoading(false);
@@ -98,7 +96,11 @@ export default function LoginPage() {
                 localStorage.setItem("token", response.data.accessToken);
                 login(response.data.userData);
                 message.success("Logged In Successfully");
-                router.replace(decodeURIComponent(searchParams.get("redirect") || "/dashboard"));
+                router.replace(
+                    decodeURIComponent(
+                        searchParams.get("redirect") || "/dashboard"
+                    )
+                );
             } else {
                 message.error(response.message || "OTP verification failed");
             }
@@ -110,16 +112,18 @@ export default function LoginPage() {
     };
 
     const handleResendOtp = async () => {
-        const values = loginForm.getFieldsValue();
-        const response = await getLoginOTP({
-            ...values,
-            user_type: "b2b",
+        const urlToken = searchParams.get("token_id");
+        if (!urlToken) {
+            message.error("No token ID found");
+            return;
+        }
+        const response: any = await resendOtp({
+            token_id: urlToken,
         });
 
         if (response?.data?.success) {
-            const tokenId = response.data.data.token_id;
+            const tokenId = response?.data?.data.token_id;
             setTokenID(tokenId);
-            router.replace(`/auth/signin?token_id=${tokenId}`);
             setCountdown(59);
             message.success("OTP resent.");
         } else {
@@ -151,7 +155,9 @@ export default function LoginPage() {
                 </h1>
                 <p className="mt-2 text-gray-600">
                     {showOtpForm
-                        ? `Enter the 6-digit OTP sent to ${loginForm.getFieldValue("email") || ""}`
+                        ? `Enter the 6-digit OTP sent to ${
+                              loginForm.getFieldValue("email") || ""
+                          }`
                         : "Welcome to Naria! Sign in to continue"}
                 </p>
             </div>
@@ -171,7 +177,11 @@ export default function LoginPage() {
                         ]}
                     >
                         <Input
-                            prefix={<MailOutlined style={{ color: "rgba(0, 0, 0, 0.25)" }} />}
+                            prefix={
+                                <MailOutlined
+                                    style={{ color: "rgba(0, 0, 0, 0.25)" }}
+                                />
+                            }
                             placeholder="Email Address"
                             style={{
                                 height: "50px",
@@ -184,10 +194,16 @@ export default function LoginPage() {
 
                     <Form.Item
                         name="password"
-                        rules={[{ required: true, message: "Password is required" }]}
+                        rules={[
+                            { required: true, message: "Password is required" },
+                        ]}
                     >
                         <Input.Password
-                            prefix={<LockOutlined style={{ color: "rgba(0, 0, 0, 0.25)" }} />}
+                            prefix={
+                                <LockOutlined
+                                    style={{ color: "rgba(0, 0, 0, 0.25)" }}
+                                />
+                            }
                             placeholder="Password"
                             style={{
                                 height: "50px",
@@ -198,7 +214,12 @@ export default function LoginPage() {
                         />
                     </Form.Item>
 
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                        }}
+                    >
                         <div />
                         <Link
                             href="/auth/forgot-password"
@@ -208,7 +229,10 @@ export default function LoginPage() {
                         </Link>
                     </div>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -220,7 +244,8 @@ export default function LoginPage() {
                                 border: "none",
                                 fontWeight: "500",
                                 fontSize: "1rem",
-                                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
+                                boxShadow:
+                                    "0 4px 14px rgba(16, 185, 129, 0.25)",
                                 marginTop: 24,
                             }}
                         >
@@ -241,6 +266,7 @@ export default function LoginPage() {
                             { required: true, message: "OTP is required" },
                             { len: 6, message: "OTP must be 6 digits" },
                         ]}
+                        style={{ marginBottom: 8 }}
                     >
                         <Input
                             placeholder="Enter OTP"
@@ -254,19 +280,26 @@ export default function LoginPage() {
                         />
                     </Form.Item>
 
-                    <div style={{ textAlign: "right", marginBottom: 16 }}>
+                    <div style={{ textAlign: "right", marginBottom: 8 }}>
                         {countdown > 0 ? (
                             <span style={{ fontSize: 14, color: "#999" }}>
                                 Resend OTP in {countdown}s
                             </span>
                         ) : (
-                            <Button type="link" onClick={handleResendOtp}>
+                            <Button
+                                type="link"
+                                style={{ color: "var(--primary-color)" }}
+                                onClick={handleResendOtp}
+                            >
                                 Resend OTP
                             </Button>
                         )}
                     </div>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -279,7 +312,8 @@ export default function LoginPage() {
                                 border: "none",
                                 fontWeight: "500",
                                 fontSize: "1rem",
-                                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
+                                boxShadow:
+                                    "0 4px 14px rgba(16, 185, 129, 0.25)",
                             }}
                         >
                             Verify OTP
