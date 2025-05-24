@@ -172,7 +172,7 @@ export default function AdminsPage() {
                         />
                     </Tooltip>
                     <Tooltip title="Edit">
-                        <Link href={`/dashboard/admins/edit/${admin.id}`}>
+                        <Link href={`/dashboard/users/edit/${admin.id}`}>
                             <Button icon={<EditOutlined />} size="small" />
                         </Link>
                     </Tooltip>
@@ -251,7 +251,7 @@ export default function AdminsPage() {
                         </Space>
                         <Space wrap>
                             <Button icon={<ExportOutlined />}>Export</Button>
-                            <Link href="/dashboard/admins/add">
+                            <Link href="/dashboard/users/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     Add Admin
                                 </Button>
@@ -289,7 +289,7 @@ export default function AdminsPage() {
                             key="edit"
                             href={
                                 currentAdmin
-                                    ? `/dashboard/admins/edit/${currentAdmin.id}`
+                                    ? `/dashboard/users/edit/${currentAdmin.id}`
                                     : "#"
                             }
                         >

@@ -5,7 +5,7 @@ import { decrypt, DecryptedSession } from "./lib/session";
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
     const cookie = req.cookies.get("session")?.value;
-    const isChangePassword = req.cookies.get("is_change_password")?.value;
+    // const isChangePassword = req.cookies.get("is_change_password")?.value;
 
     let session: DecryptedSession | null = null;
 
@@ -26,11 +26,11 @@ export async function middleware(req: NextRequest) {
         return await handleRefreshOrLogout(req, pathname);
     }
 
-    if (isChangePassword === "true" && pathname !== "/auth/set-password") {
-        const url = req.nextUrl.clone();
-        url.pathname = "/set-password";
-        return NextResponse.redirect(url);
-    }
+    // if (isChangePassword === "true" && pathname !== "/auth/set-password") {
+    //     const url = req.nextUrl.clone();
+    //     url.pathname = "/set-password";
+    //     return NextResponse.redirect(url);
+    // }
 
     // সেশন থাকলে এবং /auth রাউটে থাকলে হোমে রিডাইরেক্ট
     if (session?.userId && pathname.startsWith("/auth")) {

@@ -12,7 +12,7 @@ import {
     EyeTwoTone,
     MailOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Input, message } from "antd";
+import { Button, Form, Input, message, Typography } from "antd";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -34,7 +34,6 @@ export default function ForgotPasswordAntd() {
     const [resetPassword] = useResetPasswordMutation();
     const [resendOtp] = useResendOtpMutation();
 
-    // Auto step forward if email and token are in URL
     useEffect(() => {
         const email = searchParams.get("email");
         const tokenId = searchParams.get("token_id");
@@ -44,7 +43,6 @@ export default function ForgotPasswordAntd() {
         }
     }, [searchParams]);
 
-    // Countdown timer for OTP resend
     useEffect(() => {
         if (step === 2 && countdown > 0) {
             const timer = setInterval(() => {
@@ -160,21 +158,33 @@ export default function ForgotPasswordAntd() {
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: "0 auto", padding: 24 }}>
-            <h1 className="text-3xl font-bold text-center mb-6">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            style={{
+                width: "100%",
+                maxWidth: "420px",
+                padding: "32px",
+                backgroundColor: "#ffffff",
+                borderRadius: "16px",
+                boxShadow:
+                    "0 10px 30px rgba(0, 0, 0, 0.06), 0 6px 10px rgba(0, 0, 0, 0.04)",
+            }}
+        >
+            <Typography.Title level={3} style={{ textAlign: "center" }}>
                 {step === 1
                     ? "Forgot Password"
                     : step === 2
                     ? "Verify OTP"
                     : "Reset Password"}
-            </h1>
+            </Typography.Title>
 
             {step === 1 && (
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleEmailSubmit}
-                    size="large"
                 >
                     <Form.Item
                         name="email"
@@ -184,15 +194,12 @@ export default function ForgotPasswordAntd() {
                         ]}
                     >
                         <Input
-                            prefix={
-                                <MailOutlined
-                                    style={{ color: "rgba(0, 0, 0, 0.25)" }}
-                                />
-                            }
+                            prefix={<MailOutlined />}
+                            size="large"
                             placeholder="Email Address"
                             style={{
-                                height: 50,
-                                borderRadius: 10,
+                                height: "50px",
+                                borderRadius: "10px",
                                 background: "#f9fafb",
                                 border: "1px solid #e5e7eb",
                             }}
@@ -227,7 +234,6 @@ export default function ForgotPasswordAntd() {
                     form={otpForm}
                     layout="vertical"
                     onFinish={handleOtpSubmit}
-                    size="large"
                 >
                     <Form.Item
                         name="otp"
@@ -236,20 +242,14 @@ export default function ForgotPasswordAntd() {
                             { len: 6, message: "OTP must be 6 digits" },
                         ]}
                     >
-                        <Input
-                            maxLength={6}
-                            placeholder="Enter OTP"
-                            style={{
-                                height: 50,
-                                borderRadius: 10,
-                                letterSpacing: 5,
-                                background: "#f9fafb",
-                                border: "1px solid #e5e7eb",
-                            }}
+                        <Input.OTP
+                            length={6}
+                            size="large"
+                            style={{ letterSpacing: 4 }}
                         />
                     </Form.Item>
 
-                    <div style={{ textAlign: "right", marginBottom: 16 }}>
+                    <div style={{ textAlign: "right", marginBottom: 12 }}>
                         {countdown > 0 ? (
                             <span style={{ fontSize: 14, color: "#999" }}>
                                 Resend OTP in {countdown}s
@@ -289,7 +289,6 @@ export default function ForgotPasswordAntd() {
                     form={passwordForm}
                     layout="vertical"
                     onFinish={handlePasswordSubmit}
-                    size="large"
                 >
                     <Form.Item
                         name="newPassword"
@@ -306,12 +305,6 @@ export default function ForgotPasswordAntd() {
                                     <EyeInvisibleOutlined />
                                 )
                             }
-                            style={{
-                                height: 50,
-                                borderRadius: 10,
-                                background: "#f9fafb",
-                                border: "1px solid #e5e7eb",
-                            }}
                         />
                     </Form.Item>
 
@@ -347,12 +340,6 @@ export default function ForgotPasswordAntd() {
                                     <EyeInvisibleOutlined />
                                 )
                             }
-                            style={{
-                                height: 50,
-                                borderRadius: 10,
-                                background: "#f9fafb",
-                                border: "1px solid #e5e7eb",
-                            }}
                         />
                     </Form.Item>
 
@@ -378,6 +365,6 @@ export default function ForgotPasswordAntd() {
                     </motion.div>
                 </Form>
             )}
-        </div>
+        </motion.div>
     );
 }

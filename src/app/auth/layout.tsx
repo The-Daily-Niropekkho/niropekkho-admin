@@ -133,7 +133,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             fontWeight: "bold",
                         }}
                     >
-                        নিরপেক্ষ News
+                        Daily Niropekkho
                     </Title>
                     <Text
                         style={{

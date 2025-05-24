@@ -19,12 +19,8 @@ import {
     Divider,
     Form,
     Steps,
-    Upload,
-    UploadFile,
-    UploadProps,
-    message,
+    message
 } from "antd";
-import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,10 +29,10 @@ import { useEffect, useState } from "react";
 interface Department {
     id: string;
     title: string;
-    is_deleted : boolean
-    status: string
+    is_deleted: boolean;
+    status: string;
     createdAt: string;
-    updatedAt: string
+    updatedAt: string;
 }
 
 type UserType = "admin" | "moderator" | "writer";
@@ -53,7 +49,7 @@ interface FormData {
     mobile?: string;
     date_of_birth?: string;
     gender?: Gender;
-    profile_image?: UploadFile[];
+    profile_image?: TFileDocument;
     address_line_one?: string;
     address_line_two?: string;
     city?: string;
@@ -110,7 +106,7 @@ interface FinalPayload {
         last_name?: string;
         address_line_one?: string;
         mobile?: string;
-        dateOfBirth?: string;
+        date_of_birth?: string;
         gender?: Gender;
         designation?: string;
         profile_image?: TFileDocument | null;
@@ -121,7 +117,6 @@ export default function AddReporterPage() {
     const [form] = Form.useForm();
     const [currentStep, setCurrentStep] = useState(0);
     const [departments, setDepartments] = useState<Department[]>([]);
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [loading, setLoading] = useState(false);
     const [tempUserId, setTempUserId] = useState<string | null>(null);
     const router = useRouter();
@@ -289,17 +284,8 @@ export default function AddReporterPage() {
                 setCurrentStep(currentStep + 1);
             }
         } catch (error: any) {
-            console.error("Validation failed:", error);
-            if (error.errorFields) {
-                console.error("Error fields:", error.errorFields);
-                message.error(
-                    `Please fill in all required fields: ${error.errorFields
-                        .map((e: any) => e.name[0])
-                        .join(", ")}`
-                );
-            } else {
-                message.error("Please fill in all required fields");
-            }
+            const errorMsg = error?.data?.message;
+            message.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -326,7 +312,7 @@ export default function AddReporterPage() {
             }
 
             if (values.date_of_birth) {
-                values.date_of_birth = format(values.date_of_birth, "yyyy");
+                values.date_of_birth = values.date_of_birth;
             }
 
             const payload: FinalPayload = {
@@ -351,7 +337,7 @@ export default function AddReporterPage() {
                     mobile: values.mobile,
                     date_of_birth: values.date_of_birth,
                     gender: values.gender,
-                    profile_image: undefined,
+                    profile_image: values.profile_image || undefined,
                 };
             } else if (values.user_type === "writer") {
                 payload.writer = {
@@ -359,17 +345,17 @@ export default function AddReporterPage() {
                     last_name: values.last_name!,
                     nick_name: values.nick_name,
                     address_line_one: values.address_line_one,
-                    city: values.city,
-                    state: values.state,
-                    country: values.country,
-                    zip_code: values.zip_code,
+                    // city: values.city,
+                    // state: values.state,
+                    // country: values.country,
+                    // zip_code: values.zip_code,
                     mobile: values.mobile,
                     date_of_birth: values.date_of_birth,
                     gender: values.gender,
                     document_type: values.document_type,
                     document_id_no: values.document_id_no,
                     designation: values.designation,
-                    profile_image: undefined,
+                    profile_image: values.profile_image || undefined,
                 };
             } else if (values.user_type === "moderator") {
                 payload.moderator = {
@@ -377,10 +363,10 @@ export default function AddReporterPage() {
                     last_name: values.last_name!,
                     address_line_one: values.address_line_one,
                     mobile: values.mobile,
-                    dateOfBirth: values.date_of_birth,
+                    date_of_birth: values.date_of_birth,
                     gender: values.gender,
                     designation: values.designation,
-                    profile_image: undefined,
+                    profile_image: values.profile_image || undefined,
                 };
             }
 
@@ -393,40 +379,16 @@ export default function AddReporterPage() {
             }
 
             message.success("User created successfully");
-            router.push("/dashboard/users/all");
-        } catch (error) {
-            console.error("OTP submission failed:", error);
-            setFileList([]);
+            router.push("/dashboard/users/admin");
+        } catch (error: any) {
+            const errorMsg = error?.data?.message;
+            message.error(errorMsg);
+            // console.error("OTP submission failed:", error);
         } finally {
             setLoading(false);
         }
     };
 
-    // Handle profile image upload
-    const handleImageChange: UploadProps["onChange"] = ({
-        fileList: newFileList,
-    }) => {
-        setFileList(newFileList);
-        form.setFieldsValue({ profile_image: newFileList });
-    };
-
-    const uploadProps: UploadProps = {
-        beforeUpload: (file) => {
-            const isImage = file.type.startsWith("image/");
-            if (!isImage) {
-                message.error("You can only upload image files!");
-            }
-            const isLt2M = file.size / 1024 / 1024 < 2;
-            if (!isLt2M) {
-                message.error("Image must be smaller than 2MB!");
-            }
-            return isImage && isLt2M ? false : Upload.LIST_IGNORE;
-        },
-        fileList,
-        onChange: handleImageChange,
-        maxCount: 1,
-        listType: "picture",
-    };
 
     return (
         <div className="space-y-6">
@@ -458,21 +420,13 @@ export default function AddReporterPage() {
                 >
                     {currentStep === 0 && <AccountInfoForm />}
                     {currentStep === 1 && (
-                        <PersonalInfoForm uploadProps={uploadProps} />
+                        <PersonalInfoForm form={form} />
                     )}
                     {currentStep === 2 && (
-                        <AddressAndAdditionalInfoForm
-                            userType={
-                                form.getFieldValue("user_type") || "admin"
-                            }
-                            step={2}
-                        />
+                        <AddressAndAdditionalInfoForm step={2} />
                     )}
                     {currentStep === 3 && (
                         <AddressAndAdditionalInfoForm
-                            userType={
-                                form.getFieldValue("user_type") || "admin"
-                            }
                             step={3}
                             departments={departments}
                         />

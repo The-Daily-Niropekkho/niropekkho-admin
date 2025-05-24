@@ -1,7 +1,6 @@
 import { Col, Form, Input, Row, Select } from "antd";
 
 interface AddressAndAdditionalInfoFormProps {
-    userType: string;
     step: number;
     departments?: {
         id: string;
@@ -10,7 +9,6 @@ interface AddressAndAdditionalInfoFormProps {
 }
 
 export default function AddressAndAdditionalInfoForm({
-    userType,
     step,
     departments = [],
 }: AddressAndAdditionalInfoFormProps) {
@@ -20,7 +18,7 @@ export default function AddressAndAdditionalInfoForm({
             shouldUpdate={(prev, curr) => prev.user_type !== curr.user_type}
         >
             {({ getFieldValue }) =>
-                getFieldValue(userType) !== "admin" ? (
+                getFieldValue("user_type") !== "admin" ? (
                     <Row gutter={16}>
                         {step === 2 && (
                             <>
@@ -39,7 +37,7 @@ export default function AddressAndAdditionalInfoForm({
                                         <Input placeholder="Street address" />
                                     </Form.Item>
                                 </Col>
-                                {getFieldValue(userType) === "writer" && (
+                                {getFieldValue("user_type") === "writer" && (
                                     <>
                                         <Col xs={24} md={12}>
                                             <Form.Item name="city" label="City">

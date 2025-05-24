@@ -185,7 +185,7 @@ export default function WritersPage() {
                         />
                     </Tooltip>
                     <Tooltip title="Edit">
-                        <Link href={`/dashboard/writers/edit/${writer.id}`}>
+                        <Link href={`/dashboard/users/edit/${writer.id}`}>
                             <Button icon={<EditOutlined />} size="small" />
                         </Link>
                     </Tooltip>
@@ -201,7 +201,7 @@ export default function WritersPage() {
             ),
         },
     ];
-
+    
     // Filter writers based on search text
     const filteredWriters = writers.filter(
         (writer) =>
@@ -209,7 +209,7 @@ export default function WritersPage() {
             writer.email.toLowerCase().includes(searchText.toLowerCase()) ||
             writer.userUniqueId.toLowerCase().includes(searchText.toLowerCase())
     );
-
+    
     return (
         <>
             <div style={{ marginBottom: 24 }}>
@@ -264,7 +264,7 @@ export default function WritersPage() {
                         </Space>
                         <Space wrap>
                             <Button icon={<ExportOutlined />}>Export</Button>
-                            <Link href="/dashboard/writers/add">
+                            <Link href="/dashboard/users/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     Add Writer
                                 </Button>

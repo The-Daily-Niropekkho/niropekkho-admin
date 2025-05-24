@@ -61,12 +61,9 @@ export default function AppHeader({
     const { setIsLoading } = useSession();
     const { logout } = useAuth();
     const dispatch = useAppDispatch();
-
-    console.log(user);
-
+    
     async function handleLogout() {
         setIsLoading(true);
-
         localStorage.removeItem("token");
         await signout();
         router.push("/auth/signin");

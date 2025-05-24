@@ -1,80 +1,252 @@
 "use client";
+import { GlobalFilePicker } from "@/components/features/media/global-file-picker";
+import ActivityLogs from "@/components/features/profile/activity-logs";
+import ChangePassword from "@/components/features/profile/change-password";
 import { useTheme } from "@/components/theme-context";
+import {
+    useGetUserProfileQuery
+} from "@/redux/features/auth/authApi";
+import { useUpdateProfileMutation } from "@/redux/features/user/userApi";
+import { TError, TFileDocument } from "@/types";
+import type { Admin, Moderator, Writer } from "@/types/user";
+import fileObjectToLink from "@/utils/fileObjectToLink";
 import {
     EditOutlined,
     HomeOutlined,
-    LockOutlined,
+    IdcardOutlined,
     MailOutlined,
     PhoneOutlined,
-    UserOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import {
     Avatar,
     Button,
     Card,
     Col,
+    DatePicker,
     Divider,
     Form,
     Input,
-    List,
     Row,
+    Select,
+    Spin,
     Tabs,
     Tag,
-    Upload,
-    message,
+    message
 } from "antd";
-import { useState } from "react";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
 const { TabPane } = Tabs;
+const { TextArea } = Input;
 
 export default function ProfilePage() {
+    const [form] = Form.useForm();
+    const [passwordForm] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const [openFileUpload, setOpenFileUploader] = useState<boolean>(false);
+    const [profileImage, setProfileImage] = useState<TFileDocument | undefined>(
+        undefined
+    );
 
-    const handleSubmit = () => {
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
+    const { data: user, isLoading } = useGetUserProfileQuery(undefined);
+    const [updateProfile] = useUpdateProfileMutation();
+
+    // Store initial form data for comparison
+    const [initialFormData, setInitialFormData] = useState<any>({});
+
+    // Get the specific profile data based on user type
+    const getProfileData = (): Admin | Writer | Moderator | null => {
+        if (!user) return null;
+
+        switch (user.user_type) {
+            case "admin":
+                return user.admin;
+            case "writer":
+                return user.writer;
+            case "moderator":
+                return user.moderator;
+            default:
+                return null;
+        }
+    };
+
+    const profileData = getProfileData();
+
+    const handleimageSelect = (files: TFileDocument[]) => {
+        const selectedImage = files[0];
+        setProfileImage(selectedImage);
+        form.setFieldsValue({ profile_image: selectedImage.id });
+        setOpenFileUploader(false);
+    };
+
+    useEffect(() => {
+        if (user && profileData) {
+            const formData: any = {
+                email: user.email,
+                first_name: profileData.first_name,
+                last_name: profileData.last_name,
+                nick_name: profileData.nick_name,
+                mobile: profileData.mobile,
+                gender: profileData.gender,
+                date_of_birth: profileData.date_of_birth
+                    ? dayjs(profileData.date_of_birth)
+                    : undefined,
+                profile_image: profileData.profile_image?.id || undefined,
+            };
+
+            if (user.user_type === "writer" || user.user_type === "moderator") {
+                const extendedProfile = profileData as Writer | Moderator;
+                formData.designation = extendedProfile.designation;
+                formData.blood_group = extendedProfile.blood_group;
+                formData.address_line_one = extendedProfile.address_line_one;
+                formData.zip_code = extendedProfile.zip_code;
+                formData.document_type = extendedProfile.document_type;
+                formData.document_id_no = extendedProfile.document_id_no;
+                formData.about = extendedProfile.about;
+            }
+
+            form.setFieldsValue(formData);
+            setInitialFormData(formData); // Store initial data for comparison
+            setProfileImage(profileData.profile_image); // Set initial profile image
+        }
+    }, [user, profileData, form]);
+
+    const handleSubmit = async (values: any) => {
+        try {
+            setLoading(true);
+
+            // Compare form values with initial values to find changed fields
+            const changedValues: any = {};
+            Object.keys(values).forEach((key) => {
+                if (key === "date_of_birth") {
+                    const formattedDate = values[key]
+                        ? values[key].format("YYYY-MM-DD")
+                        : undefined;
+                    const initialDate = initialFormData[key]
+                        ? initialFormData[key].format("YYYY-MM-DD")
+                        : undefined;
+                    if (formattedDate !== initialDate) {
+                        changedValues[key] = formattedDate;
+                    }
+                } else if (key === "profile_image") {
+                    // Compare profile_image IDs explicitly
+                    const currentImageId = values[key] || undefined;
+                    const initialImageId = initialFormData[key] || undefined;
+                    if (currentImageId !== initialImageId) {
+                        changedValues[key] = currentImageId;
+                    }
+                } else if (values[key] !== initialFormData[key]) {
+                    changedValues[key] = values[key];
+                }
+            });
+
+            
+
+            // If no changes, show message and return
+            if (Object.keys(changedValues).length === 0) {
+                message.info("No changes detected.");
+                setLoading(false);
+                return;
+            }
+
+            // Construct minimal payload with only changed values
+            const payload: any = {
+                user_type: user?.user_type,
+            };
+
+            // Add changed authData fields (e.g., email)
+            if (changedValues.email) {
+                payload.email = changedValues.email;
+            }
+
+            // Add changed profile fields based on user type
+            const profilePayload: any = {};
+            const commonFields = [
+                "first_name",
+                "last_name",
+                "nick_name",
+                "mobile",
+                "gender",
+                "date_of_birth",
+                "profile_image", // Include profile_image in common fields
+            ];
+            const extendedFields = [
+                "designation",
+                "blood_group",
+                "address_line_one",
+                "address_line_two",
+                "zip_code",
+                "document_type",
+                "document_id_no",
+                "about",
+            ];
+
+            commonFields.forEach((field) => {
+                if (changedValues[field] !== undefined) {
+                    profilePayload[field] = changedValues[field];
+                }
+            });
+
+            if (user?.user_type === "writer" || user?.user_type === "moderator") {
+                extendedFields.forEach((field) => {
+                    if (changedValues[field] !== undefined) {
+                        profilePayload[field] = changedValues[field];
+                    }
+                });
+            }
+
+            // Only include profile data if there are changes
+            if (Object.keys(profilePayload).length > 0 && user?.user_type) {
+                payload[user.user_type] = profilePayload;
+            }
+
+            console.log("Changed values:", changedValues);
+            console.log("Payload:", payload);
+
+            await updateProfile({ id: user?.id, data: payload }).unwrap();
             message.success("Profile updated successfully!");
-        }, 1500);
-    };
 
-    const handlePasswordChange = () => {
-        setLoading(true);
-        setTimeout(() => {
+            // Update initial form data with new values
+            setInitialFormData({
+                ...initialFormData,
+                ...changedValues,
+                date_of_birth: changedValues.date_of_birth
+                    ? dayjs(changedValues.date_of_birth)
+                    : initialFormData.date_of_birth,
+                profile_image: changedValues.profile_image || initialFormData.profile_image,
+            });
+        } catch (error) {
+            const errorResponse = error as TError;
+            message.error(
+                errorResponse.data?.message ||
+                    "Failed to update profile. Please try again."
+            );
+        } finally {
             setLoading(false);
-            message.success("Password changed successfully!");
-        }, 1500);
+        }
     };
 
-    const activities = [
-        {
-            title: "Updated product inventory",
-            time: "2 hours ago",
-            type: "update",
-        },
-        {
-            title: "Added new product: Wireless Headphones",
-            time: "Yesterday",
-            type: "add",
-        },
-        {
-            title: "Processed order #1234",
-            time: "2 days ago",
-            type: "process",
-        },
-        {
-            title: "Updated account settings",
-            time: "3 days ago",
-            type: "update",
-        },
-        {
-            title: "Added new user: John Smith",
-            time: "1 week ago",
-            type: "add",
-        },
-    ];
+    if (isLoading) {
+        return (
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100vh",
+                }}
+            >
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!user || !profileData) {
+        return <div>No user data available</div>;
+    }
 
     return (
         <>
@@ -87,7 +259,9 @@ export default function ProfilePage() {
                         color: isDark ? "#fff" : "#000",
                     }}
                 >
-                    User Profile
+                    {user.user_type.charAt(0).toUpperCase() +
+                        user.user_type.slice(1)}{" "}
+                    Profile
                 </h1>
                 <p
                     style={{
@@ -103,7 +277,6 @@ export default function ProfilePage() {
             <Row gutter={[16, 16]}>
                 <Col xs={24} md={8}>
                     <Card
-                        variant="borderless"
                         style={{
                             borderRadius: "8px",
                             boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
@@ -111,24 +284,13 @@ export default function ProfilePage() {
                         }}
                     >
                         <div style={{ textAlign: "center" }}>
-                            <Avatar size={100} icon={<UserOutlined />} />
-                            <Upload
-                                showUploadList={false}
-                                beforeUpload={() => {
-                                    message.info(
-                                        "Profile picture upload functionality would be implemented here"
-                                    );
-                                    return false;
-                                }}
-                            >
-                                <Button
-                                    icon={<EditOutlined />}
-                                    size="small"
-                                    style={{ marginTop: 8 }}
-                                >
-                                    Change
-                                </Button>
-                            </Upload>
+                            <Avatar
+                                size={100}
+                                src={fileObjectToLink(
+                                    profileData.profile_image
+                                )}
+                                icon={<UserOutlined />}
+                            />
                             <h2
                                 style={{
                                     marginTop: 16,
@@ -136,7 +298,7 @@ export default function ProfilePage() {
                                     color: isDark ? "#fff" : "#000",
                                 }}
                             >
-                                Admin User
+                                {profileData.first_name} {profileData.last_name}
                             </h2>
                             <p
                                 style={{
@@ -146,7 +308,8 @@ export default function ProfilePage() {
                                     marginBottom: 16,
                                 }}
                             >
-                                Administrator
+                                {user.user_type.charAt(0).toUpperCase() +
+                                    user.user_type.slice(1)}
                             </p>
                             <Divider
                                 style={{
@@ -165,7 +328,7 @@ export default function ProfilePage() {
                                         <MailOutlined
                                             style={{ marginRight: 8 }}
                                         />
-                                        admin@example.com
+                                        {user.email}
                                     </p>
                                 </Col>
                                 <Col span={24}>
@@ -179,23 +342,64 @@ export default function ProfilePage() {
                                         <PhoneOutlined
                                             style={{ marginRight: 8 }}
                                         />
-                                        (123) 456-7890
+                                        {profileData.mobile || "Not provided"}
                                     </p>
                                 </Col>
-                                <Col span={24}>
-                                    <p
-                                        style={{
-                                            color: isDark
-                                                ? "rgba(255, 255, 255, 0.85)"
-                                                : "rgba(0, 0, 0, 0.85)",
-                                        }}
-                                    >
-                                        <HomeOutlined
-                                            style={{ marginRight: 8 }}
-                                        />
-                                        New York, USA
-                                    </p>
-                                </Col>
+                                {(user.user_type === "writer" ||
+                                    user.user_type === "moderator") && (
+                                    <>
+                                        {(profileData as Writer | Moderator)
+                                            .address_line_one && (
+                                            <Col span={24}>
+                                                <p
+                                                    style={{
+                                                        color: isDark
+                                                            ? "rgba(255, 255, 255, 0.85)"
+                                                            : "rgba(0, 0, 0, 0.85)",
+                                                    }}
+                                                >
+                                                    <HomeOutlined
+                                                        style={{
+                                                            marginRight: 8,
+                                                        }}
+                                                    />
+                                                    {
+                                                        (
+                                                            profileData as
+                                                                | Writer
+                                                                | Moderator
+                                                        ).address_line_one
+                                                    }
+                                                </p>
+                                            </Col>
+                                        )}
+                                        {(profileData as Writer | Moderator)
+                                            .designation && (
+                                            <Col span={24}>
+                                                <p
+                                                    style={{
+                                                        color: isDark
+                                                            ? "rgba(255, 255, 255, 0.85)"
+                                                            : "rgba(0, 0, 0, 0.85)",
+                                                    }}
+                                                >
+                                                    <UserOutlined
+                                                        style={{
+                                                            marginRight: 8,
+                                                        }}
+                                                    />
+                                                    {
+                                                        (
+                                                            profileData as
+                                                                | Writer
+                                                                | Moderator
+                                                        ).designation
+                                                    }
+                                                </p>
+                                            </Col>
+                                        )}
+                                    </>
+                                )}
                             </Row>
                             <Divider
                                 style={{
@@ -203,15 +407,42 @@ export default function ProfilePage() {
                                 }}
                             />
                             <div>
-                                <h4 style={{ color: isDark ? "#fff" : "#000" }}>
-                                    Skills
+                                <h4
+                                    style={{
+                                        color: isDark ? "#fff" : "#000",
+                                        marginBottom: 8,
+                                    }}
+                                >
+                                    Account Status
                                 </h4>
                                 <div style={{ marginTop: 8 }}>
-                                    <Tag color="#1677ff">Management</Tag>
-                                    <Tag color="#52c41a">Marketing</Tag>
-                                    <Tag color="#faad14">Sales</Tag>
-                                    <Tag color="#722ed1">Analytics</Tag>
-                                    <Tag color="#13c2c2">Design</Tag>
+                                    <Tag
+                                        color={
+                                            user.is_online ? "green" : "default"
+                                        }
+                                    >
+                                        {user.is_online ? "Online" : "Offline"}
+                                    </Tag>
+                                    <Tag
+                                        color={
+                                            user.is_email_verified
+                                                ? "blue"
+                                                : "orange"
+                                        }
+                                    >
+                                        {user.is_email_verified
+                                            ? "Email Verified"
+                                            : "Email Not Verified"}
+                                    </Tag>
+                                    <Tag
+                                        color={
+                                            user.status === "active"
+                                                ? "green"
+                                                : "red"
+                                        }
+                                    >
+                                        {user.status}
+                                    </Tag>
                                 </div>
                             </div>
                         </div>
@@ -219,7 +450,6 @@ export default function ProfilePage() {
                 </Col>
                 <Col xs={24} md={16}>
                     <Card
-                        variant="borderless"
                         style={{
                             borderRadius: "8px",
                             boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
@@ -228,13 +458,16 @@ export default function ProfilePage() {
                     >
                         <Tabs defaultActiveKey="1">
                             <TabPane tab="Profile Information" key="1">
-                                <Form layout="vertical" onFinish={handleSubmit}>
+                                <Form
+                                    form={form}
+                                    layout="vertical"
+                                    onFinish={handleSubmit}
+                                >
                                     <Row gutter={16}>
                                         <Col xs={24} md={12}>
                                             <Form.Item
                                                 label="First Name"
-                                                name="firstName"
-                                                initialValue="Admin"
+                                                name="first_name"
                                                 rules={[
                                                     {
                                                         required: true,
@@ -252,8 +485,7 @@ export default function ProfilePage() {
                                         <Col xs={24} md={12}>
                                             <Form.Item
                                                 label="Last Name"
-                                                name="lastName"
-                                                initialValue="User"
+                                                name="last_name"
                                                 rules={[
                                                     {
                                                         required: true,
@@ -272,9 +504,19 @@ export default function ProfilePage() {
                                     <Row gutter={16}>
                                         <Col xs={24} md={12}>
                                             <Form.Item
+                                                label="Nick Name"
+                                                name="nick_name"
+                                            >
+                                                <Input
+                                                    prefix={<UserOutlined />}
+                                                    placeholder="Nick Name"
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
                                                 label="Email"
                                                 name="email"
-                                                initialValue="admin@example.com"
                                                 rules={[
                                                     {
                                                         required: true,
@@ -291,25 +533,7 @@ export default function ProfilePage() {
                                                 <Input
                                                     prefix={<MailOutlined />}
                                                     placeholder="Email"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Form.Item
-                                                label="Phone"
-                                                name="phone"
-                                                initialValue="(123) 456-7890"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message:
-                                                            "Please input your phone number!",
-                                                    },
-                                                ]}
-                                            >
-                                                <Input
-                                                    prefix={<PhoneOutlined />}
-                                                    placeholder="Phone"
+                                                    disabled
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -317,24 +541,226 @@ export default function ProfilePage() {
                                     <Row gutter={16}>
                                         <Col xs={24} md={12}>
                                             <Form.Item
-                                                label="Address"
-                                                name="address"
-                                                initialValue="New York, USA"
+                                                label="Mobile"
+                                                name="mobile"
                                                 rules={[
                                                     {
                                                         required: true,
                                                         message:
-                                                            "Please input your address!",
+                                                            "Please input your mobile number!",
                                                     },
                                                 ]}
                                             >
                                                 <Input
-                                                    prefix={<HomeOutlined />}
-                                                    placeholder="Address"
+                                                    prefix={<PhoneOutlined />}
+                                                    placeholder="Mobile"
                                                 />
                                             </Form.Item>
                                         </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
+                                                label="Gender"
+                                                name="gender"
+                                            >
+                                                <Select placeholder="Select gender">
+                                                    <Select.Option value="male">
+                                                        Male
+                                                    </Select.Option>
+                                                    <Select.Option value="female">
+                                                        Female
+                                                    </Select.Option>
+                                                    <Select.Option value="other">
+                                                        Other
+                                                    </Select.Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
                                     </Row>
+                                    <Row gutter={16}>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
+                                                label="Date of Birth"
+                                                name="date_of_birth"
+                                            >
+                                                <DatePicker
+                                                    style={{ width: "100%" }}
+                                                    format="YYYY-MM-DD"
+                                                    placeholder="Select date"
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        {(user.user_type === "writer" ||
+                                            user.user_type === "moderator") && (
+                                            <Col xs={24} md={12}>
+                                                <Form.Item
+                                                    label="Blood Group"
+                                                    name="blood_group"
+                                                >
+                                                    <Select placeholder="Select blood group">
+                                                        <Select.Option value="a_positive">
+                                                            A+
+                                                        </Select.Option>
+                                                        <Select.Option value="a_negative">
+                                                            A-
+                                                        </Select.Option>
+                                                        <Select.Option value="b_positive">
+                                                            B+
+                                                        </Select.Option>
+                                                        <Select.Option value="b_negative">
+                                                            B-
+                                                        </Select.Option>
+                                                        <Select.Option value="ab_positive">
+                                                            AB+
+                                                        </Select.Option>
+                                                        <Select.Option value="ab_negative">
+                                                            AB-
+                                                        </Select.Option>
+                                                        <Select.Option value="o_positive">
+                                                            O+
+                                                        </Select.Option>
+                                                        <Select.Option value="o_negative">
+                                                            O-
+                                                        </Select.Option>
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                        )}
+                                    </Row>
+
+                                    {(user.user_type === "writer" ||
+                                        user.user_type === "moderator") && (
+                                        <>
+                                            <Row gutter={16}>
+                                                <Col xs={24} md={12}>
+                                                    <Form.Item
+                                                        label="Designation"
+                                                        name="designation"
+                                                    >
+                                                        <Input
+                                                            prefix={
+                                                                <UserOutlined />
+                                                            }
+                                                            placeholder="Designation"
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col xs={24} md={12}>
+                                                    <Form.Item
+                                                        label="Zip Code"
+                                                        name="zip_code"
+                                                    >
+                                                        <Input placeholder="Zip Code" />
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+                                            <Row gutter={16}>
+                                                <Col xs={24}>
+                                                    <Form.Item
+                                                        label="Address Line 1"
+                                                        name="address_line_one"
+                                                    >
+                                                        <Input
+                                                            prefix={
+                                                                <HomeOutlined />
+                                                            }
+                                                            placeholder="Address Line 1"
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+                                            {user.user_type === "moderator" && (
+                                                <Row gutter={16}>
+                                                    <Col xs={24}>
+                                                        <Form.Item
+                                                            label="Address Line 2"
+                                                            name="address_line_two"
+                                                        >
+                                                            <Input
+                                                                prefix={
+                                                                    <HomeOutlined />
+                                                                }
+                                                                placeholder="Address Line 2"
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            )}
+                                            <Row gutter={16}>
+                                                <Col xs={24} md={12}>
+                                                    <Form.Item
+                                                        label="Document Type"
+                                                        name="document_type"
+                                                    >
+                                                        <Select placeholder="Select document type">
+                                                            <Select.Option value="passport">
+                                                                Passport
+                                                            </Select.Option>
+                                                            <Select.Option value="national_id">
+                                                                National ID
+                                                            </Select.Option>
+                                                            <Select.Option value="driving_license">
+                                                                Driving License
+                                                            </Select.Option>
+                                                        </Select>
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col xs={24} md={12}>
+                                                    <Form.Item
+                                                        label="Document ID Number"
+                                                        name="document_id_no"
+                                                    >
+                                                        <Input
+                                                            prefix={
+                                                                <IdcardOutlined />
+                                                            }
+                                                            placeholder="Document ID Number"
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+                                            <Row gutter={16}>
+                                                <Col xs={24}>
+                                                    <Form.Item
+                                                        label="About"
+                                                        name="about"
+                                                    >
+                                                        <TextArea
+                                                            rows={4}
+                                                            placeholder="Tell us about yourself..."
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
+                                        </>
+                                    )}
+
+                                    <Form.Item
+                                        name="profile_image"
+                                        label="Profile Image"
+                                        valuePropName="file"
+                                    >
+                                        <Row
+                                            align={"middle"}
+                                            style={{ gap: 10 }}
+                                        >
+                                            <Avatar
+                                                shape="square"
+                                                size={64}
+                                                src={fileObjectToLink(
+                                                    profileImage || null
+                                                )}
+                                                icon={<UserOutlined />}
+                                            />
+                                            <Button
+                                                icon={<EditOutlined />}
+                                                onClick={() =>
+                                                    setOpenFileUploader(true)
+                                                }
+                                            >
+                                                Upload Profile Image
+                                            </Button>
+                                        </Row>
+                                    </Form.Item>
                                     <Form.Item>
                                         <Button
                                             type="primary"
@@ -347,104 +773,23 @@ export default function ProfilePage() {
                                 </Form>
                             </TabPane>
                             <TabPane tab="Change Password" key="2">
-                                <Form
-                                    layout="vertical"
-                                    onFinish={handlePasswordChange}
-                                >
-                                    <Form.Item
-                                        label="Old Password"
-                                        name="oldPassword"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message:
-                                                    "Please input your old password!",
-                                            },
-                                        ]}
-                                    >
-                                        <Input.Password
-                                            prefix={<LockOutlined />}
-                                            placeholder="Old Password"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item
-                                        label="New Password"
-                                        name="newPassword"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message:
-                                                    "Please input your new password!",
-                                            },
-                                        ]}
-                                    >
-                                        <Input.Password
-                                            prefix={<LockOutlined />}
-                                            placeholder="New Password"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item
-                                        label="Confirm New Password"
-                                        name="confirmPassword"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message:
-                                                    "Please confirm your new password!",
-                                            },
-                                            ({ getFieldValue }) => ({
-                                                validator(_, value) {
-                                                    if (
-                                                        !value ||
-                                                        getFieldValue(
-                                                            "newPassword"
-                                                        ) === value
-                                                    ) {
-                                                        return Promise.resolve();
-                                                    }
-                                                    return Promise.reject(
-                                                        new Error(
-                                                            "The two passwords that you entered do not match!"
-                                                        )
-                                                    );
-                                                },
-                                            }),
-                                        ]}
-                                    >
-                                        <Input.Password
-                                            prefix={<LockOutlined />}
-                                            placeholder="Confirm New Password"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item>
-                                        <Button
-                                            type="primary"
-                                            htmlType="submit"
-                                            loading={loading}
-                                        >
-                                            Change Password
-                                        </Button>
-                                    </Form.Item>
-                                </Form>
+                                <ChangePassword />
                             </TabPane>
                             <TabPane tab="Activity Log" key="3">
-                                <List
-                                    itemLayout="horizontal"
-                                    dataSource={activities}
-                                    renderItem={(item) => (
-                                        <List.Item>
-                                            <List.Item.Meta
-                                                title={item.title}
-                                                description={item.time}
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
+                                <ActivityLogs />
                             </TabPane>
                         </Tabs>
                     </Card>
                 </Col>
             </Row>
+            <GlobalFilePicker
+                open={openFileUpload}
+                onCancel={() => setOpenFileUploader(false)}
+                fileTypes={["image/jpeg", "image/png"]}
+                onSelect={handleimageSelect}
+                multiple={false}
+                initialSelected={profileImage ? [profileImage.id] : []}
+            />
         </>
     );
 }

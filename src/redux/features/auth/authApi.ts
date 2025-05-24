@@ -1,4 +1,4 @@
-import { User } from "@/types";
+import { TResponseRedux, User } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const authApi = baseApi.injectEndpoints({
@@ -11,6 +11,11 @@ const authApi = baseApi.injectEndpoints({
                     method: "POST",
                     body: data,
                 };
+            },
+            transformResponse: (response) => {
+                console.log(response);
+                
+                return response;
             },
         }),
         // Rsend OTP
@@ -60,7 +65,7 @@ const authApi = baseApi.injectEndpoints({
                 method: "GET",
             }),
             providesTags: ["user"],
-            transformResponse: (response: { data: User }) => {
+            transformResponse: (response: TResponseRedux<User>) => {
                 return response.data;
             },
         }),
@@ -93,6 +98,15 @@ const authApi = baseApi.injectEndpoints({
                 };
             },
         }),
+        changePassword: builder.mutation({
+            query: (data) => {
+                return {
+                    url: "/auth/change-password",
+                    body: data,
+                    method: "POST",
+                };
+            },
+        }),
         getTokenOTPforgetPassword: builder.mutation({
             query: (data) => {
                 return {
@@ -119,6 +133,7 @@ export const {
     useCreateTempUserMutation,
     useCreateModeratorMutation,
     useCreateWriterMutation,
+    useChangePasswordMutation,
     useCreateSubAdminMutation,
     useGetUserProfileQuery,
     useUpdateUserProfileMutation,

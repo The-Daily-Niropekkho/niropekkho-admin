@@ -8,6 +8,7 @@ import axios, { AxiosProgressEvent } from "axios";
 import Resizer from "react-image-file-resizer";
 import fileObjectToLink from "./fileObjectToLink";
 const url = `${config.host_aws}/api/v1/aws/create-aws-upload-files-token`;
+
 const singleFileUploaderInS3 = async (
     fileData: {
         pre_url: any;

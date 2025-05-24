@@ -45,22 +45,21 @@ const userApi = baseApi.injectEndpoints({
             providesTags: [userTags.moderator],
         }),
         getSingleUser: builder.query({
-            query: () => ({
-                url: `users/get-moderator-users`,
+            query: (id) => ({
+                url: `users/${id}`,
                 method: "GET",
             }),
 
             transformResponse: (response: TResponseRedux<User>) => {
-                return { data: response.data };
+                return response.data;
             },
         }),
-
         updateProfile: builder.mutation({
             query: (data) => {
                 return {
-                    url: `/auth/profile`,
-                    method: "PUT",
-                    body: data,
+                    url: `/users/${data?.id}`,
+                    method: "PATCH",
+                    body: data?.data,
                 };
             },
             invalidatesTags: ["user"],
@@ -69,7 +68,7 @@ const userApi = baseApi.injectEndpoints({
             query: (data) => {
                 return {
                     url: `/users/${data?.id}`,
-                    method: "PUT",
+                    method: "PATCH",
                     body: data?.data,
                 };
             },

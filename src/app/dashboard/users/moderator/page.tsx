@@ -188,7 +188,7 @@ export default function ModeratorsPage() {
                     </Tooltip>
                     <Tooltip title="Edit">
                         <Link
-                            href={`/dashboard/moderators/edit/${moderator.id}`}
+                            href={`/dashboard/users/edit/${moderator.id}`}
                         >
                             <Button icon={<EditOutlined />} size="small" />
                         </Link>
@@ -272,7 +272,7 @@ export default function ModeratorsPage() {
                         </Space>
                         <Space wrap>
                             <Button icon={<ExportOutlined />}>Export</Button>
-                            <Link href="/dashboard/moderators/add">
+                            <Link href="/dashboard/users/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     Add Moderator
                                 </Button>
@@ -310,7 +310,7 @@ export default function ModeratorsPage() {
                             key="edit"
                             href={
                                 currentModerator
-                                    ? `/dashboard/moderators/edit/${currentModerator.id}`
+                                    ? `/dashboard/users/edit/${currentModerator.id}`
                                     : "#"
                             }
                         >
