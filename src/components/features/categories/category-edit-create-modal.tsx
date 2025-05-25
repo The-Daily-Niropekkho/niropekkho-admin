@@ -3,7 +3,7 @@ import {
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
 } from "@/redux/features/categories/categoriesApi";
-import { Category, TFileDocument } from "@/types";
+import { Category, TError, TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Col, Form, Input, message, Modal, Row } from "antd";
@@ -40,7 +40,7 @@ export default function CategoryEditCreateModal({
             position: editingCategory?.position,
             image: editingCategory?.image,
         });
-    }, [editingCategory]);
+    }, [editingCategory, form]);
 
     const handleimageSelect = (files: TFileDocument[]) => {
         const selectedImage = files[0];
@@ -83,7 +83,7 @@ export default function CategoryEditCreateModal({
                     delta.position = values.position;
                 if (values.image !== editingCategory.image)
                     delta.image = values.image;
-                
+
                 if (Object.keys(delta).length > 0) {
                     await updateCategory({
                         id: editingCategory.id,
@@ -104,11 +104,10 @@ export default function CategoryEditCreateModal({
             form.resetFields();
             setCategoryImage(undefined);
         } catch (error) {
-            message.error(
-                editingCategory
-                    ? "Failed to update category"
-                    : "Failed to create category"
+            message.warning(
+                (error as TError)?.data?.message
             );
+
             console.error("Operation failed:", error);
         }
     };
@@ -191,7 +190,7 @@ export default function CategoryEditCreateModal({
                 fileTypes={["image/jpeg", "image/png"]}
                 onSelect={handleimageSelect}
                 multiple={false}
-                initialSelected={categoryImage ? [categoryImage.id] : []}
+                initialSelected={categoryImage ? [categoryImage] : []}
             />
         </Modal>
     );

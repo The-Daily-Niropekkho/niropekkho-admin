@@ -13,8 +13,6 @@ const authApi = baseApi.injectEndpoints({
                 };
             },
             transformResponse: (response) => {
-                console.log(response);
-                
                 return response;
             },
         }),
@@ -70,14 +68,6 @@ const authApi = baseApi.injectEndpoints({
             },
         }),
 
-        updateUserProfile: builder.mutation({
-            query: (data) => ({
-                url: "/auth/profile",
-                method: "PUT",
-                body: data,
-            }),
-            invalidatesTags: ["user"],
-        }),
         verifyAccount: builder.mutation({
             query: ({ email, token }) => {
                 return {
@@ -136,7 +126,6 @@ export const {
     useChangePasswordMutation,
     useCreateSubAdminMutation,
     useGetUserProfileQuery,
-    useUpdateUserProfileMutation,
     useGetTokenOTPforgetPasswordMutation,
     useVerifyAccountMutation,
     useForgetPasswordMutation,

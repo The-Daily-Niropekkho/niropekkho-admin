@@ -25,7 +25,6 @@ import {
     Space,
     Spin,
 } from "antd";
-import { format } from "date-fns";
 import dayjs from "dayjs";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -237,10 +236,7 @@ export default function EditUserPage() {
                         gender: changedValues.gender || "",
                     }),
                     ...(changedValues.date_of_birth && {
-                        date_of_birth: format(
-                            changedValues.date_of_birth,
-                            "MM-DD-YY"
-                        ),
+                        date_of_birth: changedValues.date_of_birth,
                     }),
                     ...(changedValues.profile_image !== undefined && {
                         profile_image: changedValues.profile_image || null,
@@ -680,7 +676,7 @@ export default function EditUserPage() {
                 fileTypes={["image/jpeg", "image/png"]}
                 onSelect={handleProfileImageSelect}
                 multiple={false}
-                initialSelected={profileImage ? [profileImage.id] : []}
+                initialSelected={profileImage ? [profileImage] : []}
             />
         </>
     );

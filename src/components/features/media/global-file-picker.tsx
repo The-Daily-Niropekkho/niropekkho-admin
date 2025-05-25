@@ -6,21 +6,20 @@
 import { useTheme } from "@/components/theme-context";
 import { useMediaUtils } from "@/hooks/use-media-utils";
 import {
-    useGetMediaQuery,
-    useUploadMediaMutation,
+  useGetMediaQuery
 } from "@/redux/features/media/mediaApi";
 import { TFileDocument } from "@/types";
 import { FilProgressMultipleFilesUploaderS3 } from "@/utils/handleFileUploderFileProgress";
 import {
-    CheckCircleOutlined,
-    CloseCircleOutlined,
-    CloudUploadOutlined,
-    FileImageOutlined,
-    FileOutlined,
-    FileTextOutlined,
-    FileZipOutlined,
-    LoadingOutlined,
-    VideoCameraOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CloudUploadOutlined,
+  FileImageOutlined,
+  FileOutlined,
+  FileTextOutlined,
+  FileZipOutlined,
+  LoadingOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, List, Modal, Progress, Select, Tabs, Tag, Typography, Upload } from "antd";
 import { useEffect, useState } from "react";
@@ -35,7 +34,7 @@ interface GlobalFilePickerProps {
     onSelect: (selectedFiles: TFileDocument[]) => void;
     multiple?: boolean;
     fileTypes?: string[];
-    initialSelected?: string[];
+    initialSelected?: TFileDocument[];
 }
 
 export function GlobalFilePicker({
@@ -52,13 +51,12 @@ export function GlobalFilePicker({
     const [filterType, setFilterType] = useState<string>("all");
     const [activeFolder, setActiveFolder] = useState<string>("all");
     const [selectedItems, setSelectedItems] =
-        useState<string[]>(initialSelected);
+        useState<TFileDocument[]>(initialSelected);
     const [progressList, setProgressList] = useState<
         Array<{ name: string; progress: number; status: string; url?: string }>
     >([]);
     const { data: mediaItems = [], isLoading } = useGetMediaQuery(undefined);
     const { filterMedia } = useMediaUtils();
-    const [uploadMedia, { isLoading: isUploading }] = useUploadMediaMutation();
 
     // Filter media items based on search, type, and folder
     //   const filteredMedia = filterMedia(mediaItems, {
@@ -76,26 +74,26 @@ export function GlobalFilePicker({
         }
     }, [open, initialSelected]);
 
-    const handleSelect = (id: string) => {
-        if (!multiple) {
-            setSelectedItems([id]);
-            return;
-        }
+    // const handleSelect = (id: string) => {
+    //     if (!multiple) {
+    //         setSelectedItems([id]);
+    //         return;
+    //     }
 
-        if (selectedItems.includes(id)) {
-            setSelectedItems(selectedItems.filter((itemId) => itemId !== id));
-        } else {
-            setSelectedItems([...selectedItems, id]);
-        }
-    };
+    //     if (selectedItems.includes(id)) {
+    //         setSelectedItems(selectedItems.filter((itemId) => itemId !== id));
+    //     } else {
+    //         setSelectedItems([...selectedItems, id]);
+    //     }
+    // };
 
-    const handleConfirm = () => {
-        const selectedFiles = mediaItems.filter((item) =>
-            selectedItems.includes(item.id)
-        );
-        onSelect(selectedFiles);
-        onCancel();
-    };
+    // const handleConfirm = () => {
+    //     const selectedFiles = mediaItems.filter((item) =>
+    //         selectedItems.includes(item.id)
+    //     );
+    //     onSelect(selectedFiles);
+    //     onCancel();
+    // };
 
     const handleUpload = async (file: File) => {
         try {
@@ -111,13 +109,20 @@ export function GlobalFilePicker({
             );
 
             // Automatically select the uploaded file(s)
-            const uploadedFileIds = uploadedFiles?.map((file) => file.id);
+            const modifyUploadedFiles = uploadedFiles?.map((file) => {
+              const fixFile ={...file}
+              if (fixFile.pre_url){
+                delete fixFile.pre_url
+              }
+    
+              return  fixFile
+            });
             if (!multiple) {
-                setSelectedItems([uploadedFileIds[0]]);
-                onSelect([uploadedFiles[0]]);
+                setSelectedItems([modifyUploadedFiles[0]]);
+                onSelect([modifyUploadedFiles[0]]);
                 onCancel();
             } else {
-                setSelectedItems((prev) => [...prev, ...uploadedFileIds]);
+                setSelectedItems((prev) => [...prev, ...modifyUploadedFiles]);
             }
         } catch (error) {
             console.error("Upload failed:", error);
@@ -161,7 +166,7 @@ export function GlobalFilePicker({
                     key="submit"
                     type="primary"
                     disabled={selectedItems.length === 0}
-                    onClick={handleConfirm}
+                    // onClick={handleConfirm}
                 >
                     {multiple
                         ? `Select ${selectedItems.length} Files`

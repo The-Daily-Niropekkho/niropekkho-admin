@@ -1,13 +1,9 @@
-
-import { categoryTag } from "@/constants";
-import { Category, TQueryParam, TResponseRedux } from "@/types";
+import { News, TQueryParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
-
-const categoryApi = baseApi.injectEndpoints({
+const newsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query({
+        getAllNews: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -18,77 +14,77 @@ const categoryApi = baseApi.injectEndpoints({
                     });
                 }
                 return {
-                    url: url,
+                    url: `/news`,
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category[]>) => {
+            transformResponse: (response: TResponseRedux<News[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: ["categories"],
         }),
-        getCategoryDetails: builder.query({
+        getNewsDetails: builder.query({
             query: (id) => {
                 return {
-                    url: `${url}/${id}`,
+                    url: `/news/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<News>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: ["categories"],
         }),
-        createCategory: builder.mutation({
+        createNews: builder.mutation({
             query: (data) => {
                 return {
-                    url: url,
+                    url: `/news`,
                     method: "POST",
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<News>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: ["categories"],
         }),
-        updateCategory: builder.mutation({
+        updateNews: builder.mutation({
             query: (data) => {
                 return {
-                    url: `${url}/${data.id}`,
+                    url: `/news/${data.id}`,
                     method: "PATCH",
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<News>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: ["categories"],
         }),
-        deleteCategory: builder.mutation({
+        deleteNews: builder.mutation({
             query: (id) => {
                 return {
-                    url: `${url}/${id}`,
+                    url: `/news/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: ["categories"],
         }),
     }),
 });
 
 export const {
-    useGetAllCategoriesQuery,
-    useGetCategoryDetailsQuery,
-    useCreateCategoryMutation,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation
-} = categoryApi;
+    useGetAllNewsQuery,
+    useGetNewsDetailsQuery,
+    useCreateNewsMutation,
+    useUpdateNewsMutation,
+    useDeleteNewsMutation,
+} = newsApi;

@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useTheme } from "@/components/theme-context";
+import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
+import { useGetAllTopicsQuery } from "@/redux/features/topic/topicApi";
+import { useGetAllWriterUserQuery } from "@/redux/features/user/userApi";
+import { useGetAllCountriesQuery } from "@/redux/features/zone/countryApi";
+import { useGetAllDistrictsQuery } from "@/redux/features/zone/districtsApi";
+import { useGetAllDivisionsQuery } from "@/redux/features/zone/divisionApi";
+import { useGetAllUnionsQuery } from "@/redux/features/zone/unionApi";
+import { useGetAllUpazillasQuery } from "@/redux/features/zone/upazillaApi";
+
 import {
     ClockCircleOutlined,
     CloseOutlined,
@@ -58,14 +67,141 @@ export default function CreateNewsPage() {
     const [form] = Form.useForm();
     const { theme } = useTheme();
     const [loading, setLoading] = useState(false);
-    const [editorContent, setEditorContent] = useState("");
+    const [editorContent, setEditorContent] = useState(
+        "<p>Scientists have developed a new solar panel that doubles efficiency...</p>"
+    );
     const isDark = theme === "dark";
+
+    const [selectedCategory, setSelectedCategory] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedCountry, setSelectedCountry] = useState<number | undefined>(
+        undefined
+    );
+    const [selectedDivision, setSelectedDivision] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedDistrict, setSelectedDistrict] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedUpazilla, setSelectedUpazilla] = useState<
+        number | undefined
+    >(undefined);
+
+    // Redux Queries
+    const { data: categories, isLoading: isCategoryLoading } =
+        useGetAllCategoriesQuery([
+            {
+                name: "limit",
+                value: 999,
+            },
+        ]);
+    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery([
+        {
+            name: "limit",
+            value: 999,
+        },
+    ]);
+    const { data: countries, isLoading: isCountriesLoading } =
+        useGetAllCountriesQuery(
+            [
+                {
+                    name: "limit",
+                    value: 999,
+                },
+                {
+                    name: "sortBy",
+                    value: "name",
+                },
+                {
+                    name: "sortOrder",
+                    value: "asc",
+                },
+            ],
+            { skip: selectedCategory != "cmb21jjgj0005mhfc2lqjtaf0" }
+        );
+    const { data: divisions, isLoading: isDivisionsLoading } =
+        useGetAllDivisionsQuery(
+            [
+                { name: "country_id", value: selectedCountry },
+                {
+                    name: "limit",
+                    value: 100,
+                },
+                {
+                    name: "sortBy",
+                    value: "name",
+                },
+                {
+                    name: "sortOrder",
+                    value: "asc",
+                },
+            ],
+            { skip: !selectedCountry }
+        );
+    const { data: districts, isLoading: isDistrictsLoading } =
+        useGetAllDistrictsQuery(
+            [
+                { name: "division_id", value: selectedDivision },
+                {
+                    name: "limit",
+                    value: 500,
+                },
+                {
+                    name: "sortBy",
+                    value: "name",
+                },
+                {
+                    name: "sortOrder",
+                    value: "asc",
+                },
+            ],
+            { skip: !selectedDivision }
+        );
+    const { data: upazillas, isLoading: isUpazillaLoading } =
+        useGetAllUpazillasQuery(
+            [
+                { name: "district_id", value: selectedDistrict },
+                {
+                    name: "limit",
+                    value: 500,
+                },
+                {
+                    name: "sortBy",
+                    value: "name",
+                },
+                {
+                    name: "sortOrder",
+                    value: "asc",
+                },
+            ],
+            { skip: !selectedDistrict }
+        );
+    const { data: unions, isLoading: isUnionLoading } = useGetAllUnionsQuery(
+        [
+            { name: "upazilla_id", value: selectedUpazilla },
+            {
+                name: "limit",
+                value: 1000,
+            },
+            {
+                name: "sortBy",
+                value: "name",
+            },
+            {
+                name: "sortOrder",
+                value: "asc",
+            },
+        ],
+        { skip: !selectedUpazilla }
+    );
+    const { data: writers, isLoading: isWriterLoading } =
+        useGetAllWriterUserQuery(undefined);
 
     const onFinish = (values: any) => {
         setLoading(true);
-
         // Add the editor content to the form values
-        values.content = editorContent;
+        values.details_html = editorContent;
 
         console.log("Form values:", values);
 
@@ -88,19 +224,6 @@ export default function CreateNewsPage() {
         return e?.fileList;
     };
 
-    const categories = [
-        "Politics",
-        "Business",
-        "Science",
-        "Sports",
-        "Entertainment",
-        "Weather",
-        "Technology",
-        "Health",
-        "Education",
-        "World",
-    ];
-
     const tags = [
         "Breaking News",
         "Exclusive",
@@ -115,7 +238,7 @@ export default function CreateNewsPage() {
     ];
 
     return (
-        <>
+        <div>
             <div style={{ marginBottom: 24 }}>
                 <h1
                     style={{
@@ -152,17 +275,11 @@ export default function CreateNewsPage() {
                     name="news_form"
                     layout="vertical"
                     onFinish={onFinish}
-                    initialValues={{
-                        publish_status: true,
-                        is_latest_news: false,
-                        is_breaking_news: false,
-                        is_top_breaking_news: false,
-                    }}
                 >
                     <Row gutter={16}>
                         <Col xs={24} lg={16}>
                             <Form.Item
-                                name="head_line"
+                                name="headline"
                                 label="Headline"
                                 rules={[
                                     {
@@ -177,11 +294,15 @@ export default function CreateNewsPage() {
                                 />
                             </Form.Item>
 
-                            <Form.Item name="short_head" label="Subheadline">
+                            <Form.Item
+                                name="short_headline"
+                                label="Subheadline"
+                            >
                                 <Input placeholder="Enter subheadline" />
                             </Form.Item>
-                            <Form.Item name="custom_url" label="Custom Url">
-                                <Input placeholder="Enter custom url" />
+
+                            <Form.Item name="slug" label="Slug">
+                                <Input placeholder="Enter slug (URL-friendly)" />
                             </Form.Item>
 
                             <Form.Item
@@ -196,27 +317,26 @@ export default function CreateNewsPage() {
                                 ]}
                             >
                                 <CKEditor
-                                    onChange={(content) =>
+                                    onChange={(content: string) =>
                                         setEditorContent(content)
                                     }
                                 />
                             </Form.Item>
 
-                            <Form.Item
-                                name="excerpt"
-                                label="Excerpt"
-                                rules={[
-                                    {
-                                        required: false,
-                                        message: "Please enter an excerpt",
-                                    },
-                                ]}
-                            >
+                            <Form.Item name="details" label="Summary">
+                                <TextArea
+                                    rows={3}
+                                    placeholder="Enter a short summary for the article"
+                                />
+                            </Form.Item>
+
+                            <Form.Item name="excerpt" label="Excerpt">
                                 <TextArea
                                     rows={3}
                                     placeholder="Enter a short excerpt for the article"
                                 />
                             </Form.Item>
+
                             <Form.Item name="reference" label="Reference">
                                 <Input placeholder="Enter reference" />
                             </Form.Item>
@@ -243,32 +363,217 @@ export default function CreateNewsPage() {
                                             },
                                         ]}
                                     >
-                                        <Select placeholder="Select a category">
-                                            {categories.map((category) => (
-                                                <Option
-                                                    key={category}
-                                                    value={category}
-                                                >
-                                                    {category}
-                                                </Option>
-                                            ))}
+                                        <Select
+                                            placeholder="Select a category"
+                                            disabled={isCategoryLoading}
+                                            showSearch
+                                            onChange={(value) =>
+                                                setSelectedCategory(value)
+                                            }
+                                        >
+                                            {categories?.data?.map(
+                                                (category: any) => (
+                                                    <Option
+                                                        key={category.id}
+                                                        value={category.id}
+                                                    >
+                                                        {category.title}
+                                                    </Option>
+                                                )
+                                            )}
                                         </Select>
                                     </Form.Item>
+                                    {selectedCategory ==
+                                        "cmb21jjgj0005mhfc2lqjtaf0" && (
+                                        <>
+                                            <Form.Item
+                                                name="country_id"
+                                                label="Country"
+                                            >
+                                                <Select
+                                                    placeholder="Select a country"
+                                                    disabled={
+                                                        isCountriesLoading
+                                                    }
+                                                    showSearch
+                                                    onChange={(value) =>
+                                                        setSelectedCountry(
+                                                            value
+                                                        )
+                                                    }
+                                                >
+                                                    {countries?.data?.map(
+                                                        (country: any) => (
+                                                            <Option
+                                                                key={country.id}
+                                                                value={
+                                                                    country.id
+                                                                }
+                                                            >
+                                                                {
+                                                                    country.bn_name
+                                                                }
+                                                            </Option>
+                                                        )
+                                                    )}
+                                                </Select>
+                                            </Form.Item>
+                                            <div className="grid grid-cols-2 gap-x-5">
+                                                <Form.Item
+                                                    name="division_id"
+                                                    label="Division"
+                                                >
+                                                    <Select
+                                                        placeholder="Select a division"
+                                                        disabled={
+                                                            isDivisionsLoading ||
+                                                            !selectedCountry
+                                                        }
+                                                        showSearch
+                                                        onChange={(value) =>
+                                                            setSelectedDivision(
+                                                                value
+                                                            )
+                                                        }
+                                                    >
+                                                        {divisions?.data?.map(
+                                                            (division: any) => (
+                                                                <Option
+                                                                    key={
+                                                                        division.id
+                                                                    }
+                                                                    value={
+                                                                        division.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        division.bn_name
+                                                                    }
+                                                                </Option>
+                                                            )
+                                                        )}
+                                                    </Select>
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    name="district_id"
+                                                    label="District"
+                                                >
+                                                    <Select
+                                                        placeholder="Select a district"
+                                                        disabled={
+                                                            isDistrictsLoading ||
+                                                            !selectedDivision
+                                                        }
+                                                        showSearch
+                                                        onChange={(value) =>
+                                                            setSelectedDistrict(
+                                                                value
+                                                            )
+                                                        }
+                                                    >
+                                                        {districts?.data?.map(
+                                                            (district: any) => (
+                                                                <Option
+                                                                    key={
+                                                                        district.id
+                                                                    }
+                                                                    value={
+                                                                        district.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        district.bn_name
+                                                                    }
+                                                                </Option>
+                                                            )
+                                                        )}
+                                                    </Select>
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    name="upazilla_id"
+                                                    label="Upazilla"
+                                                >
+                                                    <Select
+                                                        placeholder="Select an upazilla"
+                                                        disabled={
+                                                            isUpazillaLoading ||
+                                                            !selectedDistrict
+                                                        }
+                                                        showSearch
+                                                        onChange={(value) =>
+                                                            setSelectedUpazilla(
+                                                                value
+                                                            )
+                                                        }
+                                                    >
+                                                        {upazillas?.data?.map(
+                                                            (upazilla: any) => (
+                                                                <Option
+                                                                    key={
+                                                                        upazilla.id
+                                                                    }
+                                                                    value={
+                                                                        upazilla.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        upazilla.bn_name
+                                                                    }
+                                                                </Option>
+                                                            )
+                                                        )}
+                                                    </Select>
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    name="union_id"
+                                                    label="Union"
+                                                >
+                                                    <Select
+                                                        placeholder="Select a union"
+                                                        disabled={
+                                                            isUnionLoading ||
+                                                            !selectedUpazilla
+                                                        }
+                                                        showSearch
+                                                    >
+                                                        {unions?.data?.map(
+                                                            (union: any) => (
+                                                                <Option
+                                                                    key={
+                                                                        union.id
+                                                                    }
+                                                                    value={
+                                                                        union.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        union.bn_name
+                                                                    }
+                                                                </Option>
+                                                            )
+                                                        )}
+                                                    </Select>
+                                                </Form.Item>
+                                            </div>
+                                        </>
+                                    )}
                                     <Row gutter={8}>
                                         <Col span={12}>
                                             <Form.Item
                                                 name="category_serial"
                                                 label="Category Position"
-                                                rules={[
-                                                    {
-                                                        required: false,
-                                                        message:
-                                                            "Please select a category position",
-                                                    },
-                                                ]}
                                             >
-                                                <Select placeholder="Select a category position" allowClear>
-                                                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((position) => (
+                                                <Select
+                                                    placeholder="Select a category position"
+                                                    allowClear
+                                                >
+                                                    {[
+                                                        0, 1, 2, 3, 4, 5, 6, 7,
+                                                        8, 9, 10,
+                                                    ].map((position) => (
                                                         <Option
                                                             key={position}
                                                             value={position}
@@ -283,15 +588,11 @@ export default function CreateNewsPage() {
                                             <Form.Item
                                                 name="home_serial"
                                                 label="Home Position"
-                                                rules={[
-                                                    {
-                                                        required: false,
-                                                        message:
-                                                            "Please select a home position",
-                                                    },
-                                                ]}
                                             >
-                                                <Select placeholder="Select a home position" allowClear>
+                                                <Select
+                                                    placeholder="Select a home position"
+                                                    allowClear
+                                                >
                                                     {[
                                                         0, 1, 2, 3, 4, 5, 6, 7,
                                                         8, 9, 10,
@@ -308,59 +609,23 @@ export default function CreateNewsPage() {
                                         </Col>
                                     </Row>
 
-                                    <Row gutter={8}>
-                                        <Col span={12}>
-                                            <Form.Item
-                                                name="topic_id"
-                                                label="Topic"
-                                                rules={[
-                                                    {
-                                                        required: false,
-                                                        message:
-                                                            "Please select a topic",
-                                                    },
-                                                ]}
-                                            >
-                                                <Select placeholder="Select a topic" allowClear>
-                                                    {categories.map((topic) => (
-                                                        <Option
-                                                            key={topic}
-                                                            value={topic}
-                                                        >
-                                                            {topic}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={12}>
-                                            <Form.Item
-                                                name="topic_position"
-                                                label="Topic Position"
-                                                rules={[
-                                                    {
-                                                        required: false,
-                                                        message:
-                                                            "Please select a topic position",
-                                                    },
-                                                ]}
-                                            >
-                                                <Select placeholder="Select a topic position" allowClear>
-                                                    {[
-                                                        0, 1, 2, 3, 4, 5, 6, 7,
-                                                        8, 9, 10,
-                                                    ].map((position) => (
-                                                        <Option
-                                                            key={position}
-                                                            value={position}
-                                                        >
-                                                            {position}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
+                                    <Form.Item name="topic_id" label="Topic">
+                                        <Select
+                                            placeholder="Select a topic"
+                                            allowClear
+                                            mode="tags"
+                                            disabled={isTopicLoading}
+                                        >
+                                            {topics?.data?.map((topic: any) => (
+                                                <Option
+                                                    key={topic.id}
+                                                    value={topic.id}
+                                                >
+                                                    {topic.title}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
 
                                     <Form.Item name="post_tag" label="Tags">
                                         <Select
@@ -386,28 +651,34 @@ export default function CreateNewsPage() {
                                             },
                                         ]}
                                     >
-                                        <Select placeholder="Select a reporter" showSearch>
-                                            <Option value="John Doe">
-                                                John Doe
-                                            </Option>
-                                            <Option value="Jane Smith">
-                                                Jane Smith
-                                            </Option>
-                                            <Option value="Robert Johnson">
-                                                Robert Johnson
-                                            </Option>
-                                            <Option value="Sarah Wilson">
-                                                Sarah Wilson
-                                            </Option>
-                                            <Option value="Michael Brown">
-                                                Michael Brown
-                                            </Option>
+                                        <Select
+                                            placeholder="Select a reporter"
+                                            showSearch
+                                            disabled={isWriterLoading}
+                                        >
+                                            {writers?.data?.map(
+                                                (reporter: any) => (
+                                                    <Option
+                                                        key={reporter.id}
+                                                        value={reporter.id}
+                                                    >
+                                                        {`${reporter.writer.first_name} ${reporter.writer.last_name}`}
+                                                    </Option>
+                                                )
+                                            )}
                                         </Select>
                                     </Form.Item>
 
                                     <Form.Item
                                         name="publish_date"
                                         label="Publish Date"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message:
+                                                    "Please select a publish date",
+                                            },
+                                        ]}
                                     >
                                         <DatePicker
                                             showTime
@@ -416,10 +687,23 @@ export default function CreateNewsPage() {
                                         />
                                     </Form.Item>
 
+                                    <Form.Item
+                                        name="media_type"
+                                        label="Media Type"
+                                    >
+                                        <Select placeholder="Select media type">
+                                            <Option value="online">
+                                                Online
+                                            </Option>
+                                            <Option value="print">Print</Option>
+                                            <Option value="both">Both</Option>
+                                        </Select>
+                                    </Form.Item>
+
                                     <Row gutter={8}>
-                                        <Col span={6}>
+                                        <Col span={8}>
                                             <Form.Item
-                                                name="publish_status"
+                                                name="status"
                                                 label="Status"
                                                 valuePropName="checked"
                                             >
@@ -429,10 +713,10 @@ export default function CreateNewsPage() {
                                                 />
                                             </Form.Item>
                                         </Col>
-                                        <Col span={6}>
+                                        <Col span={8}>
                                             <Form.Item
-                                                name="is_latest_news"
-                                                label="Latest News"
+                                                name="is_breaking"
+                                                label="Breaking News"
                                                 valuePropName="checked"
                                             >
                                                 <Switch
@@ -441,10 +725,10 @@ export default function CreateNewsPage() {
                                                 />
                                             </Form.Item>
                                         </Col>
-                                        <Col span={6}>
+                                        <Col span={8}>
                                             <Form.Item
-                                                name="is_breaking_news"
-                                                label="Breaking"
+                                                name="is_featured"
+                                                label="Featured"
                                                 valuePropName="checked"
                                             >
                                                 <Switch
@@ -453,10 +737,13 @@ export default function CreateNewsPage() {
                                                 />
                                             </Form.Item>
                                         </Col>
-                                        <Col span={6}>
+                                    </Row>
+
+                                    <Row gutter={8}>
+                                        <Col span={12}>
                                             <Form.Item
-                                                name="is_top_breaking_news"
-                                                label="Top Breaking"
+                                                name="is_scheduled"
+                                                label="Scheduled"
                                                 valuePropName="checked"
                                             >
                                                 <Switch
@@ -477,13 +764,13 @@ export default function CreateNewsPage() {
                                     key="2"
                                 >
                                     <Form.Item
-                                        name="featuredImage"
-                                        label="Featured Image"
+                                        name="banner_image"
+                                        label="Banner Image"
                                         valuePropName="fileList"
                                         getValueFromEvent={normFile}
                                     >
                                         <Upload
-                                            name="featuredImage"
+                                            name="banner_image"
                                             listType="picture-card"
                                             maxCount={1}
                                             beforeUpload={() => false}
@@ -498,24 +785,10 @@ export default function CreateNewsPage() {
                                     </Form.Item>
 
                                     <Form.Item
-                                        name="gallery"
-                                        label="Image Gallery"
-                                        valuePropName="fileList"
-                                        getValueFromEvent={normFile}
+                                        name="og_image"
+                                        label="OG Image URL"
                                     >
-                                        <Upload
-                                            name="gallery"
-                                            listType="picture-card"
-                                            multiple
-                                            beforeUpload={() => false}
-                                        >
-                                            <div>
-                                                <PictureOutlined />
-                                                <div style={{ marginTop: 8 }}>
-                                                    Upload
-                                                </div>
-                                            </div>
-                                        </Upload>
+                                        <Input placeholder="Enter OG image URL" />
                                     </Form.Item>
                                 </TabPane>
 
@@ -528,7 +801,7 @@ export default function CreateNewsPage() {
                                     key="3"
                                 >
                                     <Form.Item
-                                        name="seo_title"
+                                        name="meta_title"
                                         label="Meta Title"
                                     >
                                         <Input placeholder="Enter meta title" />
@@ -544,22 +817,18 @@ export default function CreateNewsPage() {
                                         />
                                     </Form.Item>
 
+                                    <Form.Item name="og_title" label="OG Title">
+                                        <Input placeholder="Enter OG title" />
+                                    </Form.Item>
+
                                     <Form.Item
-                                        name="meta_keyword"
-                                        label="Meta Keywords"
+                                        name="og_description"
+                                        label="OG Description"
                                     >
-                                        <Select
-                                            mode="tags"
-                                            placeholder="Enter keywords"
-                                        >
-                                            <Option value="news">news</Option>
-                                            <Option value="article">
-                                                article
-                                            </Option>
-                                            <Option value="breaking">
-                                                breaking
-                                            </Option>
-                                        </Select>
+                                        <TextArea
+                                            rows={4}
+                                            placeholder="Enter OG description"
+                                        />
                                     </Form.Item>
                                 </TabPane>
                             </Tabs>
@@ -609,6 +878,6 @@ export default function CreateNewsPage() {
                     </div>
                 </Form>
             </Card>
-        </>
+        </div>
     );
 }

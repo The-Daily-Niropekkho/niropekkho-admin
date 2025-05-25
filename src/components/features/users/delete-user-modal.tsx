@@ -1,13 +1,13 @@
 "use client";
 
 import { useDeleteUserMutation } from "@/redux/features/user/userApi";
-import { ErrorResponse, UserTableData } from "@/types";
+import { ErrorResponse, User } from "@/types";
 import { SerializedError } from "@reduxjs/toolkit";
 import { Button, message, Modal } from "antd";
 import { useEffect } from "react";
 
 interface DeleteUserProps {
-    user: UserTableData;
+    user: User;
     open: boolean;
     close: () => void;
 }
@@ -69,8 +69,7 @@ export default function DeleteUserModal({
             ]}
         >
             <p>
-                Are you sure you want to delete admin{" "}
-                <strong>{user ? user.full_name : ""}</strong>?
+                Are you sure you want to delete ?
             </p>
             <p>This action cannot be undone.</p>
         </Modal>

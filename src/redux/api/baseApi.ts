@@ -1,5 +1,16 @@
 import config from "@/config";
-import { userTags } from "@/constants";
+import {
+    categoryTag,
+    countryTag,
+    districtTag,
+    divisionTag,
+    mediaTag,
+    topicTag,
+    unionTag,
+    upazillaTag,
+    userTag,
+    userTags,
+} from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
@@ -18,5 +29,16 @@ export const baseApi = createApi({
     reducerPath: "baseApi",
     baseQuery: baseQuery,
     endpoints: () => ({}),
-    tagTypes: ["categories","user", "Media", ...Object.values(userTags)],
+    tagTypes: [
+        ...Object.values(userTags),
+        categoryTag,
+        userTag,
+        mediaTag,
+        topicTag,
+        countryTag,
+        divisionTag,
+        districtTag,
+        upazillaTag,
+        unionTag,
+    ],
 });

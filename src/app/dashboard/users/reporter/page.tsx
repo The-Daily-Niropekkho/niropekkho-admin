@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import DeleteUserModal from "@/components/features/users/delete-user-modal";
 import { useTheme } from "@/components/theme-context";
+import Table from "@/components/ui/data-table";
 import { useGetAllWriterUserQuery } from "@/redux/features/user/userApi";
-import { User, UserTableData } from "@/types";
+import { Admin, Moderator, User, Writer } from "@/types";
+import fileObjectToLink from "@/utils/fileObjectToLink";
 import {
     DeleteOutlined,
     EditOutlined,
     EnvironmentOutlined,
-    ExportOutlined,
     EyeOutlined,
-    FilterOutlined,
     PhoneOutlined,
     PlusOutlined,
     SearchOutlined,
@@ -26,45 +27,49 @@ import {
     Modal,
     Row,
     Space,
-    Table,
     Tabs,
     Tag,
-    Tooltip
+    Tooltip,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useState } from "react";
- 
+
 export default function WritersPage() {
-    const { data: writerUsers, isLoading } =
-        useGetAllWriterUserQuery(undefined);
     const [searchText, setSearchText] = useState("");
-    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
-    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-    const [currentWriter, setCurrentWriter] = useState<UserTableData | null>(
-        null
-    );
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [status, setStatus] = useState<string | undefined>(undefined);
 
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    // Transform data for table
-    const writers: UserTableData[] =
-        writerUsers?.data?.map((user: User) => ({
-            ...user,
-            full_name: `${user.writer.first_name} ${user.writer.last_name}`,
-            profile_image_url: user.writer.profile_image?.url,
-        })) || [];
+    const query = [
+        { name: "searchTerm", value: searchText },
+        { name: "status", value: status },
+        { name: "limit", value: limit },
+        { name: "page", value: page },
+        { name: "sortBy", value: sortBy },
+        { name: "sortOrder", value: sortOrder },
+    ];
+
+    const { data: writerUsers, isLoading , isFetching} = useGetAllWriterUserQuery(query);
+
+    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [currentWriter, setCurrentWriter] = useState<User | null>(null);
 
     // Open view modal
-    const showViewModal = (writer: UserTableData) => {
+    const showViewModal = (writer: User) => {
         setCurrentWriter(writer);
         setIsViewModalVisible(true);
     };
 
     // Open delete confirmation modal
-    const showDeleteModal = (writer: UserTableData) => {
+    const showDeleteModal = (writer: User) => {
         setCurrentWriter(writer);
         setIsDeleteModalVisible(true);
     };
@@ -84,34 +89,38 @@ export default function WritersPage() {
     };
 
     // Table columns
-    const columns: ColumnsType<UserTableData> = [
+    const columns: ColumnsType<User> = [
         {
             title: "Writer",
             key: "writer",
-            render: (_, writer) => (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <Avatar
-                        src={writer.profile_image_url}
-                        icon={!writer.profile_image_url && <UserOutlined />}
-                        style={{ marginRight: 12 }}
-                        size={40}
-                    />
-                    <div>
-                        <div style={{ fontWeight: 500 }}>
-                            {writer.full_name}
-                        </div>
-                        <div
-                            style={{
-                                fontSize: "0.85rem",
-                                color: "rgba(0, 0, 0, 0.45)",
-                            }}
-                        >
-                            {writer.email}
+            render: (writer: User) => {
+                const user_type = writer.user_type as keyof User;
+                const user = writer[user_type] as Admin | Writer | Moderator;
+
+                return (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <Avatar
+                            src={fileObjectToLink(user?.profile_image ?? null)}
+                            icon={!user?.profile_image && <UserOutlined />}
+                            style={{ marginRight: 12 }}
+                            size={40}
+                        />
+                        <div>
+                            <div style={{ fontWeight: 500 }}>{`${
+                                user?.first_name || ""
+                            } ${user?.last_name || ""}`}</div>
+                            <div
+                                style={{
+                                    fontSize: "0.85rem",
+                                    color: "rgba(0, 0, 0, 0.45)",
+                                }}
+                            >
+                                {writer.email}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ),
-            sorter: (a, b) => a.full_name.localeCompare(b.full_name),
+                );
+            },
         },
         {
             title: "Designation",
@@ -201,15 +210,7 @@ export default function WritersPage() {
             ),
         },
     ];
-    
-    // Filter writers based on search text
-    const filteredWriters = writers.filter(
-        (writer) =>
-            writer.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
-            writer.email.toLowerCase().includes(searchText.toLowerCase()) ||
-            writer.userUniqueId.toLowerCase().includes(searchText.toLowerCase())
-    );
-    
+
     return (
         <>
             <div style={{ marginBottom: 24 }}>
@@ -221,7 +222,7 @@ export default function WritersPage() {
                         color: isDark ? "#fff" : "#000",
                     }}
                 >
-                    All Writers
+                    All Reporters
                 </h1>
                 <p
                     style={{
@@ -230,7 +231,7 @@ export default function WritersPage() {
                             : "rgba(0, 0, 0, 0.45)",
                     }}
                 >
-                    Manage and organize all Writer users with advanced filtering
+                    Manage and organize all reporters users with advanced filtering
                     and sorting options.
                 </p>
             </div>
@@ -260,10 +261,8 @@ export default function WritersPage() {
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{ width: 250 }}
                             />
-                            <Button icon={<FilterOutlined />}>Filter</Button>
                         </Space>
                         <Space wrap>
-                            <Button icon={<ExportOutlined />}>Export</Button>
                             <Link href="/dashboard/users/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     Add Writer
@@ -271,18 +270,19 @@ export default function WritersPage() {
                             </Link>
                         </Space>
                     </div>
-                    <Table
+                    <Table<User>
+                        data={writerUsers?.data || []}
+                        meta={writerUsers?.meta ?? {}}
                         columns={columns}
-                        dataSource={filteredWriters}
-                        rowKey="id"
-                        loading={isLoading}
-                        pagination={{
-                            pageSize: 10,
-                            showSizeChanger: true,
-                            showTotal: (total, range) =>
-                                `${range[0]}-${range[1]} of ${total} items`,
-                        }}
-                        scroll={{ x: "max-content" }}
+                        isLoading={isLoading}
+                        page={page}
+                        limit={limit}
+                        setLimit={setLimit}
+                        setPage={setPage}
+                        setSortBy={setSortBy}
+                        setSortOrder={setSortOrder}
+                        setStatus={setStatus}
+                        isFetching={isFetching}
                     />
                 </Card>
 
@@ -302,7 +302,7 @@ export default function WritersPage() {
                             key="edit"
                             href={
                                 currentWriter
-                                    ? `/dashboard/writers/edit/${currentWriter.id}`
+                                    ? `/dashboard/users/edit/${currentWriter.id}`
                                     : "#"
                             }
                         >
@@ -315,17 +315,24 @@ export default function WritersPage() {
                         <div>
                             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6">
                                 <Avatar
-                                    src={currentWriter.profile_image_url}
+                                    src={fileObjectToLink(
+                                        currentWriter.writer?.profile_image
+                                    )}
                                     icon={
-                                        !currentWriter.profile_image_url && (
-                                            <UserOutlined />
-                                        )
+                                        !currentWriter.writer
+                                            ?.profile_image && <UserOutlined />
                                     }
                                     size={100}
                                 />
                                 <div>
                                     <h2 className="text-xl font-semibold mb-1">
-                                        {currentWriter.full_name}
+                                        {`${
+                                            currentWriter?.writer
+                                                ?.first_name || ""
+                                        } ${
+                                            currentWriter?.writer
+                                                ?.last_name || ""
+                                        }`}
                                     </h2>
                                     {currentWriter.writer.nick_name && (
                                         <p className="text-gray-500 mb-1">
@@ -335,13 +342,11 @@ export default function WritersPage() {
                                         </p>
                                     )}
                                     <p className="mb-1">
-                                        {currentWriter.writer.designation ||
-                                            "No designation"}
+                                        {currentWriter.user_type}
                                     </p>
                                     {getStatusTag(currentWriter.status)}
                                 </div>
                             </div>
-
                             <Divider />
 
                             <Tabs defaultActiveKey="1">
@@ -605,7 +610,7 @@ export default function WritersPage() {
                 <DeleteUserModal
                     open={isDeleteModalVisible}
                     close={() => setIsDeleteModalVisible(false)}
-                    user={currentWriter as UserTableData}
+                    user={currentWriter as User}
                 />
             </div>
         </>

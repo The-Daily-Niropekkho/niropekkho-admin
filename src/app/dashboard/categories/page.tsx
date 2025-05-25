@@ -2,16 +2,17 @@
 "use client";
 import CategoryEditCreateModal from "@/components/features/categories/category-edit-create-modal";
 import { useTheme } from "@/components/theme-context";
+import Table from "@/components/ui/data-table";
 import {
     useDeleteCategoryMutation,
-    useGetAllCategoriesQuery
+    useGetAllCategoriesQuery,
 } from "@/redux/features/categories/categoriesApi";
 import { Category, TFileDocument } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
     PlusOutlined,
-    SearchOutlined
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
     Button,
@@ -22,9 +23,8 @@ import {
     Popconfirm,
     Row,
     Space,
-    Table,
     Tag,
-    Tooltip
+    Tooltip,
 } from "antd";
 import { useState } from "react";
 
@@ -42,10 +42,11 @@ export default function CategoriesPage() {
     const [limit, setLimit] = useState(10);
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
-    
-    const [categoryImage, setCategoryImage] = useState<TFileDocument | undefined>(
-        undefined
-    );
+    const [status, setStatus] = useState<string | undefined>(undefined);
+
+    const [categoryImage, setCategoryImage] = useState<
+        TFileDocument | undefined
+    >(undefined);
 
     const query = [
         { name: "searchTerm", value: searchText },
@@ -53,10 +54,14 @@ export default function CategoriesPage() {
         { name: "page", value: page },
         { name: "sortBy", value: sortBy },
         { name: "sortOrder", value: sortOrder },
+        { name: "status", value: status },
     ];
 
-    const { data: categories, isLoading: isCategoryLoading } =
-        useGetAllCategoriesQuery(query);
+    const {
+        data: categories,
+        isLoading: isCategoryLoading,
+        isFetching: isCategoryFetching,
+    } = useGetAllCategoriesQuery(query);
 
     const [deleteCategory, { isLoading: isDeleting }] =
         useDeleteCategoryMutation();
@@ -67,10 +72,10 @@ export default function CategoriesPage() {
         setIsModalVisible(true);
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (record: Category) => {
         try {
-            await deleteCategory(id).unwrap();
-            message.success(`Category with ID ${id} has been deleted`);
+            await deleteCategory(record?.id).unwrap();
+            message.success(`${record?.title} has been deleted`);
         } catch (error) {
             message.error("Failed to delete category");
             console.error("Delete failed:", error);
@@ -81,18 +86,6 @@ export default function CategoriesPage() {
         setEditingCategory(null);
         setCategoryImage(undefined);
         setIsModalVisible(true);
-    };
-
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        setPage(pagination.current);
-        setLimit(pagination.pageSize);
-        if (sorter.field && sorter.order) {
-            setSortBy(sorter.field);
-            setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
-        } else {
-            setSortBy("createdAt");
-            setSortOrder("desc");
-        }
     };
 
     const columns = [
@@ -116,18 +109,6 @@ export default function CategoriesPage() {
             dataIndex: "position",
             key: "position",
             sorter: true,
-        },
-        {
-            title: "Description",
-            dataIndex: "description",
-            key: "description",
-            render: (text: string) => text || "-",
-        },
-        {
-            title: "Meta Title",
-            dataIndex: "meta_title",
-            key: "meta_title",
-            render: (text: string) => text || "-",
         },
         {
             title: "Status",
@@ -183,7 +164,7 @@ export default function CategoriesPage() {
                     <Tooltip title="Delete">
                         <Popconfirm
                             title="Are you sure you want to delete this category?"
-                            onConfirm={() => handleDelete(record.id)}
+                            onConfirm={() => handleDelete(record)}
                             okText="Yes"
                             cancelText="No"
                             placement="left"
@@ -269,22 +250,20 @@ export default function CategoriesPage() {
                                 </Button>
                             </Space>
                         </div>
-                        <Table
-                            dataSource={categories?.data}
+
+                        <Table<Category>
+                            data={categories?.data || []}
+                            meta={categories?.meta ?? {}}
                             columns={columns}
-                            loading={isCategoryLoading}
-                            rowKey="title"
-                            pagination={{
-                                current: page,
-                                pageSize: limit,
-                                total: categories?.meta?.total || 0,
-                                showSizeChanger: true,
-                                pageSizeOptions: ["10", "20", "50"],
-                                showTotal: (total, range) =>
-                                    `${range[0]}-${range[1]} of ${total} items`,
-                            }}
-                            onChange={handleTableChange}
-                            scroll={{ x: "max-content" }}
+                            isLoading={isCategoryLoading}
+                            page={page}
+                            limit={limit}
+                            setLimit={setLimit}
+                            setPage={setPage}
+                            setSortBy={setSortBy}
+                            setStatus={setStatus}
+                            setSortOrder={setSortOrder}
+                            isFetching={isCategoryFetching}
                         />
                     </Card>
                 </Col>
@@ -295,7 +274,6 @@ export default function CategoriesPage() {
                 categoryImage={categoryImage}
                 setCategoryImage={setCategoryImage}
                 close={() => setIsModalVisible(false)}
-
             />
         </>
     );
