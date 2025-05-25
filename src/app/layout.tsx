@@ -1,6 +1,8 @@
 import { ThemeProvider } from "@/components/theme-context";
 import ReduxProvider from "@/provider/redux-provider";
+import { SessionProvider } from "@/provider/session-provider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { App as AntdApp } from "antd";
 import { Metadata } from "next";
 import "../styles/globals.css";
 
@@ -16,12 +18,16 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`custom-sidebar-menu`}>
-                <ReduxProvider>
-                    <ThemeProvider>
-                        <AntdRegistry>{children}</AntdRegistry>
-                    </ThemeProvider>
-                </ReduxProvider>
+            <body className="custom-sidebar-menu">
+                <SessionProvider>
+                    <ReduxProvider>
+                        <ThemeProvider>
+                            <AntdRegistry>
+                                <AntdApp>{children}</AntdApp>
+                            </AntdRegistry>
+                        </ThemeProvider>
+                    </ReduxProvider>
+                </SessionProvider>
             </body>
         </html>
     );

@@ -1,36 +1,56 @@
-import { User } from "@/types";
+import { TResponseRedux, User } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Login
-        // This endpoint is used to login a user
         sendLoginRequest: builder.mutation({
+            query: (data) => {
+                return {
+                    url: "/auth/send-login-request",
+                    method: "POST",
+                    body: data,
+                };
+            },
+            transformResponse: (response) => {
+                console.log(response);
+                
+                return response;
+            },
+        }),
+        // Rsend OTP
+        resendOtp: builder.mutation({
             query: (data) => ({
-                url: "/auth/send-login-request",
+                url: "/auth/resend-otp",
                 method: "POST",
                 body: data,
             }),
         }),
+
         // Register
-        // This endpoint is used to register a new user
-        register: builder.mutation({
+        createModerator: builder.mutation({
             query: (data) => ({
-                url: "/users",
+                url: "/users/create-moderator-account",
                 method: "POST",
                 body: data,
             }),
         }),
-        createSubUser: builder.mutation({
+        createWriter: builder.mutation({
             query: (data) => ({
-                url: "/users/create-sub-b2b-account",
+                url: "/users/create-writer-account",
+                method: "POST",
+                body: data,
+            }),
+        }),
+        createSubAdmin: builder.mutation({
+            query: (data) => ({
+                url: "/users/create-sub-admin-account",
                 method: "POST",
                 body: data,
             }),
         }),
         // Temp User Register
-        // This endpoint is used to register a temp user
-        tempUserRegister: builder.mutation({
+        createTempUser: builder.mutation({
             query: (data) => ({
                 url: "/users/temp-user",
                 method: "POST",
@@ -39,14 +59,13 @@ const authApi = baseApi.injectEndpoints({
         }),
 
         // Get user profile
-        // This endpoint is used to fetch the user profile data
         getUserProfile: builder.query({
             query: () => ({
                 url: "/auth/profile",
                 method: "GET",
             }),
             providesTags: ["user"],
-            transformResponse: (response: { data: User }) => {
+            transformResponse: (response: TResponseRedux<User>) => {
                 return response.data;
             },
         }),
@@ -79,6 +98,15 @@ const authApi = baseApi.injectEndpoints({
                 };
             },
         }),
+        changePassword: builder.mutation({
+            query: (data) => {
+                return {
+                    url: "/auth/change-password",
+                    body: data,
+                    method: "POST",
+                };
+            },
+        }),
         getTokenOTPforgetPassword: builder.mutation({
             query: (data) => {
                 return {
@@ -96,13 +124,17 @@ const authApi = baseApi.injectEndpoints({
             }),
         }),
     }),
+    overrideExisting: false,
 });
 
 export const {
     useSendLoginRequestMutation,
-    useRegisterMutation,
-    useCreateSubUserMutation,
-    useTempUserRegisterMutation,
+    useResendOtpMutation,
+    useCreateTempUserMutation,
+    useCreateModeratorMutation,
+    useCreateWriterMutation,
+    useChangePasswordMutation,
+    useCreateSubAdminMutation,
     useGetUserProfileQuery,
     useUpdateUserProfileMutation,
     useGetTokenOTPforgetPasswordMutation,

@@ -1,24 +1,22 @@
 import config from "@/config";
+import { userTags } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: `${config.host}/api/v1`,
-  prepareHeaders: (headers) => {
-    const token = localStorage.getItem("token");
+    baseUrl: `${config.host}/api/v1`,
+    prepareHeaders: (headers) => {
+        const token = localStorage.getItem("token");
 
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
-    }
-    return headers;
-  },
+        if (token) {
+            headers.set("authorization", `Bearer ${token}`);
+        }
+        return headers;
+    },
 });
 
 export const baseApi = createApi({
-  reducerPath: "baseApi",
-  baseQuery: baseQuery,
-  endpoints: () => ({}),
-  tagTypes: [
-    "user",
-    "Media",
-  ],
+    reducerPath: "baseApi",
+    baseQuery: baseQuery,
+    endpoints: () => ({}),
+    tagTypes: ["categories","user", "Media", ...Object.values(userTags)],
 });
