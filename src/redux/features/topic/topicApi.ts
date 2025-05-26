@@ -1,13 +1,12 @@
-
-import { categoryTag } from "@/constants";
-import { Category, TQueryParam, TResponseRedux } from "@/types";
+import { topicTag } from "@/constants";
+import { Topic, TQueryParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
+const url = "/topic";
 
-const categoryApi = baseApi.injectEndpoints({
+const topicApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query({
+        getAllTopics: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -22,28 +21,28 @@ const categoryApi = baseApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category[]>) => {
+            transformResponse: (response: TResponseRedux<Topic[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [topicTag],
         }),
-        getCategoryDetails: builder.query({
+        getTopicDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Topic>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [topicTag],
         }),
-        createCategory: builder.mutation({
+        createTopic: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -51,14 +50,14 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Topic>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [topicTag],
         }),
-        updateCategory: builder.mutation({
+        updateTopic: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -66,29 +65,29 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Topic>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [topicTag],
         }),
-        deleteCategory: builder.mutation({
+        deleteTopic: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [topicTag],
         }),
     }),
 });
 
 export const {
-    useGetAllCategoriesQuery,
-    useGetCategoryDetailsQuery,
-    useCreateCategoryMutation,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation
-} = categoryApi;
+    useGetAllTopicsQuery,
+    useGetTopicDetailsQuery,
+    useCreateTopicMutation,
+    useUpdateTopicMutation,
+    useDeleteTopicMutation,
+} = topicApi;

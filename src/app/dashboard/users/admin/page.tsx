@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import DeleteUserModal from "@/components/features/users/delete-user-modal";
 import { useTheme } from "@/components/theme-context";
+import Table from "@/components/ui/data-table";
 import { useGetAllAdminUserQuery } from "@/redux/features/user/userApi"; // Adjust the import path as needed
-import { User, UserTableData } from "@/types";
+import { Admin, Moderator, User, Writer } from "@/types";
+import fileObjectToLink from "@/utils/fileObjectToLink";
 import {
     DeleteOutlined,
     EditOutlined,
-    ExportOutlined,
     EyeOutlined,
-    FilterOutlined,
     PhoneOutlined,
     PlusOutlined,
     SearchOutlined,
@@ -25,49 +26,52 @@ import {
     Modal,
     Row,
     Space,
-    Table,
     Tabs,
     Tag,
-    Tooltip
+    Tooltip,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useState } from "react";
 
-
-
 export default function AdminsPage() {
-    const { data: adminUsers, isLoading } = useGetAllAdminUserQuery(undefined);
     const [searchText, setSearchText] = useState("");
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [status, setStatus] = useState<string | undefined>(undefined);
+
+    const query = [
+        { name: "searchTerm", value: searchText },
+        { name: "status", value: status },
+        { name: "limit", value: limit },
+        { name: "page", value: page },
+        { name: "sortBy", value: sortBy },
+        { name: "sortOrder", value: sortOrder },
+    ];
+
+    const {
+        data: adminUsers,
+        isLoading,
+        isFetching,
+    } = useGetAllAdminUserQuery(query);
     const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-    const [currentAdmin, setCurrentAdmin] = useState<UserTableData | null>(
-        null
-    );
+    const [currentAdmin, setCurrentAdmin] = useState<User | null>(null);
 
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    // Transform data for table
-    const admins: UserTableData[] =
-        adminUsers?.data?.map((user: User) => ({
-            ...user,
-            full_name: `${user.admin.first_name} ${user.admin.last_name}`,
-            profile_image_url: user.admin.profile_image?.url,
-        })) || [];
-
-    // Handle admin deletion
-
-
     // Open view modal
-    const showViewModal = (admin: UserTableData) => {
+    const showViewModal = (admin: User) => {
         setCurrentAdmin(admin);
         setIsViewModalVisible(true);
     };
 
     // Open delete confirmation modal
-    const showDeleteModal = (admin: UserTableData) => {
+    const showDeleteModal = (admin: User) => {
         setCurrentAdmin(admin);
         setIsDeleteModalVisible(true);
     };
@@ -87,32 +91,38 @@ export default function AdminsPage() {
     };
 
     // Table columns
-    const columns: ColumnsType<UserTableData> = [
+    const columns: ColumnsType<User> = [
         {
             title: "Admin",
             key: "admin",
-            render: (_, admin) => (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <Avatar
-                        src={admin.profile_image_url}
-                        icon={!admin.profile_image_url && <UserOutlined />}
-                        style={{ marginRight: 12 }}
-                        size={40}
-                    />
-                    <div>
-                        <div style={{ fontWeight: 500 }}>{admin.full_name}</div>
-                        <div
-                            style={{
-                                fontSize: "0.85rem",
-                                color: "rgba(0, 0, 0, 0.45)",
-                            }}
-                        >
-                            {admin.email}
+            render: (admin: User) => {
+                const user_type = admin.user_type as keyof User;
+                const user = admin[user_type] as Admin | Writer | Moderator;
+
+                return (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <Avatar
+                            src={fileObjectToLink(user?.profile_image ?? null)}
+                            icon={!user?.profile_image && <UserOutlined />}
+                            style={{ marginRight: 12 }}
+                            size={40}
+                        />
+                        <div>
+                            <div style={{ fontWeight: 500 }}>{`${
+                                user?.first_name || ""
+                            } ${user?.last_name || ""}`}</div>
+                            <div
+                                style={{
+                                    fontSize: "0.85rem",
+                                    color: "rgba(0, 0, 0, 0.45)",
+                                }}
+                            >
+                                {admin.email}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ),
-            sorter: (a, b) => a.full_name.localeCompare(b.full_name),
+                );
+            },
         },
         {
             title: "Contact",
@@ -189,14 +199,6 @@ export default function AdminsPage() {
         },
     ];
 
-    // Filter admins based on search text
-    const filteredAdmins = admins.filter(
-        (admin) =>
-            admin.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
-            admin.email.toLowerCase().includes(searchText.toLowerCase()) ||
-            admin.userUniqueId.toLowerCase().includes(searchText.toLowerCase())
-    );
-
     return (
         <>
             <div style={{ marginBottom: 24 }}>
@@ -247,10 +249,8 @@ export default function AdminsPage() {
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{ width: 250 }}
                             />
-                            <Button icon={<FilterOutlined />}>Filter</Button>
                         </Space>
                         <Space wrap>
-                            <Button icon={<ExportOutlined />}>Export</Button>
                             <Link href="/dashboard/users/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     Add Admin
@@ -258,18 +258,19 @@ export default function AdminsPage() {
                             </Link>
                         </Space>
                     </div>
-                    <Table
+                    <Table<User>
+                        data={adminUsers?.data || []}
+                        meta={adminUsers?.meta ?? {}}
                         columns={columns}
-                        dataSource={filteredAdmins}
-                        rowKey="id"
-                        loading={isLoading}
-                        pagination={{
-                            pageSize: 10,
-                            showSizeChanger: true,
-                            showTotal: (total, range) =>
-                                `${range[0]}-${range[1]} of ${total} items`,
-                        }}
-                        scroll={{ x: "max-content" }}
+                        isLoading={isLoading}
+                        page={page}
+                        limit={limit}
+                        setLimit={setLimit}
+                        setPage={setPage}
+                        setSortBy={setSortBy}
+                        setSortOrder={setSortOrder}
+                        setStatus={setStatus}
+                        isFetching={isFetching}
                     />
                 </Card>
 
@@ -302,9 +303,11 @@ export default function AdminsPage() {
                         <div>
                             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6">
                                 <Avatar
-                                    src={currentAdmin.profile_image_url}
+                                    src={fileObjectToLink(
+                                        currentAdmin.admin?.profile_image
+                                    )}
                                     icon={
-                                        !currentAdmin.profile_image_url && (
+                                        !currentAdmin.admin?.profile_image && (
                                             <UserOutlined />
                                         )
                                     }
@@ -312,7 +315,12 @@ export default function AdminsPage() {
                                 />
                                 <div>
                                     <h2 className="text-xl font-semibold mb-1">
-                                        {currentAdmin.full_name}
+                                        {`${
+                                            currentAdmin?.admin?.first_name ||
+                                            ""
+                                        } ${
+                                            currentAdmin?.admin?.last_name || ""
+                                        }`}
                                     </h2>
                                     {currentAdmin.admin.nick_name && (
                                         <p className="text-gray-500 mb-1">
@@ -488,7 +496,11 @@ export default function AdminsPage() {
                 </Modal>
 
                 {/* Delete Confirmation Modal */}
-                <DeleteUserModal open={isDeleteModalVisible} close={()=>setIsDeleteModalVisible(false)} user={currentAdmin as UserTableData}/>
+                <DeleteUserModal
+                    open={isDeleteModalVisible}
+                    close={() => setIsDeleteModalVisible(false)}
+                    user={currentAdmin as User}
+                />
             </div>
         </>
     );

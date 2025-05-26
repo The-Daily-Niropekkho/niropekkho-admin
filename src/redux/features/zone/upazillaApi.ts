@@ -1,13 +1,12 @@
-
-import { categoryTag } from "@/constants";
-import { Category, TQueryParam, TResponseRedux } from "@/types";
+import { upazillaTag } from "@/constants";
+import { TQueryParam, TResponseRedux, Upazilla } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
+const url = "/upazillas";
 
-const categoryApi = baseApi.injectEndpoints({
+const upazillaApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query({
+        getAllUpazillas: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -22,28 +21,28 @@ const categoryApi = baseApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category[]>) => {
+            transformResponse: (response: TResponseRedux<Upazilla[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [upazillaTag],
         }),
-        getCategoryDetails: builder.query({
+        getUpazillaDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Upazilla>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [upazillaTag],
         }),
-        createCategory: builder.mutation({
+        createUpazilla: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -51,14 +50,14 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Upazilla>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [upazillaTag],
         }),
-        updateCategory: builder.mutation({
+        updateUpazilla: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -66,29 +65,29 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Upazilla>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [upazillaTag],
         }),
-        deleteCategory: builder.mutation({
+        deleteUpazilla: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [upazillaTag],
         }),
     }),
 });
 
 export const {
-    useGetAllCategoriesQuery,
-    useGetCategoryDetailsQuery,
-    useCreateCategoryMutation,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation
-} = categoryApi;
+    useGetAllUpazillasQuery,
+    useGetUpazillaDetailsQuery,
+    useCreateUpazillaMutation,
+    useUpdateUpazillaMutation,
+    useDeleteUpazillaMutation,
+} = upazillaApi;

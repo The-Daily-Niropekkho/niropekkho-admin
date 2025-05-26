@@ -35,7 +35,6 @@ import { baseApi } from "@/redux/api/baseApi";
 import { useGetUserProfileQuery } from "@/redux/features/auth/authApi";
 import { useAppDispatch } from "@/redux/hooks";
 import { signout } from "@/service/auth";
-import { TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -306,10 +305,7 @@ export default function AppHeader({
                             ) : (
                                 <>
                                     <Avatar
-                                        src={fileObjectToLink(
-                                            user?.admin
-                                                ?.profile_image as TFileDocument
-                                        )}
+                                        src={fileObjectToLink(user?.admin?.profile_image || null)}
                                         size={32}
                                         style={{
                                             marginRight: !isMobile ? "8px" : 0,

@@ -1,13 +1,12 @@
-
-import { categoryTag } from "@/constants";
-import { Category, TQueryParam, TResponseRedux } from "@/types";
+import { districtTag } from "@/constants";
+import { District, TQueryParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
+const url = "/districts";
 
-const categoryApi = baseApi.injectEndpoints({
+const districtApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query({
+        getAllDistricts: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -22,28 +21,28 @@ const categoryApi = baseApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category[]>) => {
+            transformResponse: (response: TResponseRedux<District[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [districtTag],
         }),
-        getCategoryDetails: builder.query({
+        getDistrictDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<District>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [districtTag],
         }),
-        createCategory: builder.mutation({
+        createDistrict: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -51,14 +50,14 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<District>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [districtTag],
         }),
-        updateCategory: builder.mutation({
+        updateDistrict: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -66,29 +65,29 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<District>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [districtTag],
         }),
-        deleteCategory: builder.mutation({
+        deleteDistrict: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [districtTag],
         }),
     }),
 });
 
 export const {
-    useGetAllCategoriesQuery,
-    useGetCategoryDetailsQuery,
-    useCreateCategoryMutation,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation
-} = categoryApi;
+    useGetAllDistrictsQuery,
+    useGetDistrictDetailsQuery,
+    useCreateDistrictMutation,
+    useUpdateDistrictMutation,
+    useDeleteDistrictMutation,
+} = districtApi;

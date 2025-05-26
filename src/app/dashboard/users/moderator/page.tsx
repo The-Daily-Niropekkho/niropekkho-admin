@@ -1,20 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import DeleteUserModal from "@/components/features/users/delete-user-modal";
 import { useTheme } from "@/components/theme-context";
+import Table from "@/components/ui/data-table";
 import { useGetAllModeratorUserQuery } from "@/redux/features/user/userApi";
-import { User, UserTableData } from "@/types";
+import { Admin, Moderator, User, Writer } from "@/types";
+import fileObjectToLink from "@/utils/fileObjectToLink";
 import {
     DeleteOutlined,
     EditOutlined,
     EnvironmentOutlined,
-    ExportOutlined,
     EyeOutlined,
-    FilterOutlined,
     PhoneOutlined,
     PlusOutlined,
     SearchOutlined,
-    UserOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import {
     Avatar,
@@ -26,45 +27,49 @@ import {
     Modal,
     Row,
     Space,
-    Table,
     Tabs,
     Tag,
-    Tooltip
+    Tooltip,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useState } from "react";
 
-
 export default function ModeratorsPage() {
-    const { data: moderatorUsers, isLoading } =
-        useGetAllModeratorUserQuery(undefined);
     const [searchText, setSearchText] = useState("");
-    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
-    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-    const [currentModerator, setCurrentModerator] =
-        useState<UserTableData | null>(null);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [status, setStatus] = useState<string | undefined>(undefined);
 
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    // Transform data for table
-    const moderators: UserTableData[] =
-        moderatorUsers?.data?.map((user: User) => ({
-            ...user,
-            full_name: `${user.moderator.first_name} ${user.moderator.last_name}`,
-            profile_image_url: user.moderator.profile_image?.url,
-        })) || [];
+    const query = [
+        { name: "searchTerm", value: searchText },
+        { name: "status", value: status },
+        { name: "limit", value: limit },
+        { name: "page", value: page },
+        { name: "sortBy", value: sortBy },
+        { name: "sortOrder", value: sortOrder },
+    ];
+
+    const { data: moderatorUsers, isLoading, isFetching } =
+        useGetAllModeratorUserQuery(query);
+    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [currentModerator, setCurrentModerator] = useState<User | null>(null);
 
     // Open view modal
-    const showViewModal = (moderator: UserTableData) => {
+    const showViewModal = (moderator: User) => {
         setCurrentModerator(moderator);
         setIsViewModalVisible(true);
     };
 
     // Open delete confirmation modal
-    const showDeleteModal = (moderator: UserTableData) => {
+    const showDeleteModal = (moderator: User) => {
         setCurrentModerator(moderator);
         setIsDeleteModalVisible(true);
     };
@@ -84,34 +89,38 @@ export default function ModeratorsPage() {
     };
 
     // Table columns
-    const columns: ColumnsType<UserTableData> = [
+    const columns: ColumnsType<User> = [
         {
             title: "Moderator",
             key: "moderator",
-            render: (_, moderator) => (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <Avatar
-                        src={moderator.profile_image_url}
-                        icon={!moderator.profile_image_url && <UserOutlined />}
-                        style={{ marginRight: 12 }}
-                        size={40}
-                    />
-                    <div>
-                        <div style={{ fontWeight: 500 }}>
-                            {moderator.full_name}
-                        </div>
-                        <div
-                            style={{
-                                fontSize: "0.85rem",
-                                color: "rgba(0, 0, 0, 0.45)",
-                            }}
-                        >
-                            {moderator.email}
+            render: (moderator: User) => {
+                const user_type = moderator.user_type as keyof User;
+                const user = moderator[user_type] as Admin | Writer | Moderator;
+
+                return (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <Avatar
+                            src={fileObjectToLink(user?.profile_image ?? null)}
+                            icon={!user?.profile_image && <UserOutlined />}
+                            style={{ marginRight: 12 }}
+                            size={40}
+                        />
+                        <div>
+                            <div style={{ fontWeight: 500 }}>{`${
+                                user?.first_name || ""
+                            } ${user?.last_name || ""}`}</div>
+                            <div
+                                style={{
+                                    fontSize: "0.85rem",
+                                    color: "rgba(0, 0, 0, 0.45)",
+                                }}
+                            >
+                                {moderator.email}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ),
-            sorter: (a, b) => a.full_name.localeCompare(b.full_name),
+                );
+            },
         },
         {
             title: "Designation",
@@ -187,9 +196,7 @@ export default function ModeratorsPage() {
                         />
                     </Tooltip>
                     <Tooltip title="Edit">
-                        <Link
-                            href={`/dashboard/users/edit/${moderator.id}`}
-                        >
+                        <Link href={`/dashboard/users/edit/${moderator.id}`}>
                             <Button icon={<EditOutlined />} size="small" />
                         </Link>
                     </Tooltip>
@@ -205,18 +212,6 @@ export default function ModeratorsPage() {
             ),
         },
     ];
-
-    // Filter moderators based on search text
-    const filteredModerators = moderators.filter(
-        (moderator) =>
-            moderator.full_name
-                .toLowerCase()
-                .includes(searchText.toLowerCase()) ||
-            moderator.email.toLowerCase().includes(searchText.toLowerCase()) ||
-            moderator.userUniqueId
-                .toLowerCase()
-                .includes(searchText.toLowerCase())
-    );
 
     return (
         <>
@@ -268,10 +263,8 @@ export default function ModeratorsPage() {
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{ width: 250 }}
                             />
-                            <Button icon={<FilterOutlined />}>Filter</Button>
                         </Space>
                         <Space wrap>
-                            <Button icon={<ExportOutlined />}>Export</Button>
                             <Link href="/dashboard/users/add">
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     Add Moderator
@@ -279,18 +272,19 @@ export default function ModeratorsPage() {
                             </Link>
                         </Space>
                     </div>
-                    <Table
+                    <Table<User>
+                        data={moderatorUsers?.data || []}
+                        meta={moderatorUsers?.meta ?? {}}
                         columns={columns}
-                        dataSource={filteredModerators}
-                        rowKey="id"
-                        loading={isLoading}
-                        pagination={{
-                            pageSize: 10,
-                            showSizeChanger: true,
-                            showTotal: (total, range) =>
-                                `${range[0]}-${range[1]} of ${total} items`,
-                        }}
-                        scroll={{ x: "max-content" }}
+                        isLoading={isLoading}
+                        page={page}
+                        limit={limit}
+                        setLimit={setLimit}
+                        setPage={setPage}
+                        setSortBy={setSortBy}
+                        setSortOrder={setSortOrder}
+                        setStatus={setStatus}
+                        isFetching={isFetching}
                     />
                 </Card>
 
@@ -323,17 +317,25 @@ export default function ModeratorsPage() {
                         <div>
                             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-6">
                                 <Avatar
-                                    src={currentModerator.profile_image_url}
+                                    src={fileObjectToLink(
+                                        currentModerator.moderator
+                                            ?.profile_image
+                                    )}
                                     icon={
-                                        !currentModerator.profile_image_url && (
-                                            <UserOutlined />
-                                        )
+                                        !currentModerator.moderator
+                                            ?.profile_image && <UserOutlined />
                                     }
                                     size={100}
                                 />
                                 <div>
                                     <h2 className="text-xl font-semibold mb-1">
-                                        {currentModerator.full_name}
+                                        {`${
+                                            currentModerator?.moderator
+                                                ?.first_name || ""
+                                        } ${
+                                            currentModerator?.moderator
+                                                ?.last_name || ""
+                                        }`}
                                     </h2>
                                     {currentModerator.moderator.nick_name && (
                                         <p className="text-gray-500 mb-1">
@@ -346,8 +348,7 @@ export default function ModeratorsPage() {
                                         </p>
                                     )}
                                     <p className="mb-1">
-                                        {currentModerator.moderator
-                                            .designation || "No designation"}
+                                        {currentModerator.user_type}
                                     </p>
                                     {getStatusTag(currentModerator.status)}
                                 </div>
@@ -634,7 +635,7 @@ export default function ModeratorsPage() {
                 <DeleteUserModal
                     open={isDeleteModalVisible}
                     close={() => setIsDeleteModalVisible(false)}
-                    user={currentModerator as UserTableData}
+                    user={currentModerator as User}
                 />
             </div>
         </>

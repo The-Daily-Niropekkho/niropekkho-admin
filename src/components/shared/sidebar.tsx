@@ -5,6 +5,7 @@ import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
 import {
     BarChartOutlined,
+    BarsOutlined,
     DashboardOutlined,
     FileOutlined,
     FileTextOutlined,
@@ -77,6 +78,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             key: "/dashboard/categories",
             icon: <TagsOutlined />,
             label: <Link href="/dashboard/categories">Categories</Link>,
+        },
+        {
+            key: "/dashboard/topics",
+            icon: <BarsOutlined />,
+            label: <Link href="/dashboard/topics">Topics</Link>,
         },
         {
             key: "/dashboard/archive",

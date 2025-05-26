@@ -1,13 +1,12 @@
-
-import { categoryTag } from "@/constants";
-import { Category, TQueryParam, TResponseRedux } from "@/types";
+import { unionTag } from "@/constants";
+import { TQueryParam, TResponseRedux, Union } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
+const url = "/unions";
 
-const categoryApi = baseApi.injectEndpoints({
+const unionApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query({
+        getAllUnions: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -22,28 +21,28 @@ const categoryApi = baseApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category[]>) => {
+            transformResponse: (response: TResponseRedux<Union[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [unionTag],
         }),
-        getCategoryDetails: builder.query({
+        getUnionDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Union>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [unionTag],
         }),
-        createCategory: builder.mutation({
+        createUnion: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -51,14 +50,14 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Union>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [unionTag],
         }),
-        updateCategory: builder.mutation({
+        updateUnion: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -66,29 +65,29 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Union>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [unionTag],
         }),
-        deleteCategory: builder.mutation({
+        deleteUnion: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [unionTag],
         }),
     }),
 });
 
 export const {
-    useGetAllCategoriesQuery,
-    useGetCategoryDetailsQuery,
-    useCreateCategoryMutation,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation
-} = categoryApi;
+    useGetAllUnionsQuery,
+    useGetUnionDetailsQuery,
+    useCreateUnionMutation,
+    useUpdateUnionMutation,
+    useDeleteUnionMutation,
+} = unionApi;

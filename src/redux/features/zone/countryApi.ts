@@ -1,13 +1,12 @@
-
-import { categoryTag } from "@/constants";
-import { Category, TQueryParam, TResponseRedux } from "@/types";
+import { countryTag } from "@/constants";
+import { Country, TQueryParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
+const url = "/countries";
 
-const categoryApi = baseApi.injectEndpoints({
+const countryApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query({
+        getAllCountries: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -22,28 +21,28 @@ const categoryApi = baseApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category[]>) => {
+            transformResponse: (response: TResponseRedux<Country[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [countryTag],
         }),
-        getCategoryDetails: builder.query({
+        getCountryDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Country>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [countryTag],
         }),
-        createCategory: builder.mutation({
+        createCountry: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -51,14 +50,14 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Country>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [countryTag],
         }),
-        updateCategory: builder.mutation({
+        updateCountry: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -66,29 +65,29 @@ const categoryApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Category>) => {
+            transformResponse: (response: TResponseRedux<Country>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [countryTag],
         }),
-        deleteCategory: builder.mutation({
+        deleteCountry: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [countryTag],
         }),
     }),
 });
 
 export const {
-    useGetAllCategoriesQuery,
-    useGetCategoryDetailsQuery,
-    useCreateCategoryMutation,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation
-} = categoryApi;
+    useGetAllCountriesQuery,
+    useGetCountryDetailsQuery,
+    useCreateCountryMutation,
+    useUpdateCountryMutation,
+    useDeleteCountryMutation,
+} = countryApi;

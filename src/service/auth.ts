@@ -236,10 +236,7 @@ export async function signup(formData: SignupFormValues) {
             success: true,
             data: result.data,
         };
-    } catch (error) {
-        // Handle any network or unexpected errors
-        console.log(error);
-
+    } catch {
         return {
             success: false,
             errors: "Something went wrong. Please try again.",

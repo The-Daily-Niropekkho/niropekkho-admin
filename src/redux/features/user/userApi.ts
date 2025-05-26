@@ -1,5 +1,5 @@
-import { userTags } from "@/constants";
-import { TResponseRedux, User } from "@/types";
+import { userTag, userTags } from "@/constants";
+import { TQueryParam, TResponseRedux, User } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const userApi = baseApi.injectEndpoints({
@@ -12,21 +12,40 @@ const userApi = baseApi.injectEndpoints({
             }),
         }),
         getAllAdminUser: builder.query({
-            query: () => ({
-                url: `users/get-admin`,
-                method: "GET",
-            }),
-
+            query: (args) => {
+                const params = new URLSearchParams();
+                if (args) {
+                    args.forEach((item: TQueryParam) => {
+                        if (item.value !== undefined && item.value !== "") {
+                            params.append(item.name, item.value as string);
+                        }
+                    });
+                }
+                return {
+                    url: `users/get-admin`,
+                    params: params,
+                };
+            },
             transformResponse: (response: TResponseRedux<User[]>) => {
                 return { data: response.data, meta: response.meta };
             },
             providesTags: [userTags.admin],
         }),
         getAllWriterUser: builder.query({
-            query: () => ({
-                url: `users/get-writer-users`,
-                method: "GET",
-            }),
+            query: (args) => {
+                const params = new URLSearchParams();
+                if (args) {
+                    args.forEach((item: TQueryParam) => {
+                        if (item.value !== undefined && item.value !== "") {
+                            params.append(item.name, item.value as string);
+                        }
+                    });
+                }
+                return {
+                    url: `users/get-writer-users`,
+                    params: params,
+                };
+            },
 
             transformResponse: (response: TResponseRedux<User[]>) => {
                 return { data: response.data, meta: response.meta };
@@ -34,10 +53,20 @@ const userApi = baseApi.injectEndpoints({
             providesTags: [userTags.writer],
         }),
         getAllModeratorUser: builder.query({
-            query: () => ({
-                url: `users/get-moderator-users`,
-                method: "GET",
-            }),
+            query: (args) => {
+                const params = new URLSearchParams();
+                if (args) {
+                    args.forEach((item: TQueryParam) => {
+                        if (item.value !== undefined && item.value !== "") {
+                            params.append(item.name, item.value as string);
+                        }
+                    });
+                }
+                return {
+                    url: `users/get-moderator-users`,
+                    params: params,
+                };
+            },
 
             transformResponse: (response: TResponseRedux<User[]>) => {
                 return { data: response.data, meta: response.meta };
@@ -62,7 +91,7 @@ const userApi = baseApi.injectEndpoints({
                     body: data?.data,
                 };
             },
-            invalidatesTags: ["user"],
+            invalidatesTags: [userTag],
         }),
         updateUser: builder.mutation({
             query: (data) => {
@@ -72,7 +101,7 @@ const userApi = baseApi.injectEndpoints({
                     body: data?.data,
                 };
             },
-            invalidatesTags: ["user"],
+            invalidatesTags: [userTag],
         }),
         deleteUser: builder.mutation({
             query: (id) => {

@@ -1,254 +1,211 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useTheme } from "@/components/theme-context";
+import Table from "@/components/ui/data-table";
+import CustomImage from "@/components/ui/image";
 import {
-  DeleteOutlined,
-  EditOutlined,
-  ExportOutlined,
-  FilterOutlined,
-  MoreOutlined,
-  PlusOutlined,
-  SearchOutlined,
+    useDeleteNewsMutation,
+    useGetAllNewsQuery,
+} from "@/redux/features/news/newsApi";
+import { Category, News, TFileDocument, User } from "@/types";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    PlusOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
-  Button,
-  Card,
-  Dropdown,
-  Input,
-  Modal,
-  Space,
-  Table,
-  Tag,
-  message,
+    Button,
+    Card,
+    Input,
+    Popconfirm,
+    Space,
+    Tag,
+    Tooltip,
+    message,
 } from "antd";
 import Link from "next/link";
 import { useState } from "react";
 
+const STATUS_OPTIONS = ["draft", "scheduled", "published", "archived"];
+const MEDIA_TYPE_OPTIONS = ["online", "print", "both"];
+
 export default function AllNewsPage() {
-    const [searchText, setSearchText] = useState("");
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedRecord, setSelectedRecord] = useState<any>(null);
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    // Sample data
-    const dataSource = Array.from({ length: 50 }, (_, i) => ({
-        key: i.toString(),
-        id: `NEWS-${1000 + i}`,
-        title: [
-            "Breaking News: Major Political Development",
-            "Economic Forecast for the Coming Quarter",
-            "New Scientific Discovery Announced",
-            "Local Sports Team Wins Championship",
-            "Celebrity Interview: Behind the Scenes",
-            "Weather Alert: Storm Warning Issued",
-            "Technology Giant Releases New Product",
-            "Health Study Reveals Surprising Findings",
-            "Education Reform Bill Passes Senate",
-            "International Summit Concludes with Agreement",
-        ][i % 10],
-        category: [
-            "Politics",
-            "Business",
-            "Science",
-            "Sports",
-            "Entertainment",
-            "Weather",
-            "Technology",
-            "Health",
-            "Education",
-            "World",
-        ][i % 10],
-        status: ["Published", "Draft", "Review", "Scheduled", "Archived"][
-            Math.floor(Math.random() * 5)
-        ],
-        views: Math.floor(Math.random() * 10000),
-        date: new Date(
-            Date.now() - Math.floor(Math.random() * 10000000000)
-        ).toLocaleDateString(),
-        author: [
-            "John Doe",
-            "Jane Smith",
-            "Robert Johnson",
-            "Sarah Wilson",
-            "Michael Brown",
-        ][Math.floor(Math.random() * 5)],
-    }));
+    const [searchText, setSearchText] = useState("");
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [status, setStatus] = useState<string | undefined>(undefined);
+    const [mediaType, setMediaType] = useState<string | undefined>(undefined);
 
-    const filteredData = dataSource.filter(
-        (item) =>
-            item.title.toLowerCase().includes(searchText.toLowerCase()) ||
-            item.id.toLowerCase().includes(searchText.toLowerCase()) ||
-            item.category.toLowerCase().includes(searchText.toLowerCase()) ||
-            item.author.toLowerCase().includes(searchText.toLowerCase())
-    );
+    const query = [
+        { name: "searchTerm", value: searchText },
+        { name: "status", value: status },
+        { name: "media_type", value: mediaType },
+        { name: "limit", value: limit },
+        { name: "page", value: page },
+        { name: "sortBy", value: sortBy },
+        { name: "sortOrder", value: sortOrder },
+    ];
 
-    const handleEdit = (record: any) => {
-        message.info(`Editing ${record.title}`);
-    };
+    const { data: news, isLoading: isNewsLoading , isFetching: isNewsFetching } = useGetAllNewsQuery(query);
 
-    const handleDelete = (record: any) => {
-        setSelectedRecord(record);
-        setIsDeleteModalOpen(true);
-    };
+    const [deleteNews, { isLoading: isDeleting }] = useDeleteNewsMutation();
 
-    const confirmDelete = () => {
-        message.success(`${selectedRecord.title} has been deleted`);
-        setIsDeleteModalOpen(false);
+    const handleDelete = async (record: News) => {
+        try {
+            await deleteNews(record?.id).unwrap();
+            message.success(`${record.headline} has been deleted`);
+        } catch (error) {
+            message.error("Failed to delete category");
+            console.error("Delete failed:", error);
+        }
     };
 
     const columns = [
         {
-            title: "ID",
-            dataIndex: "id",
-            key: "id",
-            sorter: (a: any, b: any) => a.id.localeCompare(b.id),
+            title: "Thumbnail",
+            dataIndex: "banner_image",
+            key: "banner_image",
+            render: (image: TFileDocument) => (
+                <CustomImage src={image} width={80} height={80} />
+            ),
         },
         {
-            title: "Title",
-            dataIndex: "title",
-            key: "title",
-            render: (text: string) => <a href="#">{text}</a>,
-            sorter: (a: any, b: any) => a.title.localeCompare(b.title),
+            title: "Headline",
+            dataIndex: "headline",
+            key: "headline",
+            render: (text: string, record: News) => (
+                <Link href={`/news/${record.slug}`} target="_blank">
+                    {text}
+                </Link>
+            ),
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
-            render: (category: string) => {
-                let color = "";
-                switch (category) {
-                    case "Politics":
-                        color = "blue";
-                        break;
-                    case "Business":
-                        color = "green";
-                        break;
-                    case "Science":
-                        color = "purple";
-                        break;
-                    case "Sports":
-                        color = "orange";
-                        break;
-                    case "Entertainment":
-                        color = "red";
-                        break;
-                    case "Weather":
-                        color = "cyan";
-                        break;
-                    case "Technology":
-                        color = "geekblue";
-                        break;
-                    case "Health":
-                        color = "lime";
-                        break;
-                    case "Education":
-                        color = "gold";
-                        break;
-                    case "World":
-                        color = "magenta";
-                        break;
-                    default:
-                        color = "default";
-                }
-                return <Tag color={color}>{category}</Tag>;
-            },
-            filters: [
-                { text: "Politics", value: "Politics" },
-                { text: "Business", value: "Business" },
-                { text: "Science", value: "Science" },
-                { text: "Sports", value: "Sports" },
-                { text: "Entertainment", value: "Entertainment" },
-                { text: "Weather", value: "Weather" },
-                { text: "Technology", value: "Technology" },
-                { text: "Health", value: "Health" },
-                { text: "Education", value: "Education" },
-                { text: "World", value: "World" },
-            ],
-            onFilter: (value: any, record: any) =>
-                record.category.indexOf(value) === 0,
+            render: (category: Category) => <Tag>{category.title}</Tag>,
+            onFilter: (value: any, record: News) =>
+                record.category.title === value,
         },
         {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            filters: STATUS_OPTIONS.map((status) => ({
+                text: status[0].toUpperCase() + status.slice(1),
+                value: status,
+            })),
+            filteredValue: status ? [status] : undefined,
             render: (status: string) => {
-                let color = "";
-                switch (status) {
-                    case "Published":
-                        color = "green";
-                        break;
-                    case "Draft":
-                        color = "orange";
-                        break;
-                    case "Review":
-                        color = "blue";
-                        break;
-                    case "Scheduled":
-                        color = "purple";
-                        break;
-                    case "Archived":
-                        color = "gray";
-                        break;
-                    default:
-                        color = "default";
-                }
-                return <Tag color={color}>{status}</Tag>;
+                const colorMap: Record<string, string> = {
+                    published: "green",
+                    draft: "orange",
+                    scheduled: "purple",
+                    archived: "gray",
+                };
+                return (
+                    <Tag
+                        color={colorMap[status] || "default"}
+                        style={{ textTransform: "capitalize" }}
+                    >
+                        {status}
+                    </Tag>
+                );
             },
-            filters: [
-                { text: "Published", value: "Published" },
-                { text: "Draft", value: "Draft" },
-                { text: "Review", value: "Review" },
-                { text: "Scheduled", value: "Scheduled" },
-                { text: "Archived", value: "Archived" },
-            ],
-            onFilter: (value: any, record: any) =>
-                record.status.indexOf(value) === 0,
         },
         {
-            title: "Views",
-            dataIndex: "views",
-            key: "views",
-            sorter: (a: any, b: any) => a.views - b.views,
+            title: "Breaking",
+            dataIndex: "is_breaking",
+            key: "is_breaking",
+            render: (val: boolean) => (
+                <Tag color={val ? "red" : "default"}>
+                    {val ? "Breaking" : "No"}
+                </Tag>
+            ),
         },
         {
-            title: "Date",
-            dataIndex: "date",
-            key: "date",
-            sorter: (a: any, b: any) =>
-                new Date(a.date).getTime() - new Date(b.date).getTime(),
+            title: "Featured",
+            dataIndex: "is_featured",
+            key: "is_featured",
+            render: (val: boolean) => (
+                <Tag color={val ? "gold" : "default"}>
+                    {val ? "Featured" : "No"}
+                </Tag>
+            ),
         },
         {
-            title: "Author",
-            dataIndex: "author",
-            key: "author",
+            title: "Media Type",
+            dataIndex: "media_type",
+            key: "media_type",
+            filters: MEDIA_TYPE_OPTIONS.map((type) => ({
+                text: type[0].toUpperCase() + type.slice(1),
+                value: type,
+            })),
+            filteredValue: mediaType ? [mediaType] : undefined,
+            render: (type: string) => (
+                <Tag color="cyan" style={{ textTransform: "capitalize" }}>
+                    {type}
+                </Tag>
+            ),
+        },
+        {
+            title: "Publish Date",
+            dataIndex: "publish_date",
+            key: "publish_date",
+            render: (date: string) => new Date(date).toLocaleString(),
+            sorter: (a: News, b: News) =>
+                new Date(a.publish_date).getTime() -
+                new Date(b.publish_date).getTime(),
+        },
+        {
+            title: "Reporter",
+            dataIndex: "reporter",
+            key: "reporter",
+            render: (reporter: User) => {
+                const user = Object.values(reporter).filter(Boolean)[0];
+                return `${user?.first_name || ""} ${user?.last_name || ""}`;
+            },
         },
         {
             title: "Actions",
             key: "actions",
-            render: (_: any, record: any) => (
-                <Dropdown
-                    menu={{
-                        items: [
-                            {
-                                key: "1",
-                                icon: <EditOutlined />,
-                                label: "Edit",
-                                onClick: () => handleEdit(record),
-                            },
-                            {
-                                key: "2",
-                                icon: <DeleteOutlined />,
-                                label: "Delete",
-                                danger: true,
-                                onClick: () => handleDelete(record),
-                            },
-                        ],
-                    }}
-                    placement="bottomRight"
-                    arrow
-                >
-                    <Button type="text" icon={<MoreOutlined />} />
-                </Dropdown>
+            render: (_: any, record: News) => (
+                <Space>
+                    <Tooltip title="Edit">
+                        <Link href={`/dashboard/news/edit/${record.id}`}>
+                            <Button
+                                type="text"
+                                icon={<EditOutlined />}
+                                size="small"
+                            />
+                        </Link>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Popconfirm
+                            title="Are you sure you want to delete this news?"
+                            onConfirm={() => handleDelete(record)}
+                            okText="Yes"
+                            cancelText="No"
+                            placement="left"
+                            disabled={record.is_deleted || isDeleting}
+                        >
+                            <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                size="small"
+                                disabled={record.is_deleted || isDeleting}
+                                loading={isDeleting}
+                            />
+                        </Popconfirm>
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
@@ -303,10 +260,8 @@ export default function AllNewsPage() {
                             onChange={(e) => setSearchText(e.target.value)}
                             style={{ width: 250 }}
                         />
-                        <Button icon={<FilterOutlined />}>Filter</Button>
                     </Space>
                     <Space wrap>
-                        <Button icon={<ExportOutlined />}>Export</Button>
                         <Button type="primary" icon={<PlusOutlined />}>
                             <Link
                                 href="/dashboard/news/create"
@@ -317,35 +272,23 @@ export default function AllNewsPage() {
                         </Button>
                     </Space>
                 </div>
-                <Table
-                    dataSource={filteredData}
+
+                <Table<News>
+                    data={news?.data || []}
+                    meta={news?.meta ?? {}}
                     columns={columns}
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        showTotal: (total, range) =>
-                            `${range[0]}-${range[1]} of ${total} items`,
-                    }}
-                    scroll={{ x: "max-content" }}
+                    isLoading={isNewsLoading}
+                    page={page}
+                    limit={limit}
+                    setLimit={setLimit}
+                    setPage={setPage}
+                    setSortBy={setSortBy}
+                    setSortOrder={setSortOrder}
+                    setStatus={setStatus}
+                    setMediaType={setMediaType}
+                    isFetching={isNewsFetching}
                 />
             </Card>
-
-            <Modal
-                title="Confirm Delete"
-                open={isDeleteModalOpen}
-                onOk={confirmDelete}
-                onCancel={() => setIsDeleteModalOpen(false)}
-                okText="Delete"
-                okButtonProps={{ danger: true }}
-            >
-                {selectedRecord && (
-                    <p>
-                        Are you sure you want to delete{" "}
-                        <strong>{selectedRecord.title}</strong>? This action
-                        cannot be undone.
-                    </p>
-                )}
-            </Modal>
         </>
     );
 }

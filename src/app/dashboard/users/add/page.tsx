@@ -13,15 +13,7 @@ import {
 } from "@/redux/features/auth/authApi";
 import { TFileDocument } from "@/types";
 import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
-import {
-    Button,
-    Card,
-    Divider,
-    Form,
-    Steps,
-    message
-} from "antd";
-import Link from "next/link";
+import { Button, Card, Divider, Form, Steps, message } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -224,14 +216,6 @@ export default function AddReporterPage() {
         setDepartments(mockDepartments);
     }, []);
 
-    // Debug form state on step change
-    useEffect(() => {
-        console.log(
-            `Step ${currentStep} - Current form values:`,
-            form.getFieldsValue(true)
-        );
-    }, [currentStep, form]);
-
     // Define required fields per step and user_type
     const getRequiredFields = (step: number, userType: UserType): string[] => {
         switch (step) {
@@ -265,8 +249,6 @@ export default function AddReporterPage() {
             if (currentStep === 3) {
                 await form.validateFields();
                 const values = form.getFieldsValue(true);
-                console.log("Step 3 - Collected values:", values);
-
                 if (!values.email) {
                     message.error("Email is required");
                     return;
@@ -303,8 +285,6 @@ export default function AddReporterPage() {
             setLoading(true);
 
             const values: FormData = form.getFieldsValue(true);
-            console.log("Step 4 - Collected values:", values);
-
             if (!values.email || !tempUserId) {
                 throw new Error(
                     "Email or temp user ID missing. Please start over."
@@ -377,9 +357,8 @@ export default function AddReporterPage() {
             } else if (values.user_type === "moderator") {
                 await createModerator(payload).unwrap();
             }
-
             message.success("User created successfully");
-            router.push("/dashboard/users/admin");
+            router.back();
         } catch (error: any) {
             const errorMsg = error?.data?.message;
             message.error(errorMsg);
@@ -389,16 +368,19 @@ export default function AddReporterPage() {
         }
     };
 
-
     return (
         <div className="space-y-6">
             <div
                 className="flex items-center justify-between"
                 style={{ marginBottom: "20px" }}
             >
-                <Link href="/dashboard/users/all" style={{ padding: "5px" }}>
-                    <Button icon={<ArrowLeftOutlined />}>Back to Users</Button>
-                </Link>
+                <Button
+                    icon={<ArrowLeftOutlined />}
+                    style={{ padding: "5px" }}
+                    onClick={() => router.back()}
+                >
+                    Back to Users
+                </Button>
             </div>
 
             <Card title="Add New User">
@@ -419,9 +401,7 @@ export default function AddReporterPage() {
                     }}
                 >
                     {currentStep === 0 && <AccountInfoForm />}
-                    {currentStep === 1 && (
-                        <PersonalInfoForm form={form} />
-                    )}
+                    {currentStep === 1 && <PersonalInfoForm form={form} />}
                     {currentStep === 2 && (
                         <AddressAndAdditionalInfoForm step={2} />
                     )}
@@ -459,17 +439,6 @@ export default function AddReporterPage() {
                                     Create User
                                 </Button>
                             )}
-                            <Button
-                                onClick={() =>
-                                    console.log(
-                                        "Debug - Form values:",
-                                        form.getFieldsValue(true)
-                                    )
-                                }
-                                style={{ marginLeft: 8 }}
-                            >
-                                Log Form Values
-                            </Button>
                         </div>
                     </div>
                 </Form>
