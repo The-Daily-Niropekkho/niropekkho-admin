@@ -7,7 +7,7 @@ import {
     useDeleteNewsMutation,
     useGetAllNewsQuery,
 } from "@/redux/features/news/newsApi";
-import { Category, News, TFileDocument, User } from "@/types";
+import { Category, News, TFileDocument } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -52,7 +52,11 @@ export default function AllNewsPage() {
         { name: "sortOrder", value: sortOrder },
     ];
 
-    const { data: news, isLoading: isNewsLoading , isFetching: isNewsFetching } = useGetAllNewsQuery(query);
+    const {
+        data: news,
+        isLoading: isNewsLoading,
+        isFetching: isNewsFetching,
+    } = useGetAllNewsQuery(query);
 
     const [deleteNews, { isLoading: isDeleting }] = useDeleteNewsMutation();
 
@@ -165,11 +169,18 @@ export default function AllNewsPage() {
         },
         {
             title: "Reporter",
-            dataIndex: "reporter",
             key: "reporter",
-            render: (reporter: User) => {
-                const user = Object.values(reporter).filter(Boolean)[0];
-                return `${user?.first_name || ""} ${user?.last_name || ""}`;
+            render: (data: News) => {
+                if (data?.reporter) {
+                    const user = Object.values(data?.reporter).filter(
+                        Boolean
+                    )[0];
+                    return `${user?.first_name || ""} ${user?.last_name || ""}`;
+                } else if (data?.generic_reporter) {
+                    return data?.generic_reporter.name;
+                } else {
+                    return "N/A";
+                }
             },
         },
         {

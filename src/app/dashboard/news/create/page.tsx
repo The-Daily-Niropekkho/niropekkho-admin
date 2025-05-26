@@ -1,43 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { GeneralSection } from "@/components/features/news/general-section";
+import { MediaSection } from "@/components/features/news/media-section";
+import { SEOSection } from "@/components/features/news/seo-section";
 import { useTheme } from "@/components/theme-context";
+import { EnumIds } from "@/constants/enum-ids";
 import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
+import { useCreateNewsMutation } from "@/redux/features/news/newsApi";
 import { useGetAllTopicsQuery } from "@/redux/features/topic/topicApi";
-import { useGetAllWriterUserQuery } from "@/redux/features/user/userApi";
-import { useGetAllCountriesQuery } from "@/redux/features/zone/countryApi";
 import { useGetAllDistrictsQuery } from "@/redux/features/zone/districtsApi";
 import { useGetAllDivisionsQuery } from "@/redux/features/zone/divisionApi";
 import { useGetAllUnionsQuery } from "@/redux/features/zone/unionApi";
 import { useGetAllUpazillasQuery } from "@/redux/features/zone/upazillaApi";
+import { ErrorResponse, TFileDocument } from "@/types";
 
 import {
-    ClockCircleOutlined,
-    CloseOutlined,
-    EyeOutlined,
+    DeleteOutlined,
     FileTextOutlined,
     GlobalOutlined,
     PictureOutlined,
     SaveOutlined,
-    SendOutlined,
 } from "@ant-design/icons";
 import {
     Button,
     Card,
     Col,
-    DatePicker,
     Divider,
     Form,
     Input,
     message,
+    Popconfirm,
     Row,
-    Select,
-    Space,
     Switch,
     Tabs,
-    Upload,
+    TabsProps,
+    Tooltip
 } from "antd";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Dynamically import the CKEditor component
 const CKEditor = dynamic(() => import("@/components/ck-editor"), {
@@ -59,25 +59,23 @@ const CKEditor = dynamic(() => import("@/components/ck-editor"), {
     ),
 });
 
-const { Option } = Select;
 const { TextArea } = Input;
-const { TabPane } = Tabs;
 
 export default function CreateNewsPage() {
     const [form] = Form.useForm();
     const { theme } = useTheme();
+    const isDark = theme === "dark";
+
     const [loading, setLoading] = useState(false);
+    const [bannerImage, setBannerImage] = useState<TFileDocument>();
+    const [ogImage, setOgImage] = useState<TFileDocument>();
     const [editorContent, setEditorContent] = useState(
         "<p>Scientists have developed a new solar panel that doubles efficiency...</p>"
     );
-    const isDark = theme === "dark";
 
     const [selectedCategory, setSelectedCategory] = useState<
         string | undefined
     >(undefined);
-    const [selectedCountry, setSelectedCountry] = useState<number | undefined>(
-        undefined
-    );
     const [selectedDivision, setSelectedDivision] = useState<
         number | undefined
     >(undefined);
@@ -90,71 +88,27 @@ export default function CreateNewsPage() {
 
     // Redux Queries
     const { data: categories, isLoading: isCategoryLoading } =
-        useGetAllCategoriesQuery([
-            {
-                name: "limit",
-                value: 999,
-            },
-        ]);
+        useGetAllCategoriesQuery([{ name: "limit", value: 999 }]);
     const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery([
-        {
-            name: "limit",
-            value: 999,
-        },
+        { name: "limit", value: 999 },
     ]);
-    const { data: countries, isLoading: isCountriesLoading } =
-        useGetAllCountriesQuery(
-            [
-                {
-                    name: "limit",
-                    value: 999,
-                },
-                {
-                    name: "sortBy",
-                    value: "name",
-                },
-                {
-                    name: "sortOrder",
-                    value: "asc",
-                },
-            ],
-            { skip: selectedCategory != "cmb21jjgj0005mhfc2lqjtaf0" }
-        );
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(
             [
-                { name: "country_id", value: selectedCountry },
-                {
-                    name: "limit",
-                    value: 100,
-                },
-                {
-                    name: "sortBy",
-                    value: "name",
-                },
-                {
-                    name: "sortOrder",
-                    value: "asc",
-                },
+                { name: "country_id", value: 172 },
+                { name: "limit", value: 100 },
+                { name: "sortBy", value: "name" },
+                { name: "sortOrder", value: "asc" },
             ],
-            { skip: !selectedCountry }
+            { skip: selectedCategory != EnumIds.across_the_country }
         );
     const { data: districts, isLoading: isDistrictsLoading } =
         useGetAllDistrictsQuery(
             [
                 { name: "division_id", value: selectedDivision },
-                {
-                    name: "limit",
-                    value: 500,
-                },
-                {
-                    name: "sortBy",
-                    value: "name",
-                },
-                {
-                    name: "sortOrder",
-                    value: "asc",
-                },
+                { name: "limit", value: 500 },
+                { name: "sortBy", value: "name" },
+                { name: "sortOrder", value: "asc" },
             ],
             { skip: !selectedDivision }
         );
@@ -162,79 +116,146 @@ export default function CreateNewsPage() {
         useGetAllUpazillasQuery(
             [
                 { name: "district_id", value: selectedDistrict },
-                {
-                    name: "limit",
-                    value: 500,
-                },
-                {
-                    name: "sortBy",
-                    value: "name",
-                },
-                {
-                    name: "sortOrder",
-                    value: "asc",
-                },
+                { name: "limit", value: 500 },
+                { name: "sortBy", value: "name" },
+                { name: "sortOrder", value: "asc" },
             ],
             { skip: !selectedDistrict }
         );
     const { data: unions, isLoading: isUnionLoading } = useGetAllUnionsQuery(
         [
             { name: "upazilla_id", value: selectedUpazilla },
-            {
-                name: "limit",
-                value: 1000,
-            },
-            {
-                name: "sortBy",
-                value: "name",
-            },
-            {
-                name: "sortOrder",
-                value: "asc",
-            },
+            { name: "limit", value: 1000 },
+            { name: "sortBy", value: "name" },
+            { name: "sortOrder", value: "asc" },
         ],
         { skip: !selectedUpazilla }
     );
-    const { data: writers, isLoading: isWriterLoading } =
-        useGetAllWriterUserQuery(undefined);
 
-    const onFinish = (values: any) => {
-        setLoading(true);
-        // Add the editor content to the form values
-        values.details_html = editorContent;
+    const [createNews, { isError, isSuccess, error, reset: resetMutation }] =
+        useCreateNewsMutation();
 
-        console.log("Form values:", values);
+    // Watch form fields
+    const isBreaking = Form.useWatch("is_breaking", form);
+    const isTopBreakingNews = Form.useWatch("is_top_breaking_news", form);
 
-        // Simulate API call
-        setTimeout(() => {
+    // Reset dependent fields when is_breaking or is_top_breaking_news changes
+    useEffect(() => {
+        if (!isBreaking) {
+            form.setFieldsValue({
+                is_top_breaking_news: false,
+                serial_number: undefined,
+                top_serial_number: undefined,
+            });
+        } else if (!isTopBreakingNews) {
+            form.setFieldsValue({
+                top_serial_number: undefined,
+            });
+        }
+    }, [isBreaking, isTopBreakingNews, form]);
+
+    // Handle mutation status
+    useEffect(() => {
+        if (isError) {
+            const errorResponse = error as ErrorResponse;
+            message.error(
+                errorResponse?.data?.message || "Failed to create news"
+            );
             setLoading(false);
-            message.success("News article created successfully!");
-        }, 1500);
+        } else if (isSuccess) {
+            message.success("News created successfully!");
+            form.resetFields();
+            setEditorContent("");
+            setOgImage(undefined);
+            setBannerImage(undefined);
+            setSelectedCategory(undefined);
+            setSelectedDivision(undefined);
+            setSelectedDistrict(undefined);
+            setSelectedUpazilla(undefined);
+            resetMutation();
+        }
+    }, [isError, isSuccess, error, resetMutation, form]);
+
+    const onFinish = async (values: any) => {
+        setLoading(true);
+        values.details_html = editorContent;
+        const payload = { ...values };
+        await createNews(payload);
     };
 
     const onReset = () => {
         form.resetFields();
         setEditorContent("");
+        setOgImage(undefined);
+        setBannerImage(undefined);
+        setSelectedCategory(undefined);
+        setSelectedDivision(undefined);
+        setSelectedDistrict(undefined);
+        setSelectedUpazilla(undefined);
+        resetMutation();
+        message.info("Form has been reset");
     };
 
-    const normFile = (e: any) => {
-        if (Array.isArray(e)) {
-            return e;
-        }
-        return e?.fileList;
-    };
-
-    const tags = [
-        "Breaking News",
-        "Exclusive",
-        "Feature",
-        "Opinion",
-        "Analysis",
-        "Interview",
-        "Investigation",
-        "Review",
-        "Profile",
-        "Report",
+    const tabItems: TabsProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <span>
+                    <FileTextOutlined /> General
+                </span>
+            ),
+            children: (
+                <GeneralSection
+                    form={form}
+                    selectedCategory={selectedCategory}
+                    setSelectedCategory={setSelectedCategory}
+                    selectedDivision={selectedDivision}
+                    setSelectedDivision={setSelectedDivision}
+                    selectedDistrict={selectedDistrict}
+                    setSelectedDistrict={setSelectedDistrict}
+                    selectedUpazilla={selectedUpazilla}
+                    setSelectedUpazilla={setSelectedUpazilla}
+                    categories={categories?.data}
+                    isCategoryLoading={isCategoryLoading}
+                    topics={topics?.data}
+                    isTopicLoading={isTopicLoading}
+                    divisions={divisions?.data}
+                    isDivisionsLoading={isDivisionsLoading}
+                    districts={districts?.data}
+                    isDistrictsLoading={isDistrictsLoading}
+                    upazillas={upazillas?.data}
+                    isUpazillaLoading={isUpazillaLoading}
+                    unions={unions?.data}
+                    isUnionLoading={isUnionLoading}
+                />
+            ),
+        },
+        {
+            key: "2",
+            label: (
+                <span>
+                    <PictureOutlined /> Media
+                </span>
+            ),
+            children: (
+                <MediaSection
+                    form={form}
+                    ogImage={ogImage}
+                    bannerImage={bannerImage}
+                    setBannerImage={setBannerImage}
+                    setOgImage={setOgImage}
+                />
+            ),
+        },
+        {
+            key: "3",
+            label: (
+                <span>
+                    <GlobalOutlined /> SEO
+                </span>
+            ),
+            children: <SEOSection />,
+        },
     ];
 
     return (
@@ -276,8 +297,8 @@ export default function CreateNewsPage() {
                     layout="vertical"
                     onFinish={onFinish}
                 >
-                    <Row gutter={16}>
-                        <Col xs={24} lg={16}>
+                    <Row gutter={24}>
+                        <Col xs={24} lg={17}>
                             <Form.Item
                                 name="headline"
                                 label="Headline"
@@ -296,13 +317,13 @@ export default function CreateNewsPage() {
 
                             <Form.Item
                                 name="short_headline"
-                                label="Subheadline"
+                                label="Short headline"
                             >
-                                <Input placeholder="Enter subheadline" />
+                                <Input placeholder="Enter Short headline" />
                             </Form.Item>
 
-                            <Form.Item name="slug" label="Slug">
-                                <Input placeholder="Enter slug (URL-friendly)" />
+                            <Form.Item name="slug" label="Custom URL">
+                                <Input placeholder="Enter custom url (URL-friendly)" />
                             </Form.Item>
 
                             <Form.Item
@@ -323,10 +344,10 @@ export default function CreateNewsPage() {
                                 />
                             </Form.Item>
 
-                            <Form.Item name="details" label="Summary">
+                            <Form.Item name="details" label="Short Details">
                                 <TextArea
                                     rows={3}
-                                    placeholder="Enter a short summary for the article"
+                                    placeholder="Enter a short details for the article"
                                 />
                             </Form.Item>
 
@@ -342,496 +363,57 @@ export default function CreateNewsPage() {
                             </Form.Item>
                         </Col>
 
-                        <Col xs={24} lg={8}>
-                            <Tabs defaultActiveKey="1">
-                                <TabPane
-                                    tab={
-                                        <span>
-                                            <FileTextOutlined /> General
-                                        </span>
-                                    }
-                                    key="1"
-                                >
+                        <Col xs={24} lg={7}>
+                            <Tabs defaultActiveKey="1" items={tabItems}></Tabs>
+                            <Row
+                                gutter={[16, 16]}
+                                justify={"space-between"}
+                                style={{ marginTop: 16 }}
+                            >
+                                <Col span={8}>
                                     <Form.Item
-                                        name="category_id"
-                                        label="Category"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message:
-                                                    "Please select a category",
-                                            },
-                                        ]}
+                                        name="status"
+                                        label="Status"
+                                        valuePropName="checked"
+                                        getValueProps={(value) => ({
+                                            checked: value === "published",
+                                        })}
+                                        getValueFromEvent={(checked) =>
+                                            checked ? "published" : "draft"
+                                        }
                                     >
-                                        <Select
-                                            placeholder="Select a category"
-                                            disabled={isCategoryLoading}
-                                            showSearch
-                                            onChange={(value) =>
-                                                setSelectedCategory(value)
-                                            }
-                                        >
-                                            {categories?.data?.map(
-                                                (category: any) => (
-                                                    <Option
-                                                        key={category.id}
-                                                        value={category.id}
-                                                    >
-                                                        {category.title}
-                                                    </Option>
-                                                )
-                                            )}
-                                        </Select>
-                                    </Form.Item>
-                                    {selectedCategory ==
-                                        "cmb21jjgj0005mhfc2lqjtaf0" && (
-                                        <>
-                                            <Form.Item
-                                                name="country_id"
-                                                label="Country"
-                                            >
-                                                <Select
-                                                    placeholder="Select a country"
-                                                    disabled={
-                                                        isCountriesLoading
-                                                    }
-                                                    showSearch
-                                                    onChange={(value) =>
-                                                        setSelectedCountry(
-                                                            value
-                                                        )
-                                                    }
-                                                >
-                                                    {countries?.data?.map(
-                                                        (country: any) => (
-                                                            <Option
-                                                                key={country.id}
-                                                                value={
-                                                                    country.id
-                                                                }
-                                                            >
-                                                                {
-                                                                    country.bn_name
-                                                                }
-                                                            </Option>
-                                                        )
-                                                    )}
-                                                </Select>
-                                            </Form.Item>
-                                            <div className="grid grid-cols-2 gap-x-5">
-                                                <Form.Item
-                                                    name="division_id"
-                                                    label="Division"
-                                                >
-                                                    <Select
-                                                        placeholder="Select a division"
-                                                        disabled={
-                                                            isDivisionsLoading ||
-                                                            !selectedCountry
-                                                        }
-                                                        showSearch
-                                                        onChange={(value) =>
-                                                            setSelectedDivision(
-                                                                value
-                                                            )
-                                                        }
-                                                    >
-                                                        {divisions?.data?.map(
-                                                            (division: any) => (
-                                                                <Option
-                                                                    key={
-                                                                        division.id
-                                                                    }
-                                                                    value={
-                                                                        division.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        division.bn_name
-                                                                    }
-                                                                </Option>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </Form.Item>
-
-                                                <Form.Item
-                                                    name="district_id"
-                                                    label="District"
-                                                >
-                                                    <Select
-                                                        placeholder="Select a district"
-                                                        disabled={
-                                                            isDistrictsLoading ||
-                                                            !selectedDivision
-                                                        }
-                                                        showSearch
-                                                        onChange={(value) =>
-                                                            setSelectedDistrict(
-                                                                value
-                                                            )
-                                                        }
-                                                    >
-                                                        {districts?.data?.map(
-                                                            (district: any) => (
-                                                                <Option
-                                                                    key={
-                                                                        district.id
-                                                                    }
-                                                                    value={
-                                                                        district.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        district.bn_name
-                                                                    }
-                                                                </Option>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </Form.Item>
-
-                                                <Form.Item
-                                                    name="upazilla_id"
-                                                    label="Upazilla"
-                                                >
-                                                    <Select
-                                                        placeholder="Select an upazilla"
-                                                        disabled={
-                                                            isUpazillaLoading ||
-                                                            !selectedDistrict
-                                                        }
-                                                        showSearch
-                                                        onChange={(value) =>
-                                                            setSelectedUpazilla(
-                                                                value
-                                                            )
-                                                        }
-                                                    >
-                                                        {upazillas?.data?.map(
-                                                            (upazilla: any) => (
-                                                                <Option
-                                                                    key={
-                                                                        upazilla.id
-                                                                    }
-                                                                    value={
-                                                                        upazilla.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        upazilla.bn_name
-                                                                    }
-                                                                </Option>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </Form.Item>
-
-                                                <Form.Item
-                                                    name="union_id"
-                                                    label="Union"
-                                                >
-                                                    <Select
-                                                        placeholder="Select a union"
-                                                        disabled={
-                                                            isUnionLoading ||
-                                                            !selectedUpazilla
-                                                        }
-                                                        showSearch
-                                                    >
-                                                        {unions?.data?.map(
-                                                            (union: any) => (
-                                                                <Option
-                                                                    key={
-                                                                        union.id
-                                                                    }
-                                                                    value={
-                                                                        union.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        union.bn_name
-                                                                    }
-                                                                </Option>
-                                                            )
-                                                        )}
-                                                    </Select>
-                                                </Form.Item>
-                                            </div>
-                                        </>
-                                    )}
-                                    <Row gutter={8}>
-                                        <Col span={12}>
-                                            <Form.Item
-                                                name="category_serial"
-                                                label="Category Position"
-                                            >
-                                                <Select
-                                                    placeholder="Select a category position"
-                                                    allowClear
-                                                >
-                                                    {[
-                                                        0, 1, 2, 3, 4, 5, 6, 7,
-                                                        8, 9, 10,
-                                                    ].map((position) => (
-                                                        <Option
-                                                            key={position}
-                                                            value={position}
-                                                        >
-                                                            {position}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={12}>
-                                            <Form.Item
-                                                name="home_serial"
-                                                label="Home Position"
-                                            >
-                                                <Select
-                                                    placeholder="Select a home position"
-                                                    allowClear
-                                                >
-                                                    {[
-                                                        0, 1, 2, 3, 4, 5, 6, 7,
-                                                        8, 9, 10,
-                                                    ].map((position) => (
-                                                        <Option
-                                                            key={position}
-                                                            value={position}
-                                                        >
-                                                            {position}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-
-                                    <Form.Item name="topic_id" label="Topic">
-                                        <Select
-                                            placeholder="Select a topic"
-                                            allowClear
-                                            mode="tags"
-                                            disabled={isTopicLoading}
-                                        >
-                                            {topics?.data?.map((topic: any) => (
-                                                <Option
-                                                    key={topic.id}
-                                                    value={topic.id}
-                                                >
-                                                    {topic.title}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-
-                                    <Form.Item name="post_tag" label="Tags">
-                                        <Select
-                                            mode="tags"
-                                            placeholder="Select or create tags"
-                                        >
-                                            {tags.map((tag) => (
-                                                <Option key={tag} value={tag}>
-                                                    {tag}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        name="reporter_id"
-                                        label="Reporter"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message:
-                                                    "Please select a reporter",
-                                            },
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select a reporter"
-                                            showSearch
-                                            disabled={isWriterLoading}
-                                        >
-                                            {writers?.data?.map(
-                                                (reporter: any) => (
-                                                    <Option
-                                                        key={reporter.id}
-                                                        value={reporter.id}
-                                                    >
-                                                        {`${reporter.writer.first_name} ${reporter.writer.last_name}`}
-                                                    </Option>
-                                                )
-                                            )}
-                                        </Select>
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        name="publish_date"
-                                        label="Publish Date"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message:
-                                                    "Please select a publish date",
-                                            },
-                                        ]}
-                                    >
-                                        <DatePicker
-                                            showTime
-                                            style={{ width: "100%" }}
-                                            placeholder="Select date and time"
+                                        <Switch
+                                            checkedChildren="Published"
+                                            unCheckedChildren="Draft"
                                         />
                                     </Form.Item>
-
+                                </Col>
+                                <Col span={8}>
                                     <Form.Item
-                                        name="media_type"
-                                        label="Media Type"
+                                        name="is_breaking"
+                                        label="Breaking News"
+                                        valuePropName="checked"
                                     >
-                                        <Select placeholder="Select media type">
-                                            <Option value="online">
-                                                Online
-                                            </Option>
-                                            <Option value="print">Print</Option>
-                                            <Option value="both">Both</Option>
-                                        </Select>
-                                    </Form.Item>
-
-                                    <Row gutter={8}>
-                                        <Col span={8}>
-                                            <Form.Item
-                                                name="status"
-                                                label="Status"
-                                                valuePropName="checked"
-                                            >
-                                                <Switch
-                                                    checkedChildren="Published"
-                                                    unCheckedChildren="Draft"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Form.Item
-                                                name="is_breaking"
-                                                label="Breaking News"
-                                                valuePropName="checked"
-                                            >
-                                                <Switch
-                                                    checkedChildren="Yes"
-                                                    unCheckedChildren="No"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Form.Item
-                                                name="is_featured"
-                                                label="Featured"
-                                                valuePropName="checked"
-                                            >
-                                                <Switch
-                                                    checkedChildren="Yes"
-                                                    unCheckedChildren="No"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-
-                                    <Row gutter={8}>
-                                        <Col span={12}>
-                                            <Form.Item
-                                                name="is_scheduled"
-                                                label="Scheduled"
-                                                valuePropName="checked"
-                                            >
-                                                <Switch
-                                                    checkedChildren="Yes"
-                                                    unCheckedChildren="No"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-                                </TabPane>
-
-                                <TabPane
-                                    tab={
-                                        <span>
-                                            <PictureOutlined /> Media
-                                        </span>
-                                    }
-                                    key="2"
-                                >
-                                    <Form.Item
-                                        name="banner_image"
-                                        label="Banner Image"
-                                        valuePropName="fileList"
-                                        getValueFromEvent={normFile}
-                                    >
-                                        <Upload
-                                            name="banner_image"
-                                            listType="picture-card"
-                                            maxCount={1}
-                                            beforeUpload={() => false}
-                                        >
-                                            <div>
-                                                <PictureOutlined />
-                                                <div style={{ marginTop: 8 }}>
-                                                    Upload
-                                                </div>
-                                            </div>
-                                        </Upload>
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        name="og_image"
-                                        label="OG Image URL"
-                                    >
-                                        <Input placeholder="Enter OG image URL" />
-                                    </Form.Item>
-                                </TabPane>
-
-                                <TabPane
-                                    tab={
-                                        <span>
-                                            <GlobalOutlined /> SEO
-                                        </span>
-                                    }
-                                    key="3"
-                                >
-                                    <Form.Item
-                                        name="meta_title"
-                                        label="Meta Title"
-                                    >
-                                        <Input placeholder="Enter meta title" />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        name="meta_description"
-                                        label="Meta Description"
-                                    >
-                                        <TextArea
-                                            rows={4}
-                                            placeholder="Enter meta description"
+                                        <Switch
+                                            checkedChildren="Yes"
+                                            unCheckedChildren="No"
                                         />
                                     </Form.Item>
-
-                                    <Form.Item name="og_title" label="OG Title">
-                                        <Input placeholder="Enter OG title" />
-                                    </Form.Item>
-
+                                </Col>
+                                <Col span={8}>
                                     <Form.Item
-                                        name="og_description"
-                                        label="OG Description"
+                                        name="is_top_breaking_news"
+                                        label="Top Breaking News"
+                                        valuePropName="checked"
                                     >
-                                        <TextArea
-                                            rows={4}
-                                            placeholder="Enter OG description"
+                                        <Switch
+                                            checkedChildren="Yes"
+                                            unCheckedChildren="No"
+                                            disabled={!isBreaking}
                                         />
                                     </Form.Item>
-                                </TabPane>
-                            </Tabs>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
 
@@ -846,35 +428,35 @@ export default function CreateNewsPage() {
                     <div
                         style={{
                             display: "flex",
-                            justifyContent: "space-between",
+                            justifyContent: "end",
+                            gap: 20,
                         }}
                     >
-                        <Space>
-                            <Button icon={<EyeOutlined />}>Preview</Button>
-                            <Button icon={<ClockCircleOutlined />}>
-                                Save as Draft
-                            </Button>
-                        </Space>
-                        <Space>
-                            <Button icon={<CloseOutlined />} onClick={onReset}>
-                                Reset
-                            </Button>
-                            <Button
-                                type="primary"
-                                htmlType="submit"
-                                icon={<SaveOutlined />}
-                                loading={loading}
+                        <Tooltip title="Delete">
+                            <Popconfirm
+                                title="Are you sure you want to delete this news?"
+                                onConfirm={onReset}
+                                okText="Yes"
+                                cancelText="No"
+                                placement="left"
                             >
-                                Save
-                            </Button>
-                            <Button
-                                type="primary"
-                                icon={<SendOutlined />}
-                                style={{ background: "#10b981" }}
-                            >
-                                Publish
-                            </Button>
-                        </Space>
+                                <Button
+                                    type="dashed"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                >
+                                    Reset
+                                </Button>
+                            </Popconfirm>
+                        </Tooltip>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            icon={<SaveOutlined />}
+                            loading={loading}
+                        >
+                            Publish
+                        </Button>
                     </div>
                 </Form>
             </Card>

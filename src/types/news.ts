@@ -1,10 +1,11 @@
 import { Category } from "./categories";
 import { TFileDocument } from "./global";
+import { GenericReporter } from "./reporter";
 import { User } from "./user";
 
 export interface News {
     id: string;
-    category: Category
+    category: Category;
     category_id: string;
     banner_image: TFileDocument;
     headline: string;
@@ -39,6 +40,7 @@ export interface News {
     status: string;
     is_deleted: boolean;
     reporter: User;
+    generic_reporter: GenericReporter;
     reporter_id: string;
     created_by_id: string;
     createdAt: string;

@@ -5,9 +5,7 @@
 
 import { useTheme } from "@/components/theme-context";
 import { useMediaUtils } from "@/hooks/use-media-utils";
-import {
-  useGetMediaQuery
-} from "@/redux/features/media/mediaApi";
+import { useGetMediaQuery } from "@/redux/features/media/mediaApi";
 import { TFileDocument } from "@/types";
 import { FilProgressMultipleFilesUploaderS3 } from "@/utils/handleFileUploderFileProgress";
 import {
@@ -18,10 +16,22 @@ import {
   FileOutlined,
   FileTextOutlined,
   FileZipOutlined,
+  FolderOutlined,
   LoadingOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Button, List, Modal, Progress, Select, Tabs, Tag, Typography, Upload } from "antd";
+import {
+  Button,
+  List,
+  Modal,
+  Progress,
+  Select,
+  Tabs,
+  TabsProps,
+  Tag,
+  Typography,
+  Upload,
+} from "antd";
 import { useEffect, useState } from "react";
 import "./media-components.css";
 
@@ -110,12 +120,12 @@ export function GlobalFilePicker({
 
             // Automatically select the uploaded file(s)
             const modifyUploadedFiles = uploadedFiles?.map((file) => {
-              const fixFile ={...file}
-              if (fixFile.pre_url){
-                delete fixFile.pre_url
-              }
-    
-              return  fixFile
+                const fixFile = { ...file };
+                if (fixFile.pre_url) {
+                    delete fixFile.pre_url;
+                }
+
+                return fixFile;
             });
             if (!multiple) {
                 setSelectedItems([modifyUploadedFiles[0]]);
@@ -151,38 +161,16 @@ export function GlobalFilePicker({
         }
     };
 
-    return (
-        <Modal
-            title="File Picker"
-            open={open}
-            onCancel={onCancel}
-            width={900}
-            className={`file-picker-modal ${isDark ? "dark-modal" : ""}`}
-            footer={[
-                <Button key="cancel" onClick={onCancel}>
-                    Cancel
-                </Button>,
-                <Button
-                    key="submit"
-                    type="primary"
-                    disabled={selectedItems.length === 0}
-                    // onClick={handleConfirm}
-                >
-                    {multiple
-                        ? `Select ${selectedItems.length} Files`
-                        : "Select File"}
-                </Button>,
-            ]}
-        >
-            <Tabs defaultActiveKey="upload">
-                <TabPane
-                    tab={
-                        <span>
-                            <CloudUploadOutlined /> Upload Files
-                        </span>
-                    }
-                    key="upload"
-                >
+    const tabItems: TabsProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <span>
+                    <CloudUploadOutlined /> Upload Files
+                </span>
+            ),
+            children: (
+                <>
                     <Upload.Dragger
                         multiple={multiple}
                         accept={fileTypes?.join(",")}
@@ -211,7 +199,7 @@ export function GlobalFilePicker({
                     </Upload.Dragger>
                     {progressList.length > 0 && (
                         <List
-                            style={{ marginTop : "20px" }}
+                            style={{ marginTop: "20px" }}
                             dataSource={progressList}
                             renderItem={(item) => (
                                 <List.Item>
@@ -279,7 +267,44 @@ export function GlobalFilePicker({
                             )}
                         />
                     )}
-                </TabPane>
+                </>
+            ),
+        },
+        {
+            key: "2",
+            label: (
+                <span>
+                    <FolderOutlined /> Browse Files
+                </span>
+            ),
+            children: <></>,
+        },
+    ];
+
+    return (
+        <Modal
+            title="File Picker"
+            open={open}
+            onCancel={onCancel}
+            width={900}
+            className={`file-picker-modal ${isDark ? "dark-modal" : ""}`}
+            footer={[
+                <Button key="cancel" onClick={onCancel}>
+                    Cancel
+                </Button>,
+                <Button
+                    key="submit"
+                    type="primary"
+                    disabled={selectedItems.length === 0}
+                    // onClick={handleConfirm}
+                >
+                    {multiple
+                        ? `Select ${selectedItems.length} Files`
+                        : "Select File"}
+                </Button>,
+            ]}
+        >
+            <Tabs defaultActiveKey="upload" items={tabItems}>
                 {/* <TabPane
           tab={
             <span>

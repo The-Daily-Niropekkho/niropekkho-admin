@@ -117,9 +117,7 @@ export default function CategoryEditCreateModal({
             open={open}
             onOk={handleModalOk}
             onCancel={() => {
-                close();
-                setCategoryImage(undefined);
-                form.resetFields();
+                close()
             }}
             okButtonProps={{ loading: isCreating || isUpdating }}
             width={600}

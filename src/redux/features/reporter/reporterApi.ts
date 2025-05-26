@@ -1,12 +1,12 @@
-import { newsTag } from "@/constants";
-import { News, TQueryParam, TResponseRedux } from "@/types";
+import { reporterTag } from "@/constants";
+import { GenericReporter, TQueryParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/news`;
+const url = `/generic-reporters`;
 
-const newsApi = baseApi.injectEndpoints({
+const reporterApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllNews: builder.query({
+        getAllGenericReporters: builder.query({
             query: (args) => {
                 const params = new URLSearchParams();
                 if (args) {
@@ -21,28 +21,30 @@ const newsApi = baseApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response: TResponseRedux<News[]>) => {
+            transformResponse: (
+                response: TResponseRedux<GenericReporter[]>
+            ) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [newsTag],
+            providesTags: [reporterTag],
         }),
-        getNewsDetails: builder.query({
+        getGenericReporterDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<News>) => {
+            transformResponse: (response: TResponseRedux<GenericReporter>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [newsTag],
+            providesTags: [reporterTag],
         }),
-        createNews: builder.mutation({
+        createGenericReporter: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -50,14 +52,14 @@ const newsApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<News>) => {
+            transformResponse: (response: TResponseRedux<GenericReporter>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [newsTag],
+            invalidatesTags: [reporterTag],
         }),
-        updateNews: builder.mutation({
+        updateGenericReporter: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -65,29 +67,29 @@ const newsApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<News>) => {
+            transformResponse: (response: TResponseRedux<GenericReporter>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [newsTag],
+            invalidatesTags: [reporterTag],
         }),
-        deleteNews: builder.mutation({
+        deleteGenericReporter: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [newsTag],
+            invalidatesTags: [reporterTag],
         }),
     }),
 });
 
 export const {
-    useGetAllNewsQuery,
-    useGetNewsDetailsQuery,
-    useCreateNewsMutation,
-    useUpdateNewsMutation,
-    useDeleteNewsMutation,
-} = newsApi;
+    useGetAllGenericReportersQuery,
+    useGetGenericReporterDetailsQuery,
+    useCreateGenericReporterMutation,
+    useUpdateGenericReporterMutation,
+    useDeleteGenericReporterMutation,
+} = reporterApi;

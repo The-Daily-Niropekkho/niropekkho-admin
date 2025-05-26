@@ -3,7 +3,6 @@
 import { useTheme } from "@/components/theme-context";
 import { TFileDocument } from "@/types";
 import {
-    DeleteOutlined,
     EditOutlined,
     EyeOutlined,
     FileOutlined,
@@ -13,18 +12,11 @@ import {
 } from "@ant-design/icons";
 import { Button, Image, Tag } from "antd";
 import { useState } from "react";
-import MediaDeleteModal from "./media-delete-modal";
 import MediaDetailsModal from "./media-details-modal";
 
 export default function FileCard({ item }: { item: TFileDocument }) {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const { isDark } = useTheme();
-    const handleDelete = () => {
-        setIsDetailsModalOpen(false);
-        setIsDeleteModalOpen(true);
-    };
-
     return (
         <>
             <div className={`media-item ${isDark ? "dark" : ""}`}>
@@ -96,19 +88,8 @@ export default function FileCard({ item }: { item: TFileDocument }) {
                         onClick={() => setIsDetailsModalOpen(true)}
                     />
                     <Button type="text" icon={<EditOutlined />} />
-                    <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={handleDelete}
-                    />
                 </div>
             </div>
-            <MediaDeleteModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                item={item}
-            />
             <MediaDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}

@@ -8,8 +8,7 @@ import MediaStats from "@/components/features/media/media-stats";
 import { useTheme } from "@/components/theme-context";
 import { useMediaUtils } from "@/hooks/use-media-utils";
 import {
-    useGetMediaQuery,
-    useUploadMediaMutation,
+    useGetMediaQuery
 } from "@/redux/features/media/mediaApi";
 import { TFileDocument } from "@/types";
 import {
@@ -20,7 +19,7 @@ import {
     SortAscendingOutlined,
     UnorderedListOutlined
 } from "@ant-design/icons";
-import { Button, Card, Col, Input, Progress, Row, Select, message } from "antd";
+import { Button, Card, Col, Input, Progress, Row, Select } from "antd";
 import { useState } from "react";
 import "./media.css";
 
@@ -36,7 +35,7 @@ export default function MediaLibraryPage() {
     const [openFilePicker, setOpenFilePicker] = useState(false);
     // RTK Query hooks
     const { data: mediaItems = [], isLoading } = useGetMediaQuery();
-    const [uploadMedia, { isLoading: isUploading }] = useUploadMediaMutation();
+
     const { filterMedia, getMediaStats } = useMediaUtils();
 
     // Filter and sort media items
@@ -49,24 +48,6 @@ export default function MediaLibraryPage() {
         sortOrder
     );
     const mediaStats = getMediaStats(mediaItems);
-
-    const handleUpload = (files: FileList) => {
-        console.log(files);
-
-        uploadMedia({
-            files: Array.from(files),
-            folder: activeFolder === "all" ? "Uncategorized" : activeFolder,
-        })
-            .unwrap()
-            .then((newItems) => {
-                message.success(
-                    `${newItems.length} files uploaded successfully`
-                );
-            })
-            .catch((error) => {
-                message.error(`Upload failed: ${error.message}`);
-            });
-    };
 
     return (
         <>
@@ -177,7 +158,7 @@ export default function MediaLibraryPage() {
                             type="file"
                             multiple
                             onChange={(e) =>
-                                e.target.files && handleUpload(e.target.files)
+                                e.target.files
                             }
                             style={{ display: "none" }}
                         />
@@ -191,11 +172,11 @@ export default function MediaLibraryPage() {
                     </div>
                 </div>
 
-                {isUploading && (
+                {/* {isUploading && (
                     <div className="upload-progress">
                         <Progress percent={50} status="active" />
                     </div>
-                )}
+                )} */}
 
                 <div className="media-container">
                     <div className="media-sidebar">
