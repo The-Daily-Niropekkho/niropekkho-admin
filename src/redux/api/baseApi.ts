@@ -1,6 +1,7 @@
 import config from "@/config";
 import {
     categoryTag,
+    contactTag,
     countryTag,
     districtTag,
     divisionTag,
@@ -40,5 +41,6 @@ export const baseApi = createApi({
         districtTag,
         upazillaTag,
         unionTag,
+        contactTag
     ],
 });

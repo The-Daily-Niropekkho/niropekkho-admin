@@ -6,3 +6,4 @@ export * from "./topic";
 export * from "./TSession";
 export * from "./user";
 export * from "./zone";
+export * from "./contact";
