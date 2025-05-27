@@ -292,8 +292,7 @@ export default function EditNewsPage() {
                 },
             };
         }
-        console.log(changedValues.og_image);
-        
+
         if (ogImage !== news?.og_image) {
             payload.og_image = {
                 ...ogImage,
