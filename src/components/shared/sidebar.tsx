@@ -19,7 +19,7 @@ import {
     SearchOutlined,
     SettingOutlined,
     TagsOutlined,
-    UserOutlined,,
+    UserOutlined,
     
 } from "@ant-design/icons";
 import { Avatar, Badge, Layout, Menu, MenuProps } from "antd";
