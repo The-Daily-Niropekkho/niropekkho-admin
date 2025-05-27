@@ -14,12 +14,15 @@ import {
     UserOutlined,
 } from "@ant-design/icons";
 import { Avatar, Card, Col, Divider, Row, Spin, Tabs, Tag } from "antd";
-
-const { TabPane } = Tabs;
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
     const { isDark } = useTheme();
     const { data: user, isLoading } = useGetUserProfileQuery(undefined);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [activeTab, setActiveTab] = useState("1");
 
     // Get the specific profile data based on user type
     const getProfileData = (): Admin | Writer | Moderator | null => {
@@ -39,6 +42,20 @@ export default function ProfilePage() {
 
     const profileData = getProfileData();
 
+    // Set initial tab from URL parameter
+    useEffect(() => {
+        const tab = searchParams.get("tab");
+        if (tab && ["1", "2", "3"].includes(tab)) {
+            setActiveTab(tab);
+        }
+    }, [searchParams]);
+
+    // Handle tab change and update URL
+    const handleTabChange = (key: string) => {
+        setActiveTab(key);
+        router.push(`/dashboard/profile?tab=${key}`, { scroll: false });
+    };
+
     if (isLoading) {
         return (
             <div
@@ -57,6 +74,27 @@ export default function ProfilePage() {
     if (!user || !profileData) {
         return <div>No user data available</div>;
     }
+
+    // Define tabs using items prop
+    const tabItems = [
+        {
+            key: "1",
+            label: "Profile Information",
+            children: (
+                <ProfileInformation user={user} profileData={profileData} />
+            ),
+        },
+        {
+            key: "2",
+            label: "Change Password",
+            children: <ChangePassword />,
+        },
+        {
+            key: "3",
+            label: "Activity Log",
+            children: <ActivityLogs />,
+        },
+    ];
 
     return (
         <>
@@ -266,20 +304,11 @@ export default function ProfilePage() {
                             background: isDark ? "#1f2937" : "#ffffff",
                         }}
                     >
-                        <Tabs defaultActiveKey="1">
-                            <TabPane tab="Profile Information" key="1">
-                                <ProfileInformation
-                                    user={user}
-                                    profileData={profileData}
-                                />
-                            </TabPane>
-                            <TabPane tab="Change Password" key="2">
-                                <ChangePassword />
-                            </TabPane>
-                            <TabPane tab="Activity Log" key="3">
-                                <ActivityLogs />
-                            </TabPane>
-                        </Tabs>
+                        <Tabs
+                            activeKey={activeTab}
+                            onChange={handleTabChange}
+                            items={tabItems}
+                        />
                     </Card>
                 </Col>
             </Row>

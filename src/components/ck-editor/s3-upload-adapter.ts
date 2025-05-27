@@ -5,9 +5,9 @@ import { message } from "antd";
 
 export class S3UploadAdapter {
     private loader: any;
-    private setProgressList: never[]
+    private setProgressList: any
 
-    constructor(loader: any, setProgressList: never[]) {
+    constructor(loader: any, setProgressList: any) {
         this.loader = loader;
         this.setProgressList = setProgressList;
     }

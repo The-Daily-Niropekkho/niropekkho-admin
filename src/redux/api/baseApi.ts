@@ -6,6 +6,8 @@ import {
     districtTag,
     divisionTag,
     mediaTag,
+    newsTag,
+    reporterTag,
     topicTag,
     unionTag,
     upazillaTag,
@@ -41,6 +43,8 @@ export const baseApi = createApi({
         districtTag,
         upazillaTag,
         unionTag,
-        contactTag
+        contactTag,
+        newsTag,
+        reporterTag
     ],
 });

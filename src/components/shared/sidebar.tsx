@@ -10,6 +10,7 @@ import {
     FileOutlined,
     FileTextOutlined,
     GlobalOutlined,
+    IdcardOutlined,
     InboxOutlined,
     MenuOutlined,
     NotificationOutlined,
@@ -18,7 +19,7 @@ import {
     SearchOutlined,
     SettingOutlined,
     TagsOutlined,
-    UserOutlined,
+    UserOutlined,,
     
 } from "@ant-design/icons";
 import { Avatar, Badge, Layout, Menu, MenuProps } from "antd";
@@ -177,6 +178,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             ],
         },
         {
+            key: "/dashboard/reporters",
+            icon: <IdcardOutlined />,
+            label: <Link href="/dashboard/reporters">Reporters</Link>,
+        },
+        {
             key: "/dashboard/profile",
             icon: <UserOutlined />,
             label: <Link href="/dashboard/profile">Profile</Link>,
@@ -191,12 +197,16 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     label: <Link href="/dashboard/users/admin">Admins</Link>,
                 },
                 {
-                    key: "/dashboard/users/reporter",
-                    label: <Link href="/dashboard/users/reporter">Reporters</Link>,
+                    key: "/dashboard/users/writer",
+                    label: (
+                        <Link href="/dashboard/users/writer">Writers</Link>
+                    ),
                 },
                 {
                     key: "/dashboard/users/moderator",
-                    label: <Link href="/dashboard/users/moderator">Moderator</Link>,
+                    label: (
+                        <Link href="/dashboard/users/moderator">Moderator</Link>
+                    ),
                 },
                 {
                     key: "/dashboard/users/add",
@@ -234,7 +244,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
     const levelKeys = getLevelKeys(menuItems as LevelKeysProps[]);
 
-    const [stateOpenKeys, setStateOpenKeys] = useState([pathname.split("/")[1]]);
+    const [stateOpenKeys, setStateOpenKeys] = useState([
+        pathname.split("/")[1],
+    ]);
 
     const onOpenChange: MenuProps["onOpenChange"] = (openKeys) => {
         const currentOpenKey = openKeys.find(
@@ -361,7 +373,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                         borderRight: 0,
                         background: "transparent",
                     }}
-                   openKeys={stateOpenKeys}
+                    openKeys={stateOpenKeys}
                     onOpenChange={onOpenChange}
                     items={menuItems}
                     theme={isDark ? "dark" : "light"}

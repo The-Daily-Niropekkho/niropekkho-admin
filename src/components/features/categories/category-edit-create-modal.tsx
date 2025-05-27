@@ -104,9 +104,7 @@ export default function CategoryEditCreateModal({
             form.resetFields();
             setCategoryImage(undefined);
         } catch (error) {
-            message.warning(
-                (error as TError)?.data?.message
-            );
+            message.warning((error as TError)?.data?.message);
 
             console.error("Operation failed:", error);
         }
@@ -118,8 +116,6 @@ export default function CategoryEditCreateModal({
             onOk={handleModalOk}
             onCancel={() => {
                 close();
-                setCategoryImage(undefined);
-                form.resetFields();
             }}
             okButtonProps={{ loading: isCreating || isUpdating }}
             width={600}
@@ -181,6 +177,19 @@ export default function CategoryEditCreateModal({
                         >
                             Upload Profile Image
                         </Button>
+                        {categoryImage && (
+                            <Button
+                                danger
+                                onClick={() => {
+                                    setCategoryImage(undefined);
+                                    form.setFieldsValue({
+                                        image: undefined,
+                                    });
+                                }}
+                            >
+                                Remove Photo
+                            </Button>
+                        )}
                     </Form.Item>
                 </Row>
             </Form>

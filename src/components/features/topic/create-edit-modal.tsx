@@ -90,7 +90,6 @@ export default function TopicEditCreateModal({
             onOk={handleModalOk}
             onCancel={() => {
                 close();
-                form.resetFields();
             }}
             okButtonProps={{ loading: isCreating || isUpdating }}
             width={600}

@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  BellOutlined,
-  CheckOutlined,
-  ClockCircleOutlined,
-  CommentOutlined,
-  FileOutlined,
-  ReloadOutlined,
+    BellOutlined,
+    CheckOutlined,
+    ClockCircleOutlined,
+    CommentOutlined,
+    FileOutlined,
+    ReloadOutlined,
 } from "@ant-design/icons";
 import { Badge, Button } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
@@ -91,7 +91,7 @@ export default function NotificationMenu() {
     };
 
     return (
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative" , marginRight: "16px" }}>
             <Badge
                 count={notificationItems.filter((item) => !item.read).length}
                 overflowCount={9}
@@ -101,7 +101,6 @@ export default function NotificationMenu() {
                     icon={<BellOutlined />}
                     onClick={() => setShowNotifications(!showNotifications)}
                     style={{
-                        marginRight: "16px",
                         color: isDark ? "#ffffff" : "rgba(0, 0, 0, 0.65)",
                         width: "40px",
                         height: "40px",
@@ -116,7 +115,6 @@ export default function NotificationMenu() {
                             : "transparent",
                     }}
                 />
-                <div></div>
             </Badge>
             <AnimatePresence>
                 {showNotifications && (
