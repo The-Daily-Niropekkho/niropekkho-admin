@@ -73,15 +73,16 @@ export const GeneralSection = ({
     isDivisionsLoading,
     districts,
     isDistrictsLoading,
+
     upazillas,
     isUpazillaLoading,
     unions,
     isUnionLoading,
 }: GeneralSectionProps) => {
     const { data: writers, isLoading: isWriterLoading } =
-        useGetAllWriterUserQuery(undefined);
+        useGetAllWriterUserQuery([{ name: "status", value: "active" }]);
     const { data: genericReporter, isLoading: isGenericReporterLoading } =
-        useGetAllGenericReportersQuery(undefined);
+        useGetAllGenericReportersQuery([{ name: "status", value: "active" }]);
     const [isTopicModalVisible, setIsTopicModalVisible] = useState(false);
     const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
     const [isReporterModalVisible, setIsReporterModalVisible] = useState(false);
@@ -245,7 +246,7 @@ export const GeneralSection = ({
                             placeholder="Select a category position"
                             allowClear
                         >
-                            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
+                            {Array.from({ length: 20 }, (_, i) => i+1).map(
                                 (position) => (
                                     <Option key={position} value={position}>
                                         {position}
@@ -258,7 +259,7 @@ export const GeneralSection = ({
                 <Col span={12}>
                     <Form.Item name="home_serial" label="Home Position">
                         <Select placeholder="Select a home position" allowClear>
-                            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
+                            {Array.from({ length: 20 }, (_, i) => i+1).map(
                                 (position) => (
                                     <Option key={position} value={position}>
                                         {position}

@@ -144,9 +144,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     label: <Link href="/dashboard/users/admin">Admins</Link>,
                 },
                 {
-                    key: "/dashboard/users/reporter",
+                    key: "/dashboard/users/writer",
                     label: (
-                        <Link href="/dashboard/users/reporter">Reporters</Link>
+                        <Link href="/dashboard/users/writer">Writers</Link>
                     ),
                 },
                 {

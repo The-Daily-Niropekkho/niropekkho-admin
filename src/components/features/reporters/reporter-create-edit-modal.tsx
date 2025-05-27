@@ -30,15 +30,17 @@ export default function ReporterCreateEditModal({
     const [form] = Form.useForm();
 
     useEffect(() => {
-        form.setFieldsValue({
-            name: editingReporter?.name,
-            designation: editingReporter?.designation,
-            photo: editingReporter?.photo,
-        });
-        if (editingReporter?.photo) {
-            setReporterImage(editingReporter.photo);
+        if (open && editingReporter) {
+            form.setFieldsValue({
+                name: editingReporter?.name,
+                designation: editingReporter?.designation,
+                photo: editingReporter?.photo,
+            });
+            if (editingReporter?.photo) {
+                setReporterImage(editingReporter.photo);
+            }
         }
-    }, [editingReporter, form]);
+    }, [open, editingReporter, form]);
 
     const handleImageSelect = (files: TFileDocument[]) => {
         const selectedImage = files[0];
@@ -137,7 +139,7 @@ export default function ReporterCreateEditModal({
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row align="middle" style={{ gap: 12 }}>
+                <Row align="middle" style={{ gap: 12, position: "relative" }}>
                     <Avatar
                         shape="square"
                         size={64}
@@ -145,12 +147,27 @@ export default function ReporterCreateEditModal({
                         icon={<UserOutlined />}
                     />
                     <Form.Item name="photo" label="Profile Photo">
-                        <Button
-                            icon={<UploadOutlined />}
-                            onClick={() => setOpenFileUploader(true)}
-                        >
-                            Upload Profile Image
-                        </Button>
+                        <Row gutter={8} align="middle" style={{ gap: 8 }}>
+                            <Button
+                                icon={<UploadOutlined />}
+                                onClick={() => setOpenFileUploader(true)}
+                            >
+                                Upload Profile Image
+                            </Button>
+                            {reporterImage && (
+                                <Button
+                                    danger
+                                    onClick={() => {
+                                        setReporterImage(undefined);
+                                        form.setFieldsValue({
+                                            photo: undefined,
+                                        });
+                                    }}
+                                >
+                                    Remove Photo
+                                </Button>
+                            )}
+                        </Row>
                     </Form.Item>
                 </Row>
             </Form>

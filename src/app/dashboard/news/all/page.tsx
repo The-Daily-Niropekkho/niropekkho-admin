@@ -3,6 +3,7 @@
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
 import CustomImage from "@/components/ui/image";
+import config from "@/config";
 import {
     useDeleteNewsMutation,
     useGetAllNewsQuery,
@@ -84,7 +85,7 @@ export default function AllNewsPage() {
             dataIndex: "headline",
             key: "headline",
             render: (text: string, record: News) => (
-                <Link href={`/news/${record.slug}`} target="_blank">
+                <Link href={`${config.host_front}/${record?.category?.slug}/${record?.id}/${record.slug}`} target="_blank" style={{ maxWidth: "300px", display: "block" }}>
                     {text}
                 </Link>
             ),

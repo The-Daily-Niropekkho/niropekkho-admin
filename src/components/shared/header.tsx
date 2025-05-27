@@ -8,15 +8,14 @@ import {
     BulbFilled,
     BulbOutlined,
     DownOutlined,
-    GlobalOutlined,
+    EditOutlined,
     LogoutOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    QuestionCircleOutlined,
     SearchOutlined,
     SettingOutlined,
-    TranslationOutlined,
-    UserOutlined,
+    SolutionOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import {
     Avatar,
@@ -79,10 +78,20 @@ export default function AppHeader({
         {
             key: "1",
             icon: <UserOutlined />,
-            label: <Link href="/dashboard/profile">My Profile</Link>,
+            label: <Link href="/dashboard/profile?tab=1">My Profile</Link>,
         },
         {
             key: "2",
+            icon: <EditOutlined />,
+            label: <Link href="/dashboard/profile?tab=2">Change Password</Link>,
+        },
+        {
+            key: "2",
+            icon: <SolutionOutlined />,
+            label: <Link href="/dashboard/profile?tab=3">Activity Logs</Link>,
+        },
+        {
+            key: "3",
             icon: <SettingOutlined />,
             label: <Link href="/dashboard/settings">Settings</Link>,
         },
@@ -183,56 +192,6 @@ export default function AppHeader({
                     padding: "0 16px",
                 }}
             >
-                <Tooltip title="Help">
-                    <Button
-                        type="text"
-                        icon={<QuestionCircleOutlined />}
-                        style={{
-                            marginRight: "8px",
-                            color: isDark ? "#ffffff" : "rgba(0, 0, 0, 0.65)",
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "8px",
-                        }}
-                    />
-                </Tooltip>
-
-                <Dropdown
-                    menu={{
-                        items: [
-                            {
-                                key: "1",
-                                label: "English",
-                                icon: <GlobalOutlined />,
-                            },
-                            {
-                                key: "2",
-                                label: "Bengali",
-                                icon: <TranslationOutlined />,
-                            },
-                        ],
-                    }}
-                    placement="bottomRight"
-                >
-                    <Button
-                        type="text"
-                        icon={<GlobalOutlined />}
-                        style={{
-                            marginRight: "8px",
-                            color: isDark ? "#ffffff" : "rgba(0, 0, 0, 0.65)",
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "8px",
-                        }}
-                    />
-                </Dropdown>
-
                 <Tooltip
                     title={
                         theme === "dark"

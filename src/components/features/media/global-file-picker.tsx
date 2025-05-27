@@ -62,7 +62,7 @@ export function GlobalFilePicker({
     const [activeFolder, setActiveFolder] = useState<string>("all");
     const [selectedItems, setSelectedItems] =
         useState<TFileDocument[]>(initialSelected);
-    const [progressList, setProgressList] = useState<
+    const [fileProgressList, setFileProgressList] = useState<
         Array<{ name: string; progress: number; status: string; url?: string }>
     >([]);
     const { data: mediaItems = [], isLoading } = useGetMediaQuery(undefined);
@@ -80,7 +80,7 @@ export function GlobalFilePicker({
     useEffect(() => {
         if (open) {
             setSelectedItems(initialSelected);
-            setProgressList([]);
+            setFileProgressList([]);
         }
     }, [open, initialSelected]);
 
@@ -108,14 +108,14 @@ export function GlobalFilePicker({
     const handleUpload = async (file: File) => {
         try {
             // Initialize progress tracking
-            setProgressList((prev) => [
+            setFileProgressList((prev) => [
                 ...prev,
                 { name: file.name, progress: 0, status: "uploading" },
             ]);
 
             const uploadedFiles = await FilProgressMultipleFilesUploaderS3(
                 [file],
-                (updatedList: any) => setProgressList(updatedList)
+                setFileProgressList
             );
 
             // Automatically select the uploaded file(s)
@@ -136,7 +136,7 @@ export function GlobalFilePicker({
             }
         } catch (error) {
             console.error("Upload failed:", error);
-            setProgressList((prev) =>
+            setFileProgressList((prev) =>
                 prev.map((item) =>
                     item.name === file.name
                         ? { ...item, status: "error", progress: 0 }
@@ -175,11 +175,10 @@ export function GlobalFilePicker({
                         multiple={multiple}
                         accept={fileTypes?.join(",")}
                         customRequest={({ file, onSuccess }) => {
+                            console.log("Uploading file:", file);
+
                             if (file instanceof File) {
                                 handleUpload(file);
-                                setTimeout(() => {
-                                    onSuccess && onSuccess("ok");
-                                }, 2000);
                             }
                         }}
                         showUploadList={false}
@@ -197,10 +196,10 @@ export function GlobalFilePicker({
                             data or other banned files.
                         </p>
                     </Upload.Dragger>
-                    {progressList.length > 0 && (
+                    {fileProgressList.length > 0 && (
                         <List
                             style={{ marginTop: "20px" }}
-                            dataSource={progressList}
+                            dataSource={fileProgressList}
                             renderItem={(item) => (
                                 <List.Item>
                                     <List.Item.Meta

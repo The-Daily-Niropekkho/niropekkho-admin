@@ -140,7 +140,7 @@ export default function ModeratorsPage() {
                                 color: "rgba(0, 0, 0, 0.45)",
                             }}
                         />
-                        <span>{moderator.moderator.mobile || "-"}</span>
+                        <span>{moderator?.moderator?.mobile || "-"}</span>
                     </div>
                     <div>
                         <EnvironmentOutlined
@@ -150,7 +150,7 @@ export default function ModeratorsPage() {
                             }}
                         />
                         <span>
-                            {moderator.moderator.address_line_one || "-"}
+                            {moderator?.moderator?.address_line_one || "-"}
                         </span>
                     </div>
                 </div>

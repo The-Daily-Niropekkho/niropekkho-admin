@@ -5,7 +5,7 @@ import { useTheme } from "@/components/theme-context";
 import { TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import { PictureOutlined } from "@ant-design/icons";
-import { Form, FormInstance, Image, Typography } from "antd";
+import { Col, Form, FormInstance, Image, Input, Row, Typography } from "antd";
 import { Dispatch, SetStateAction, useState } from "react";
 import { GlobalFilePicker } from "../media/global-file-picker";
 
@@ -13,15 +13,22 @@ const { Text } = Typography;
 
 interface MediaSectionProps {
     ogImage?: TFileDocument | null;
-    setOgImage: Dispatch<SetStateAction<TFileDocument | undefined>>
+    setOgImage: Dispatch<SetStateAction<TFileDocument | undefined>>;
     bannerImage?: TFileDocument | null;
     setBannerImage: Dispatch<SetStateAction<TFileDocument | undefined>>;
     form: FormInstance<any>;
 }
 
-export const MediaSection = ({ form, ogImage, setOgImage, bannerImage, setBannerImage }: MediaSectionProps) => {
-
-    const [pickerState, setPickerState] = useState<"banner" | "og" | null>(null);
+export const MediaSection = ({
+    form,
+    ogImage,
+    setOgImage,
+    bannerImage,
+    setBannerImage,
+}: MediaSectionProps) => {
+    const [pickerState, setPickerState] = useState<"banner" | "og" | null>(
+        null
+    );
 
     const { isDark } = useTheme();
 
@@ -54,20 +61,55 @@ export const MediaSection = ({ form, ogImage, setOgImage, bannerImage, setBanner
     return (
         <>
             <Form.Item name="banner_image" label="Banner Image">
-                <div onClick={() => setPickerState("banner")} style={uploadBoxStyle}>
+                <div
+                    onClick={() => setPickerState("banner")}
+                    style={{ ...uploadBoxStyle, position: "relative" }}
+                >
                     {bannerImage ? (
-                        <Image
-                            src={fileObjectToLink(bannerImage)}
-                            alt="Banner"
-                            width={120}
-                            height={80}
-                            style={{ objectFit: "cover", borderRadius: 8 }}
-                            preview={false}
-                        />
+                        <>
+                            <Image
+                                src={fileObjectToLink(bannerImage)}
+                                alt="Banner"
+                                width={120}
+                                height={80}
+                                style={{ objectFit: "cover", borderRadius: 8 }}
+                                preview={false}
+                            />
+                            <span
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setBannerImage(undefined);
+                                    form.setFieldsValue({ banner_image: null });
+                                }}
+                                style={{
+                                    position: "absolute",
+                                    top: 4,
+                                    right: 4,
+                                    background: "#fff",
+                                    borderRadius: "50%",
+                                    padding: "2px 6px",
+                                    fontSize: 12,
+                                    cursor: "pointer",
+                                    boxShadow: "0 0 3px rgba(0,0,0,0.3)",
+                                }}
+                            >
+                                ✕
+                            </span>
+                        </>
                     ) : (
                         <>
-                            <PictureOutlined style={{ fontSize: 24, color: isDark ? "#888" : "#999" }} />
-                            <Text style={{ fontSize: 12, color: isDark ? "#ccc" : "#666" }}>
+                            <PictureOutlined
+                                style={{
+                                    fontSize: 24,
+                                    color: isDark ? "#888" : "#999",
+                                }}
+                            />
+                            <Text
+                                style={{
+                                    fontSize: 12,
+                                    color: isDark ? "#ccc" : "#666",
+                                }}
+                            >
                                 Upload Banner
                             </Text>
                         </>
@@ -75,8 +117,90 @@ export const MediaSection = ({ form, ogImage, setOgImage, bannerImage, setBanner
                 </div>
             </Form.Item>
 
+            {bannerImage && (
+                <>
+                    <Form.Item
+                        name="caption_title"
+                        label="Caption"
+                        rules={[
+                            { required: false, message: "Caption is required" },
+                        ]}
+                    >
+                        <Input placeholder="Enter caption" />
+                    </Form.Item>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="thumb_image_width"
+                                label="Thumb Image Width"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Thumb width is required",
+                                    },
+                                ]}
+                                initialValue={800}
+                            >
+                                <Input placeholder="e.g., 800" type="number" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="thumb_image_height"
+                                label="Thumb Image Height"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Thumb height is required",
+                                    },
+                                ]}
+                                initialValue={450}
+                            >
+                                <Input placeholder="e.g., 450" type="number" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="banner_image_width"
+                                label="Banner Image Width"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Banner width is required",
+                                    },
+                                ]}
+                                initialValue={1200}
+                            >
+                                <Input placeholder="e.g., 1200" type="number" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="banner_image_height"
+                                label="Banner Image Height"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Banner height is required",
+                                    },
+                                ]}
+                            initialValue={600}
+                            >
+                                <Input placeholder="e.g., 600" type="number" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </>
+            )}
             <Form.Item name="og_image" label="OG Image">
-                <div onClick={() => setPickerState("og")} style={uploadBoxStyle}>
+                <div
+                    onClick={() => setPickerState("og")}
+                    style={uploadBoxStyle}
+                >
                     {ogImage ? (
                         <Image
                             src={fileObjectToLink(ogImage)}
@@ -88,8 +212,18 @@ export const MediaSection = ({ form, ogImage, setOgImage, bannerImage, setBanner
                         />
                     ) : (
                         <>
-                            <PictureOutlined style={{ fontSize: 24, color: isDark ? "#888" : "#999" }} />
-                            <Text style={{ fontSize: 12, color: isDark ? "#ccc" : "#666" }}>
+                            <PictureOutlined
+                                style={{
+                                    fontSize: 24,
+                                    color: isDark ? "#888" : "#999",
+                                }}
+                            />
+                            <Text
+                                style={{
+                                    fontSize: 12,
+                                    color: isDark ? "#ccc" : "#666",
+                                }}
+                            >
                                 Upload OG Image
                             </Text>
                         </>
@@ -105,8 +239,12 @@ export const MediaSection = ({ form, ogImage, setOgImage, bannerImage, setBanner
                 multiple={false}
                 initialSelected={
                     pickerState === "banner"
-                        ? bannerImage ? [bannerImage] : []
-                        : ogImage ? [ogImage] : []
+                        ? bannerImage
+                            ? [bannerImage]
+                            : []
+                        : ogImage
+                        ? [ogImage]
+                        : []
                 }
             />
         </>

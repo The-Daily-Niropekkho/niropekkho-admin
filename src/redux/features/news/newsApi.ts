@@ -36,9 +36,7 @@ const newsApi = baseApi.injectEndpoints({
                 };
             },
             transformResponse: (response: TResponseRedux<News>) => {
-                return {
-                    data: response.data,
-                };
+                return response.data
             },
             providesTags: [newsTag],
         }),

@@ -3,7 +3,7 @@
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
 import { GenericReporter } from "@/types";
-import { TFileDocument } from "@/types/global";
+import { TError, TFileDocument } from "@/types/global";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -72,11 +72,10 @@ export default function ReportersPage() {
 
     const handleDelete = async (record: GenericReporter) => {
         try {
-            await deleteReporter(record.name).unwrap(); // Assuming name is unique; ideally should be `id`
+            await deleteReporter(record?.id).unwrap();
             message.success(`${record.name} has been deleted`);
         } catch (error) {
-            message.error("Failed to delete reporter");
-            console.error("Delete failed:", error);
+            message.error((error as TError)?.data?.message || "Delete failed");
         }
     };
 
@@ -90,17 +89,14 @@ export default function ReportersPage() {
             title: "Photo",
             dataIndex: "photo",
             key: "photo",
-            render: (photo: TFileDocument | null) =>
-                photo ? (
-                    <CustomImage
-                        src={photo}
-                        alt="Reporter"
-                        width={40}
-                        height={40}
-                    />
-                ) : (
-                    "No Photo"
-                ),
+            render: (photo: TFileDocument | null) => (
+                <CustomImage
+                    src={photo}
+                    alt="Reporter"
+                    width={50}
+                    height={50}
+                />
+            ),
         },
         {
             title: "Name",

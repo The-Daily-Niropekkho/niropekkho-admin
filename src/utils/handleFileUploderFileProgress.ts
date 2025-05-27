@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { instance as axiosInstance } from "@/helpers/axios/axiosInstance";
@@ -5,6 +6,7 @@ import { instance as axiosInstance } from "@/helpers/axios/axiosInstance";
 import config from "@/config";
 import { TFileDocument } from "@/types";
 import axios, { AxiosProgressEvent } from "axios";
+import { Dispatch, SetStateAction } from "react";
 import Resizer from "react-image-file-resizer";
 import fileObjectToLink from "./fileObjectToLink";
 const url = `${config.host_aws}/api/v1/aws/create-aws-upload-files-token`;
@@ -17,36 +19,37 @@ const singleFileUploaderInS3 = async (
         filename: string;
     },
     uploadFile: any,
-    setFileProgressList: any
+    setFileProgressList: Dispatch<
+        SetStateAction<
+            {
+                name: string;
+                progress: number;
+                status: string;
+                url?: string;
+            }[]
+        >
+    >
 ) => {
     try {
         const updateFileProgress = (progress: number) => {
-            setFileProgressList((prev: any) =>
-                prev.map(
-                    (item: any) => {
-                        if (item.name === fileData.filename) {
-                            return {
-                                ...item,
-                                progress,
-                                status: progress === 100 ? "done" : "uploading",
-                                url:
-                                    progress === 100 &&
-                                    fileObjectToLink(fileData as any),
-                            };
-                        } else {
-                            return item;
-                        }
-                    }
-                    // item.fileUniqueId === fileData.fileUniqueId
-                    //   ? {
-                    //       ...item,
-                    //       progress,
-                    //       status: progress === 100 ? 'done' : 'uploading',
-                    //       url: progress === 100 && fileObjectToLink(fileData as any),
-                    //     }
-                    //   : item,
-                )
-            );
+            setFileProgressList((prev) => {
+                const updatedList = [...prev];
+                const index = updatedList.findIndex(
+                    (item) => item.name === fileData.filename
+                );
+                if (index !== -1) {
+                    updatedList[index] = {
+                        ...updatedList[index],
+                        progress,
+                        status: progress === 100 ? "done" : "uploading",
+                        url:
+                            progress === 100
+                                ? fileObjectToLink(fileData as any)
+                                : undefined,
+                    };
+                }
+                return updatedList;
+            });
         };
         let resizedImageFile;
         const resizeImage = (file: File) => {
@@ -90,7 +93,7 @@ const singleFileUploaderInS3 = async (
             data: resizedImageFile,
             //   headers: { 'Content-Type': fileData.mimetype },
             onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-                if (progressEvent.total) {
+                if (progressEvent.total && typeof setFileProgressList === "function") {
                     const percentCompleted = Math.round(
                         (progressEvent.loaded * 100) / progressEvent.total
                     );
@@ -128,7 +131,16 @@ const getS3PreUrlToken = async (data: Record<string, IPreUrlParams[]>) => {
 };
 export const FilProgressMultipleFilesUploaderS3 = async (
     files: File[],
-    setFileProgressList: any
+    setFileProgressList: Dispatch<
+        SetStateAction<
+            {
+                name: string;
+                progress: number;
+                status: string;
+                url?: string;
+            }[]
+        >
+    >
 ): Promise<TFileDocument[]> => {
     if (!files.length) {
         return [];
@@ -138,6 +150,8 @@ export const FilProgressMultipleFilesUploaderS3 = async (
             return {
                 filename: file.name,
                 mimetype: file.type,
+                size: file.size || 0,
+                // fileUniqueId: file?.uid || `file-${index}-${Date.now()}`,
             };
         });
 

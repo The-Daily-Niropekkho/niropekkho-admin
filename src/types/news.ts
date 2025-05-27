@@ -1,13 +1,18 @@
 import { Category } from "./categories";
 import { TFileDocument } from "./global";
 import { GenericReporter } from "./reporter";
+import { Topic } from "./topic";
 import { User } from "./user";
 
 export interface News {
     id: string;
     category: Category;
     category_id: string;
-    banner_image: TFileDocument;
+    banner_image: TFileDocument & {
+        caption_title: string;
+        thumb_image_size : { width: number; height: number; };
+        large_image_size: { width: number; height: number; };
+    };
     headline: string;
     short_headline: string;
     slug: string;
@@ -21,12 +26,13 @@ export interface News {
     banner_image_id: string;
     reference: string;
     tags: string[];
+    topics: Topic[];
     meta_title: string;
     meta_description: string;
     canonical_url: string;
     og_title: string;
     og_description: string;
-    og_image: string;
+    og_image: TFileDocument;
     twitter_card: string;
     schema_markup: string;
     country_id: number;
@@ -36,9 +42,11 @@ export interface News {
     union_id: number;
     is_scheduled: boolean;
     is_breaking: boolean;
+    is_top_breaking_news: boolean;
     is_featured: boolean;
     status: string;
     is_deleted: boolean;
+    generic_reporter_id: string;
     reporter: User;
     generic_reporter: GenericReporter;
     reporter_id: string;

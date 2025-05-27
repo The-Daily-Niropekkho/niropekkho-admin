@@ -18,6 +18,8 @@ const nextConfig = {
     env: {
         BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
         BASE_URL_PROD: process.env.NEXT_PUBLIC_BASE_URL_PROD,
+        FRONT_BASE_URL: process.env.NEXT_PUBLIC_FRONT_URL,
+        FRONT_BASE_URL_PROD: process.env.NEXT_PUBLIC_FRONT_URL_PROD,
         AWS_BASE_URL: process.env.AWS_BASE_URL,
         AWS_BASE_URL_PROD: process.env.AWS_BASE_URL_PROD,
         AWS_CDN: process.env.AWS_CDN_URL,
