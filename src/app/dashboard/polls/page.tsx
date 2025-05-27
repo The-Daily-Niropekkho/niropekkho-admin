@@ -66,9 +66,8 @@ export default function PollsPage() {
     setPollImage(
       record.banner_image
         ? {
-            
           url: record.banner_image.url,
-            originalUrl: record.banner_image.originalUrl,
+          originalUrl: record.banner_image.originalUrl ?? "",
           filename: record.banner_image.filename,
           modifyFileName: record.banner_image.modifyFileName,
           mimetype: record.banner_image.mimetype,
@@ -76,9 +75,9 @@ export default function PollsPage() {
           path: record.banner_image.path,
           cdn: record.banner_image.cdn,
           size: record.banner_image.size,
-            // Add any other properties from TFileDocument as needed
-            ...(record.banner_image as any),
-          }
+          // Add any other properties from TFileDocument as needed
+          ...(record.banner_image as any),
+        }
         : undefined
     );
     setIsModalVisible(true);
@@ -291,8 +290,8 @@ export default function PollsPage() {
       <PollEditCreateModal
         editingPoll={editingPoll}
         open={isModalVisible}
-        pollImage={pollImage}
-        setPollImage={setPollImage}
+        pollImage={pollImage as any}
+       setPollImage={setPollImage as any}
         close={() => setIsModalVisible(false)}
       />
     </>

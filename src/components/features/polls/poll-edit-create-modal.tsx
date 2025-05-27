@@ -1,15 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Poll, TFileDocument, PollStatus } from "@/types";
-
-// Define a type for poll creation payload
-type PollCreatePayload = {
-  title: string;
-  description: string;
-  status: PollStatus;
-  banner_image?: TFileDocument;
-  options: { label: string }[];
-};
+import { Poll, BannerImage } from "@/types";
 import { 
   Modal, 
   Form, 
@@ -35,8 +26,8 @@ const { TextArea } = Input;
 interface PollEditCreateModalProps {
   editingPoll: Poll | null;
   open: boolean;
-  pollImage?: TFileDocument;
-  setPollImage: (image?: TFileDocument) => void;
+  pollImage?: BannerImage;
+  setPollImage: (image?: BannerImage) => void;
   close: () => void;
 }
 
@@ -61,14 +52,17 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
         title: editingPoll.title,
         description: editingPoll.description,
         status: editingPoll.status,
+        slug: editingPoll.slug,
         options: initialOptions,
       });
       setOptions(initialOptions);
+      setPollImage(editingPoll.banner_image);
     } else {
       form.resetFields();
       setOptions([]);
+      setPollImage(undefined);
     }
-  }, [editingPoll, form]);
+  }, [editingPoll, form, setPollImage]);
 
   const handleAddOption = () => {
     if (inputValue && !options.includes(inputValue)) {
@@ -86,28 +80,34 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
       setIsLoading(true);
       const values = await form.validateFields();
 
-      // Use the options from state rather than form values
-      const pollData: PollCreatePayload = {
+      const pollData: Omit<Poll, 'id'> = {
+        _id: "",
         title: values.title,
         description: values.description,
-        status: values.status as PollStatus,
-        banner_image: pollImage
-          ? {
-              ...pollImage,
-              originalUrl: pollImage.originalUrl ?? "",
-            }
-          : undefined,
+        status: values.status,
+        slug: values.slug || "",
+        banner_image: pollImage || {
+          url: "",
+          originalUrl: "",
+          filename: "",
+          modifyFileName: "",
+          mimetype: "",
+          platform: "",
+          path: "",
+          cdn: "",
+          size: 0
+        },
         options: options.map(label => ({ label })),
       };
 
-      if (editingPoll) {
+      if (editingPoll && editingPoll._id) {
         await updatePoll({
           id: editingPoll._id,
           data: pollData,
         }).unwrap();
         message.success("Poll updated successfully");
       } else {
-        await createPoll(pollData as Omit<Poll, "id">).unwrap();
+        await createPoll(pollData).unwrap();
         message.success("Poll created successfully");
       }
 
@@ -118,6 +118,22 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFileUpload = (file: File) => {
+    const newBannerImage: BannerImage = {
+      url: URL.createObjectURL(file),
+      originalUrl: "",
+      filename: file.name,
+      modifyFileName: file.name,
+      mimetype: file.type || "image/jpeg",
+      platform: "local",
+      path: "",
+      cdn: "",
+      size: file.size
+    };
+    setPollImage(newBannerImage);
+    return false; // Prevent default upload behavior
   };
 
   return (
@@ -152,6 +168,18 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
               rules={[{ required: true, message: "Please enter description" }]}
             >
               <TextArea rows={3} placeholder="Enter poll description" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item
+              name="slug"
+              label="Slug"
+              rules={[{ required: true, message: "Please enter slug" }]}
+            >
+              <Input placeholder="Enter poll slug" />
             </Form.Item>
           </Col>
         </Row>
@@ -221,27 +249,8 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
                 listType="picture-card"
                 maxCount={1}
                 showUploadList={false}
-                beforeUpload={() => false}
-                onChange={({ file }) => {
-                  if (file.originFileObj) {
-                    const mockImage: TFileDocument = {
-                      id: Math.random().toString(36).substr(2, 9),
-                      url: URL.createObjectURL(file.originFileObj),
-                      filename: file.name,
-                      size: file.size || 0,
-                      mimetype: file.type || "image/jpeg",
-                      platform: "local",
-                      fileType: "image",
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                      originalUrl: "",
-                      modifyFileName: file.name,
-                      path: "",
-                      cdn: ""
-                    };
-                    setPollImage(mockImage);
-                  }
-                }}
+                beforeUpload={handleFileUpload}
+                accept="image/*"
               >
                 {pollImage?.url ? (
                   <img
