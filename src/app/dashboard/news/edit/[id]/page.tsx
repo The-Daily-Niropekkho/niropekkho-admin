@@ -6,14 +6,16 @@ import { SEOSection } from "@/components/features/news/seo-section";
 import { useTheme } from "@/components/theme-context";
 import { EnumIds } from "@/constants/enum-ids";
 import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
-import { useCreateNewsMutation } from "@/redux/features/news/newsApi";
+import {
+    useGetNewsDetailsQuery,
+    useUpdateNewsMutation,
+} from "@/redux/features/news/newsApi";
 import { useGetAllTopicsQuery } from "@/redux/features/topic/topicApi";
 import { useGetAllDistrictsQuery } from "@/redux/features/zone/districtsApi";
 import { useGetAllDivisionsQuery } from "@/redux/features/zone/divisionApi";
 import { useGetAllUnionsQuery } from "@/redux/features/zone/unionApi";
 import { useGetAllUpazillasQuery } from "@/redux/features/zone/upazillaApi";
 import { ErrorResponse, TFileDocument } from "@/types";
-
 import {
     DeleteOutlined,
     FileTextOutlined,
@@ -31,13 +33,16 @@ import {
     message,
     Popconfirm,
     Row,
+    Spin,
     Switch,
     Tabs,
     TabsProps,
     Tooltip,
 } from "antd";
+import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 // Dynamically import the CKEditor component
 const CKEditor = dynamic(() => import("@/components/ck-editor"), {
@@ -45,45 +50,63 @@ const CKEditor = dynamic(() => import("@/components/ck-editor"), {
     loading: () => (
         <div
             style={{
-                height: "400px",
                 display: "flex",
-                alignItems: "center",
                 justifyContent: "center",
+                alignItems: "center",
+                height: "400px",
                 border: "1px solid #d9d9d9",
                 borderRadius: "6px",
                 background: "#f5f5f5",
             }}
         >
-            Loading editor...
+            <Spin size="large" />
         </div>
     ),
 });
 
 const { TextArea } = Input;
 
-export default function CreateNewsPage() {
+export default function EditNewsPage() {
     const [form] = Form.useForm();
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const { id } = useParams();
 
     const [loading, setLoading] = useState(false);
     const [bannerImage, setBannerImage] = useState<TFileDocument>();
     const [ogImage, setOgImage] = useState<TFileDocument>();
-    const [editorContent, setEditorContent] = useState(
-        "<p>Scientists have developed a new solar panel that doubles efficiency...</p>"
+    const [editorContent, setEditorContent] = useState<any>();
+    const [selectedCategory, setSelectedCategory] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedDivision, setSelectedDivision] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedDistrict, setSelectedDistrict] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedUpazilla, setSelectedUpazilla] = useState<
+        number | undefined
+    >(undefined);
+
+    const isEditorInitialized = useRef(false);
+
+    const { data: news, isLoading: isNewsLoading } = useGetNewsDetailsQuery(
+        id,
+        {
+            skip: !id,
+            refetchOnMountOrArgChange: true,
+        }
     );
 
-    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-    const [selectedDivision, setSelectedDivision] = useState<number | undefined>(undefined);
-    const [selectedDistrict, setSelectedDistrict] = useState<number | undefined>(undefined);
-    const [selectedUpazilla, setSelectedUpazilla] = useState<number | undefined>(undefined);
-
-    // Redux Queries
     const { data: categories, isLoading: isCategoryLoading } =
-        useGetAllCategoriesQuery([{ name: "limit", value: 999 }, { name: "status", value: "active" }]);
+        useGetAllCategoriesQuery([
+            { name: "limit", value: 999 },
+            { name: "status", value: "active" },
+        ]);
     const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery([
         { name: "limit", value: 999 },
-        { name: "status", value: "active" }
+        { name: "status", value: "active" },
     ]);
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(
@@ -92,9 +115,9 @@ export default function CreateNewsPage() {
                 { name: "limit", value: 100 },
                 { name: "sortBy", value: "name" },
                 { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" }
+                { name: "status", value: "active" },
             ],
-            { skip: selectedCategory != EnumIds.across_the_country }
+            { skip: selectedCategory !== EnumIds.across_the_country }
         );
     const { data: districts, isLoading: isDistrictsLoading } =
         useGetAllDistrictsQuery(
@@ -103,7 +126,7 @@ export default function CreateNewsPage() {
                 { name: "limit", value: 500 },
                 { name: "sortBy", value: "name" },
                 { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" }
+                { name: "status", value: "active" },
             ],
             { skip: !selectedDivision }
         );
@@ -114,7 +137,7 @@ export default function CreateNewsPage() {
                 { name: "limit", value: 500 },
                 { name: "sortBy", value: "name" },
                 { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" }
+                { name: "status", value: "active" },
             ],
             { skip: !selectedDistrict }
         );
@@ -124,17 +147,70 @@ export default function CreateNewsPage() {
             { name: "limit", value: 1000 },
             { name: "sortBy", value: "name" },
             { name: "sortOrder", value: "asc" },
-            { name: "status", value: "active" }
+            { name: "status", value: "active" },
         ],
         { skip: !selectedUpazilla }
     );
 
-    const [createNews, { isError, isSuccess, error, reset: resetMutation }] =
-        useCreateNewsMutation();
+    const [updateNews, { isError, isSuccess, error, reset: resetMutation }] =
+        useUpdateNewsMutation();
 
     // Watch form fields
     const isBreaking = Form.useWatch("is_breaking", form);
     const isTopBreakingNews = Form.useWatch("is_top_breaking_news", form);
+
+    // Populate form with news data
+    useEffect(() => {
+        if (news) {
+            form.setFieldsValue({
+                headline: news?.headline,
+                short_headline: news?.short_headline,
+                slug: news?.slug,
+                details: news?.details,
+                excerpt: news?.excerpt,
+                reference: news?.reference,
+                status: news?.status,
+                is_breaking: news?.is_breaking,
+                is_top_breaking_news: news?.is_top_breaking_news,
+                category_id: news?.category_id,
+                division_id: news?.division_id,
+                district_id: news?.district_id,
+                upazilla_id: news?.upazilla_id,
+                union_id: news?.union_id,
+                category_serial: news?.category_serial,
+                home_serial: news?.home_serial,
+                topics: news?.topics?.map((topic: any) => topic.id),
+                tags: news?.tags,
+                generic_reporter_id: news?.generic_reporter_id,
+                reporter_id: news?.reporter_id,
+                publish_date: news?.publish_date
+                    ? dayjs(news?.publish_date)
+                    : undefined,
+                media_type: news?.media_type,
+                meta_title: news?.meta_title,
+                meta_description: news?.meta_description,
+                og_title: news?.og_title,
+                og_description: news?.og_description,
+                banner_image: news?.banner_image,
+                og_image: news?.og_image,
+                caption_title: news?.banner_image?.caption_title,
+                thumb_image_width: news?.banner_image?.thumb_image_size?.width,
+                thumb_image_height:
+                    news?.banner_image?.thumb_image_size?.height,
+                banner_image_width: news?.banner_image?.large_image_size?.width,
+                banner_image_height:
+                    news?.banner_image?.large_image_size?.height,
+            });
+            isEditorInitialized.current = true;
+            setEditorContent(news?.details_html || "");
+            setBannerImage(news?.banner_image);
+            setOgImage(news?.og_image);
+            setSelectedCategory(news?.category_id);
+            setSelectedDivision(news?.division_id);
+            setSelectedDistrict(news?.district_id);
+            setSelectedUpazilla(news?.upazilla_id);
+        }
+    }, [news, form]);
 
     // Reset dependent fields when is_breaking or is_top_breaking_news changes
     useEffect(() => {
@@ -156,23 +232,15 @@ export default function CreateNewsPage() {
         if (isError) {
             const errorResponse = error as ErrorResponse;
             message.error(
-                errorResponse?.data?.message || "Failed to create news"
+                errorResponse?.data?.message || "Failed to update news"
             );
             setLoading(false);
         } else if (isSuccess) {
-            message.success("News created successfully!");
-            form.resetFields();
-            setEditorContent("");
-            setOgImage(undefined);
-            setBannerImage(undefined);
-            setSelectedCategory(undefined);
-            setSelectedDivision(undefined);
-            setSelectedDistrict(undefined);
-            setSelectedUpazilla(undefined);
-            resetMutation();
+            message.success("News updated successfully!");
             setLoading(false);
+            resetMutation();
         }
-    }, [isError, isSuccess, error, resetMutation, form]);
+    }, [isError, isSuccess, error, resetMutation]);
 
     const onFinish = async (values: any) => {
         setLoading(true);
@@ -186,6 +254,7 @@ export default function CreateNewsPage() {
             ...rest
         } = values;
         const payload = {
+            id,
             ...rest,
             banner_image: {
                 ...bannerImage,
@@ -200,20 +269,58 @@ export default function CreateNewsPage() {
                 },
             },
         };
-        await createNews(payload);
+        await updateNews(payload);
     };
 
     const onReset = () => {
-        form.resetFields();
-        setEditorContent("");
-        setOgImage(undefined);
-        setBannerImage(undefined);
-        setSelectedCategory(undefined);
-        setSelectedDivision(undefined);
-        setSelectedDistrict(undefined);
-        setSelectedUpazilla(undefined);
-        resetMutation();
-        message.info("Form has been reset");
+        if (news) {
+            form.setFieldsValue({
+                headline: news.headline,
+                short_headline: news.short_headline,
+                slug: news.slug,
+                details: news.details,
+                excerpt: news.excerpt,
+                reference: news.reference,
+                status: news.status,
+                is_breaking: news.is_breaking,
+                is_top_breaking_news: news.is_top_breaking_news,
+                category_id: news.category_id,
+                division_id: news.division_id,
+                district_id: news.district_id,
+                upazilla_id: news.upazilla_id,
+                union_id: news.union_id,
+                category_serial: news.category_serial,
+                home_serial: news.home_serial,
+                topics: news.topics?.map((topic: any) => topic.id),
+                tags: news.tags,
+                generic_reporter_id: news.generic_reporter_id,
+                reporter_id: news.reporter_id,
+                publish_date: news.publish_date
+                    ? dayjs(news.publish_date)
+                    : undefined,
+                media_type: news.media_type,
+                meta_title: news.meta_title,
+                meta_description: news.meta_description,
+                og_title: news.og_title,
+                og_description: news.og_description,
+                banner_image: news.banner_image,
+                og_image: news.og_image,
+                caption_title: news.banner_image?.caption_title,
+                thumb_image_width: news.banner_image?.thumb_image_size?.width,
+                thumb_image_height: news.banner_image?.thumb_image_size?.height,
+                banner_image_width: news.banner_image?.large_image_size?.width,
+                banner_image_height:
+                    news.banner_image?.large_image_size?.height,
+            });
+            setEditorContent(news.details_html || "");
+            setBannerImage(news.banner_image);
+            setOgImage(news.og_image);
+            setSelectedCategory(news.category_id);
+            setSelectedDivision(news.division_id);
+            setSelectedDistrict(news.district_id);
+            setSelectedUpazilla(news.upazilla_id);
+            message.info("Form has been reset to original values");
+        }
     };
 
     const tabItems: TabsProps["items"] = [
@@ -278,6 +385,21 @@ export default function CreateNewsPage() {
         },
     ];
 
+    if (isNewsLoading) {
+        return (
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100vh",
+                }}
+            >
+                <Spin size="large" />
+            </div>
+        );
+    }
+
     return (
         <div>
             <div style={{ marginBottom: 24 }}>
@@ -289,7 +411,7 @@ export default function CreateNewsPage() {
                         color: isDark ? "#fff" : "#000",
                     }}
                 >
-                    Create News
+                    Edit News
                 </h1>
                 <p
                     style={{
@@ -298,8 +420,7 @@ export default function CreateNewsPage() {
                             : "rgba(0, 0, 0, 0.45)",
                     }}
                 >
-                    Create and publish a new news article with rich content and
-                    media.
+                    Update an existing news article with rich content and media.
                 </p>
             </div>
 
@@ -344,12 +465,14 @@ export default function CreateNewsPage() {
                                 <Input placeholder="Enter Short headline" />
                             </Form.Item>
 
-                            <Form.Item name="slug" label="Custom URL" tooltip="নিউজের জন্য একটি কাস্টম URL লিখুন। এটি URL-ফ্রেন্ডলি হতে হবে।">
+                            <Form.Item
+                                name="slug"
+                                label="Custom URL"
+                                tooltip="নিউজের জন্য একটি কাস্টম URL লিখুন। এটি URL-ফ্রেন্ডলি হতে হবে।"
+                            >
                                 <Input placeholder="Enter custom url (URL-friendly)" />
                             </Form.Item>
-
                             <Form.Item
-                                name="details_html"
                                 label="Content"
                                 rules={[
                                     {
@@ -361,16 +484,25 @@ export default function CreateNewsPage() {
                                 tooltip="নিউজের বিস্তারিত কন্টেন্ট লিখুন।"
                             >
                                 <CKEditor
+                                    value={editorContent}
                                     onChange={(content: string) =>
                                         setEditorContent(content)
                                     }
                                 />
                             </Form.Item>
 
-                            <Form.Item name="details" label="Short Details" rules={[{
-                                required: true,
-                                message: "Please enter short details for the article",
-                            }]} tooltip="নিউজের জন্য সংক্ষিপ্ত বিবরণ লিখুন অথবা কন্টেন্ট থেকে কপি করুন।">
+                            <Form.Item
+                                name="details"
+                                label="Short Details"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            "Please enter short details for the article",
+                                    },
+                                ]}
+                                tooltip="নিউজের জন্য সংক্ষিপ্ত বিবরণ লিখুন অথবা কন্টেন্ট থেকে কপি করুন।"
+                            >
                                 <TextArea
                                     rows={3}
                                     placeholder="Enter a short details for the article"
@@ -459,9 +591,9 @@ export default function CreateNewsPage() {
                             gap: 20,
                         }}
                     >
-                        <Tooltip title="রিসেট করলে ফর্মের সব তথ্য মুছে যাবে">
+                        <Tooltip title="রিসেট করলে ফর্মটি মূল নিউজের তথ্যে ফিরে যাবে">
                             <Popconfirm
-                                title="Are you sure you want to delete this news?"
+                                title="Are you sure you want to reset to original values?"
                                 onConfirm={onReset}
                                 okText="Yes"
                                 cancelText="No"
@@ -482,7 +614,7 @@ export default function CreateNewsPage() {
                             icon={<SaveOutlined />}
                             loading={loading}
                         >
-                            Publish
+                            Update
                         </Button>
                     </div>
                 </Form>

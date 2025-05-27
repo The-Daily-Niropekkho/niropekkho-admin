@@ -2,6 +2,7 @@ export * from "./categories";
 export * from "./global";
 export * from "./media";
 export * from "./news";
+export * from "./reporter";
 export * from "./topic";
 export * from "./TSession";
 export * from "./user";

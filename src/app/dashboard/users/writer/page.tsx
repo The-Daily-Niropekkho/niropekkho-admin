@@ -222,7 +222,7 @@ export default function WritersPage() {
                         color: isDark ? "#fff" : "#000",
                     }}
                 >
-                    All Reporters
+                    All Writers
                 </h1>
                 <p
                     style={{
@@ -231,7 +231,7 @@ export default function WritersPage() {
                             : "rgba(0, 0, 0, 0.45)",
                     }}
                 >
-                    Manage and organize all reporters users with advanced filtering
+                    Manage and organize all writers users with advanced filtering
                     and sorting options.
                 </p>
             </div>

@@ -86,6 +86,7 @@ import { useTheme } from "../theme-context";
 import { S3UploadAdapter } from "./s3-upload-adapter";
 
 interface CKEditorProps {
+    value?: string;
     onChange: (data: string) => void;
 }
 
@@ -107,13 +108,16 @@ const demoAds = [
     },
 ];
 
-export default function Editor({ onChange }: CKEditorProps) {
+export default function Editor({ value, onChange }: CKEditorProps) {
+    console.log(value, "value from editor");
+    
     const editorContainerRef = useRef(null);
-    const [setProgressList] = useState([]);
+    const [, setFileProgressList] = useState<
+        Array<{ name: string; progress: number; status: string; url?: string }>
+    >([]);
     const editorRef = useRef(null);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
     const { isDark: isDarkMode } = useTheme();
-    const [ads, setAds] = useState<{ id: string; label: string }[]>([]);
     const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
     const [editorInstance, setEditorInstance] = useState<any>(null);
     // Add custom styles
@@ -242,16 +246,6 @@ export default function Editor({ onChange }: CKEditorProps) {
             document.head.removeChild(style);
         };
     }, [isDarkMode]);
-
-    useEffect(() => {
-        async function loadAds() {
-            // const res = await fetch("/api/ads"); // Replace with your real API
-            // const data = await res.json(); // [{ id, label }]
-            setAds(demoAds);
-        }
-
-        loadAds();
-    }, []);
 
     useEffect(() => {
         setIsLayoutReady(true);
@@ -585,7 +579,7 @@ export default function Editor({ onChange }: CKEditorProps) {
         editor.plugins.get("FileRepository").createUploadAdapter = (
             loader: any
         ) => {
-            return new S3UploadAdapter(loader, setProgressList);
+            return new S3UploadAdapter(loader, setFileProgressList);
         };
     }
 
@@ -593,15 +587,22 @@ export default function Editor({ onChange }: CKEditorProps) {
         if (!selectedAdId || !editorInstance) return;
 
         const html = `
-    <div class="ad-placeholder" data-ad-id="${selectedAdId}">[Ad: ${selectedAdId}]</div>
-    <p></p>
-  `;
+        <div class="ad-placeholder" data-ad-id="${selectedAdId}">[Ad: ${selectedAdId}]<p><small>Sponsored</small></p></div>
+        <p></p>
+        `;
 
         const viewFragment = editorInstance.data.processor.toView(html);
         const modelFragment = editorInstance.data.toModel(viewFragment);
 
         editorInstance.model.insertContent(modelFragment);
     };
+
+    useEffect(() => {
+        if (editorInstance && value !== editorInstance.getData()) {
+            editorInstance.setData(value || "");
+        }
+
+    }, [value, editorInstance]);
 
     return (
         <div
@@ -622,7 +623,7 @@ export default function Editor({ onChange }: CKEditorProps) {
                             value={selectedAdId || undefined}
                             onChange={(val) => setSelectedAdId(val)}
                         >
-                            {ads.map((ad) => (
+                            {demoAds.map((ad) => (
                                 <Select.Option key={ad.id} value={ad.id}>
                                     {ad.label}
                                 </Select.Option>
@@ -639,6 +640,7 @@ export default function Editor({ onChange }: CKEditorProps) {
                     {editorConfig && (
                         <CKEditor
                             editor={ClassicEditor}
+                            data={value || ""}
                             // @ts-ignore
                             config={editorConfig}
                             onReady={(editor) => setEditorInstance(editor)}
