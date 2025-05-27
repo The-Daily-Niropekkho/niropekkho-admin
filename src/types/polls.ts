@@ -1,4 +1,6 @@
 export interface Poll {
+  id(id: string): unknown;
+  _id: string;
   title: string;
   description: string;
   slug: string;
