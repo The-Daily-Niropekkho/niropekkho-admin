@@ -43,6 +43,6 @@ export const baseApi = createApi({
         upazillaTag,
         unionTag,
         newsTag,
-        reporterTag
+        reporterTag,
     ],
 });

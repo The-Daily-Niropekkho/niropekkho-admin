@@ -43,7 +43,7 @@ export default function AccountInfoForm() {
                 >
                     <Select placeholder="Select user type">
                         <Select.Option value="admin">Admin</Select.Option>
-                        <Select.Option value="writer">Reporter</Select.Option>
+                        <Select.Option value="writer">Writer</Select.Option>
                         <Select.Option value="moderator">
                             Moderator
                         </Select.Option>

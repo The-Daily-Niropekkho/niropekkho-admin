@@ -20,7 +20,7 @@ import {
     TagsOutlined,
     UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Badge, Layout, Menu, MenuProps } from "antd";
+import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -307,7 +307,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             <div
                 style={{
                     padding: "12px 0",
-                    height: "calc(100vh - 80px - 80px)",
+                    height: "calc(100vh - 80px)",
                     overflowY: "auto",
                     overflowX: "hidden",
                 }}
@@ -328,7 +328,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 />
             </div>
 
-            {!collapsed && (
+            {/* {!collapsed && (
                 <div
                     style={{
                         padding: "20px 24px",
@@ -375,7 +375,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             <style jsx global>{`
                 .custom-sidebar-menu .ant-menu-item {
