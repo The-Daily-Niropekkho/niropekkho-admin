@@ -45,6 +45,6 @@ export const baseApi = createApi({
         unionTag,
         contactTag,
         newsTag,
-        reporterTag
+        reporterTag,
     ],
 });

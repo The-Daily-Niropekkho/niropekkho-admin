@@ -74,4 +74,17 @@ export interface TFileDocument {
     size: number;
     createdAt: string;
     updatedAt: string;
+    caption_title: string;
+    thumb_image_size: ThumbImageSize;
+    large_image_size: LargeImageSize;
+}
+
+export interface ThumbImageSize {
+  width: number
+  height: number
+}
+
+export interface LargeImageSize {
+  width: number
+  height: number
 }

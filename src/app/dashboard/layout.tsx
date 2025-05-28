@@ -64,7 +64,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               margin: "24px",
               padding: 0,
               minHeight: 280,
-              borderRadius: "12px",
               overflow: "hidden",
               background: "transparent",
             }}
