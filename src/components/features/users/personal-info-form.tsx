@@ -154,7 +154,7 @@ export default function PersonalInfoForm({ form }: PersonalInfoFormProps) {
                 fileTypes={["image/jpeg", "image/png"]}
                 onSelect={handleProfileImageSelect}
                 multiple={false}
-                initialSelected={profileImage ? [profileImage.id] : []}
+                initialSelected={profileImage ? [profileImage] : []}
             />
         </>
     );

@@ -293,6 +293,7 @@ export const GeneralSection = ({
                             {menu}
                         </>
                     )}
+                    maxCount={5}
                 >
                     {topics?.map((topic: Topic) => (
                         <Option key={topic.id} value={topic.id}>
@@ -357,11 +358,11 @@ export const GeneralSection = ({
                 <Col span={12}>
                     <Form.Item
                         name="reporter_id"
-                        label="Reporter"
+                        label="Writer"
                         rules={[{ validator: validateReporter }]}
                     >
                         <Select
-                            placeholder="Select a reporter"
+                            placeholder="Select a writer"
                             showSearch
                             disabled={isWriterLoading || !!genericReporterId}
                             allowClear

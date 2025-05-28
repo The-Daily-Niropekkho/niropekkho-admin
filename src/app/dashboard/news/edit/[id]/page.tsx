@@ -41,7 +41,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Dynamically import the CKEditor component
@@ -71,7 +71,7 @@ export default function EditNewsPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const { id } = useParams();
-
+    const router = useRouter()
     const [loading, setLoading] = useState(false);
     const [bannerImage, setBannerImage] = useState<TFileDocument>();
     const [ogImage, setOgImage] = useState<TFileDocument>();
@@ -154,11 +154,9 @@ export default function EditNewsPage() {
     const [updateNews, { isError, isSuccess, error, reset: resetMutation }] =
         useUpdateNewsMutation();
 
-    // Watch form fields
     const isBreaking = Form.useWatch("is_breaking", form);
     const isTopBreakingNews = Form.useWatch("is_top_breaking_news", form);
 
-    // Populate form with news data
     useEffect(() => {
         if (news) {
             const initialValues = {
@@ -211,7 +209,6 @@ export default function EditNewsPage() {
         }
     }, [news, form]);
 
-    // Reset dependent fields when is_breaking or is_top_breaking_news changes
     useEffect(() => {
         if (!isBreaking) {
             form.setFieldsValue({
@@ -226,7 +223,6 @@ export default function EditNewsPage() {
         }
     }, [isBreaking, isTopBreakingNews, form]);
 
-    // Handle mutation status
     useEffect(() => {
         if (isError) {
             const errorResponse = error as ErrorResponse;
@@ -238,8 +234,9 @@ export default function EditNewsPage() {
             message.success("News updated successfully!");
             setLoading(false);
             resetMutation();
+            router.push('/dashboard/news/all')
         }
-    }, [isError, isSuccess, error, resetMutation]);
+    }, [isError, isSuccess, error, resetMutation, router]);
 
     const onFinish = async () => {
         setLoading(true);
@@ -264,7 +261,7 @@ export default function EditNewsPage() {
         if (
             changedValues.caption_title ||
             changedValues.banner_image_width ||
-            changedValues.banner_image_height
+            changedValues.banner_image_height || (bannerImage !== news?.banner_image)
         ) {
             payload.banner_image = {
                 ...bannerImage,
@@ -299,7 +296,6 @@ export default function EditNewsPage() {
             };
             
         }
-        console.log(payload);
         if (Object.keys(payload).length === 0) {
             message.info("No changes detected");
             setLoading(false);

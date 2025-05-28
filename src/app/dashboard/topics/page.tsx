@@ -3,8 +3,12 @@
 import TopicEditCreateModal from "@/components/features/topic/create-edit-modal";
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
-import { useDeleteTopicMutation, useGetAllTopicsQuery } from "@/redux/features/topic/topicApi";
-import { TError, Topic } from "@/types";
+import { useDebounced } from "@/hooks/use-debounce";
+import {
+    useDeleteTopicMutation,
+    useGetAllTopicsQuery,
+} from "@/redux/features/topic/topicApi";
+import { TArgsParam, TError, Topic } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -28,9 +32,7 @@ import { useState } from "react";
 export default function TopicsPage() {
     const [searchText, setSearchText] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingTopic, setEditingTopic] = useState<Topic | null>(
-        null
-    );
+    const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -41,14 +43,20 @@ export default function TopicsPage() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [status, setStatus] = useState<string | undefined>(undefined);
 
-    const query = [
-        { name: "searchTerm", value: searchText },
-        { name: "limit", value: limit },
-        { name: "page", value: page },
-        { name: "sortBy", value: sortBy },
-        { name: "sortOrder", value: sortOrder },
-        { name: "status", value: status },
-    ];
+    const query: TArgsParam = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["status"] = status;
+
+    const debouncedSearchTerm = useDebounced({
+        searchQuery: searchText,
+        delay: 600,
+    });
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
 
     const {
         data: topics,
@@ -56,8 +64,7 @@ export default function TopicsPage() {
         isFetching: isTopicFetching,
     } = useGetAllTopicsQuery(query);
 
-    const [deleteTopic, { isLoading: isDeleting }] =
-        useDeleteTopicMutation();
+    const [deleteTopic, { isLoading: isDeleting }] = useDeleteTopicMutation();
 
     const handleEdit = (record: Topic) => {
         setEditingTopic(record);
@@ -79,110 +86,112 @@ export default function TopicsPage() {
     };
 
     const columns = [
-    {
-        title: "Title",
-        dataIndex: "title",
-        key: "title",
-        sorter: true,
-        render: (text: string) => <div style={{ fontWeight: 500 }}>{text}</div>,
-    },
-    {
-        title: "Slug",
-        dataIndex: "slug",
-        key: "slug",
-        sorter: true,
-    },
-    {
-        title: "Position",
-        dataIndex: "position",
-        key: "position",
-        sorter: true,
-    },
-    {
-        title: "Description",
-        dataIndex: "description",
-        key: "description",
-        render: (text: string) => text || "-",
-    },
-    {
-        title: "Meta Title",
-        dataIndex: "meta_title",
-        key: "meta_title",
-        render: (text: string) => text || "-",
-    },
-    {
-        title: "Meta Description",
-        dataIndex: "meta_description",
-        key: "meta_description",
-        render: (text: string) => text || "-",
-    },
-    {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-        render: (status: string) => (
-            <Tag color={status === "active" ? "success" : "default"}>
-                {status.toUpperCase()}
-            </Tag>
-        ),
-        filters: [
-            { text: "Active", value: "active" },
-            { text: "Inactive", value: "inactive" },
-        ],
-        onFilter: (value: any, record: Topic) => record.status === value,
-    },
-    {
-        title: "Created At",
-        dataIndex: "createdAt",
-        key: "createdAt",
-        sorter: true,
-        render: (createdAt: string) =>
-            new Date(createdAt).toLocaleDateString() || "-",
-    },
-    {
-        title: "Updated At",
-        dataIndex: "updatedAt",
-        key: "updatedAt",
-        sorter: true,
-        render: (updatedAt: string) =>
-            new Date(updatedAt).toLocaleDateString() || "-",
-    },
-    {
-        title: "Actions",
-        key: "actions",
-        render: (_: any, record: Topic) => (
-            <Space>
-                <Tooltip title="Edit">
-                    <Button
-                        type="text"
-                        icon={<EditOutlined />}
-                        size="small"
-                        onClick={() => handleEdit(record)}
-                    />
-                </Tooltip>
-                <Tooltip title="Delete">
-                    <Popconfirm
-                        title="Are you sure you want to delete this topic?"
-                        onConfirm={() => handleDelete(record)}
-                        okText="Yes"
-                        cancelText="No"
-                        placement="left"
-                        disabled={record.is_deleted || isDeleting}
-                    >
+        {
+            title: "Title",
+            dataIndex: "title",
+            key: "title",
+            sorter: true,
+            render: (text: string) => (
+                <div style={{ fontWeight: 500 }}>{text}</div>
+            ),
+        },
+        {
+            title: "Slug",
+            dataIndex: "slug",
+            key: "slug",
+            sorter: true,
+        },
+        {
+            title: "Position",
+            dataIndex: "position",
+            key: "position",
+            sorter: true,
+        },
+        {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            render: (text: string) => text || "-",
+        },
+        {
+            title: "Meta Title",
+            dataIndex: "meta_title",
+            key: "meta_title",
+            render: (text: string) => text || "-",
+        },
+        {
+            title: "Meta Description",
+            dataIndex: "meta_description",
+            key: "meta_description",
+            render: (text: string) => text || "-",
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: (status: string) => (
+                <Tag color={status === "active" ? "success" : "default"}>
+                    {status.toUpperCase()}
+                </Tag>
+            ),
+            filters: [
+                { text: "Active", value: "active" },
+                { text: "Inactive", value: "inactive" },
+            ],
+            onFilter: (value: any, record: Topic) => record.status === value,
+        },
+        {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            sorter: true,
+            render: (createdAt: string) =>
+                new Date(createdAt).toLocaleDateString() || "-",
+        },
+        {
+            title: "Updated At",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            sorter: true,
+            render: (updatedAt: string) =>
+                new Date(updatedAt).toLocaleDateString() || "-",
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_: any, record: Topic) => (
+                <Space>
+                    <Tooltip title="Edit">
                         <Button
                             type="text"
-                            danger
-                            icon={<DeleteOutlined />}
+                            icon={<EditOutlined />}
                             size="small"
-                            disabled={record.is_deleted || isDeleting}
-                            loading={isDeleting}
+                            onClick={() => handleEdit(record)}
                         />
-                    </Popconfirm>
-                </Tooltip>
-            </Space>
-        ),
-    },
-];
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Popconfirm
+                            title="Are you sure you want to delete this topic?"
+                            onConfirm={() => handleDelete(record)}
+                            okText="Yes"
+                            cancelText="No"
+                            placement="left"
+                            disabled={record.is_deleted || isDeleting}
+                        >
+                            <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                size="small"
+                                disabled={record.is_deleted || isDeleting}
+                                loading={isDeleting}
+                            />
+                        </Popconfirm>
+                    </Tooltip>
+                </Space>
+            ),
+        },
+    ];
 
     return (
         <>

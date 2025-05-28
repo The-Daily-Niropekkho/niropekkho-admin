@@ -1,10 +1,18 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTheme } from "@/components/theme-context";
 import { TFileDocument } from "@/types";
-import { CopyOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileOutlined, FileTextOutlined, FileZipOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import { Button, Col, Modal, Row, Tag } from "antd";
+import {
+    CopyOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    EyeOutlined,
+    FileOutlined,
+    FileTextOutlined,
+    FileZipOutlined,
+    VideoCameraOutlined,
+} from "@ant-design/icons";
+import { Button, Col, Modal, Row, Tag, message } from "antd";
 import Image from "next/image";
 
 interface MediaDetailsModalProps {
@@ -18,7 +26,46 @@ export default function MediaDetailsModal({
     isOpen,
     onClose,
 }: MediaDetailsModalProps) {
-        const { isDark } = useTheme();
+    const { isDark } = useTheme();
+
+    const file_type = item?.file_type?.toLowerCase() || "other";
+
+    function formatFileSize(bytes: number): string {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+        if (bytes < 1024 * 1024 * 1024)
+            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    }
+    const renderIcon = () => {
+        switch (file_type) {
+            case "video":
+                return <VideoCameraOutlined style={{ fontSize: 64 }} />;
+            case "document":
+                return <FileTextOutlined style={{ fontSize: 64 }} />;
+            case "archive":
+                return <FileZipOutlined style={{ fontSize: 64 }} />;
+            default:
+                return <FileOutlined style={{ fontSize: 64 }} />;
+        }
+    };
+
+    const handleCopyUrl = () => {
+        if (item?.originalUrl) {
+            navigator.clipboard.writeText(item.originalUrl);
+            message.success("URL copied to clipboard");
+        }
+    };
+
+    const handleDownload = () => {
+        if (item?.url) {
+            const link = document.createElement("a");
+            link.href = item.url;
+            link.download = item.filename || "file";
+            link.click();
+        }
+    };
+
     return (
         <Modal
             title={
@@ -29,10 +76,7 @@ export default function MediaDetailsModal({
             open={isOpen}
             onCancel={onClose}
             footer={[
-                <Button
-                    key="close"
-                    onClick={onClose}
-                >
+                <Button key="close" onClick={onClose}>
                     Close
                 </Button>,
             ]}
@@ -43,12 +87,10 @@ export default function MediaDetailsModal({
                 <Row gutter={16}>
                     <Col xs={24} md={12}>
                         <div className="media-preview-large">
-                            {item.fileType === "image" ? (
+                            {file_type === "image" ? (
                                 <Image
                                     alt={item.filename || "Media file"}
-                                    src={
-                                        item.url || "/placeholder.svg"
-                                    }
+                                    src={item.url || "/placeholder.svg"}
                                     className="preview-image"
                                     width={400}
                                     height={400}
@@ -59,27 +101,12 @@ export default function MediaDetailsModal({
                                         isDark ? "dark" : ""
                                     }`}
                                 >
-                                    {item.fileType === "video" && (
-                                        <VideoCameraOutlined />
-                                    )}
-                                    {item.fileType === "document" && (
-                                        <FileTextOutlined />
-                                    )}
-                                    {item.fileType === "archive" && (
-                                        <FileZipOutlined />
-                                    )}
-                                    {![
-                                        "video",
-                                        "document",
-                                        "archive",
-                                        "image",
-                                    ].includes(item.fileType) && (
-                                        <FileOutlined />
-                                    )}
+                                    {renderIcon()}
                                 </div>
                             )}
                         </div>
                     </Col>
+
                     <Col xs={24} md={12}>
                         <div className="media-details-info">
                             <h3
@@ -87,24 +114,21 @@ export default function MediaDetailsModal({
                                     isDark ? "dark" : ""
                                 }`}
                             >
-                                {item.filename}
+                                {item.filename || "Untitled"}
                             </h3>
 
                             <div className="details-type">
                                 <Tag
                                     color={
-                                        item.fileType === "image"
-                                            ? "blue"
-                                            : item.fileType === "video"
-                                            ? "red"
-                                            : item.fileType === "document"
-                                            ? "green"
-                                            : item.fileType === "archive"
-                                            ? "orange"
-                                            : "default"
+                                        {
+                                            image: "blue",
+                                            video: "red",
+                                            document: "green",
+                                            archive: "orange",
+                                        }[file_type] || "default"
                                     }
                                 >
-                                    {item.fileType.toUpperCase()}
+                                    {file_type.toUpperCase()}
                                 </Tag>
                             </div>
 
@@ -112,33 +136,9 @@ export default function MediaDetailsModal({
                                 <div className="details-row">
                                     <span className="details-label">Size:</span>
                                     <span className="details-value">
-                                        {item.size < 1024
-                                            ? `${item.size} KB`
-                                            : `${(
-                                                  item.size / 1024
-                                              ).toFixed(2)} MB`}
+                                        {formatFileSize(item.size)}
                                     </span>
                                 </div>
-
-                                {/* {item.dimensions && (
-                                    <div className="details-row">
-                                        <span className="details-label">
-                                            Dimensions:
-                                        </span>
-                                        <span className="details-value">
-                                            {item.dimensions}
-                                        </span>
-                                    </div>
-                                )} */}
-
-                                {/* <div className="details-row">
-                                    <span className="details-label">
-                                        Uploaded by:
-                                    </span>
-                                    <span className="details-value">
-                                        {item.uploadedBy}
-                                    </span>
-                                </div> */}
 
                                 <div className="details-row">
                                     <span className="details-label">
@@ -148,6 +148,7 @@ export default function MediaDetailsModal({
                                         {item.createdAt}
                                     </span>
                                 </div>
+
                                 <div className="details-row">
                                     <span className="details-label">
                                         Last modified:
@@ -159,10 +160,16 @@ export default function MediaDetailsModal({
                             </div>
 
                             <div className="details-actions">
-                                <Button icon={<DownloadOutlined />}>
+                                <Button
+                                    icon={<DownloadOutlined />}
+                                    onClick={handleDownload}
+                                >
                                     Download
                                 </Button>
-                                <Button icon={<CopyOutlined />}>
+                                <Button
+                                    icon={<CopyOutlined />}
+                                    onClick={handleCopyUrl}
+                                >
                                     Copy S3 URL
                                 </Button>
                                 <Button icon={<EditOutlined />}>Edit</Button>

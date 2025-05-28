@@ -4,21 +4,18 @@
 import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
 import {
-    BarChartOutlined,
     BarsOutlined,
     DashboardOutlined,
     FileOutlined,
     FileTextOutlined,
     GlobalOutlined,
     IdcardOutlined,
-    InboxOutlined,
     MenuOutlined,
     NotificationOutlined,
     PictureOutlined,
-    SearchOutlined,
     SettingOutlined,
     TagsOutlined,
-    UserOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
@@ -63,6 +60,10 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     key: "/dashboard/news/drafts",
                     label: <Link href="/dashboard/news/drafts">Drafts</Link>,
                 },
+                {
+                    key: "/dashboard/news/breakings",
+                    label: <Link href="/dashboard/news/breakings">Breakings</Link>,
+                },
             ],
         },
         {
@@ -86,11 +87,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/topics">Topics</Link>,
         },
         {
-            key: "/dashboard/archive",
-            icon: <InboxOutlined />,
-            label: <Link href="/dashboard/archive">Archive</Link>,
-        },
-        {
             key: "/dashboard/advertisement",
             icon: <NotificationOutlined />,
             label: <Link href="/dashboard/advertisement">Advertisement</Link>,
@@ -99,30 +95,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             key: "/dashboard/pages",
             icon: <FileOutlined />,
             label: <Link href="/dashboard/pages">Pages</Link>,
-        },
-        {
-            key: "/dashboard/seo",
-            icon: <SearchOutlined />,
-            label: <Link href="/dashboard/seo">SEO</Link>,
-        },
-        {
-            key: "analytics",
-            icon: <BarChartOutlined />,
-            label: "Analytics",
-            children: [
-                {
-                    key: "/dashboard/analytics/overview",
-                    label: (
-                        <Link href="/dashboard/analytics/overview">
-                            Overview
-                        </Link>
-                    ),
-                },
-                {
-                    key: "/dashboard/reports",
-                    label: <Link href="/dashboard/reports">Reports</Link>,
-                },
-            ],
         },
         {
             key: "/dashboard/reporters",

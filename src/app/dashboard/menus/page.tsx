@@ -7,8 +7,8 @@ import PagePositionEditor from "@/components/features/menus/page-position-editor
 import SidebarPositionEditor from "@/components/features/menus/sidebar-position-editor";
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Tabs } from "antd";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const { TabPane } = Tabs;
 
@@ -89,17 +89,11 @@ const initialCategories: Category[] = [
 
 const CategoriesPage = () => {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const tabParam = searchParams.get("tab");
 
-    const [activeTab, setActiveTab] = useState<string>(
-        tabParam || "categoryList"
-    );
+    const [activeTab, setActiveTab] = useState<string>("categoryList");
     const [categories, setCategories] = useState<Category[]>(initialCategories);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [editingCategory, setEditingCategory] = useState<Category | null>(
-        null
-    );
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
     // Navbar position data
     const [navbarPositions, setNavbarPositions] = useState<Position[]>([
@@ -126,6 +120,17 @@ const CategoriesPage = () => {
         { id: "7", name: "Science", position: 5 },
     ]);
 
+    // Extract ?tab=... from the URL (CSR-safe way)
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get("tab");
+            if (tab) {
+                setActiveTab(tab);
+            }
+        }
+    }, []);
+
     const handleAddCategory = (values: Omit<Category, "id" | "postCount">) => {
         const newCategory: Category = {
             id: `${Date.now()}`,
@@ -141,9 +146,7 @@ const CategoriesPage = () => {
         if (!editingCategory) return;
 
         const updatedCategories = categories.map((category) =>
-            category.id === editingCategory.id
-                ? { ...category, ...values }
-                : category
+            category.id === editingCategory.id ? { ...category, ...values } : category
         );
 
         setCategories(updatedCategories);
@@ -157,7 +160,7 @@ const CategoriesPage = () => {
 
     const handleTabChange = (key: string) => {
         setActiveTab(key);
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams(window.location.search);
         params.set("tab", key);
         router.replace(`?${params.toString()}`);
     };

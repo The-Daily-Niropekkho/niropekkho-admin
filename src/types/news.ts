@@ -63,11 +63,12 @@ export interface BreakingNews {
     serial_number: number;
     serial_update_at: string;
     is_top_breaking_news: boolean;
-    top_serial_number: string;
+    top_serial_number: number;
     top_serial_update_at: string;
     created_by_id: string;
     is_deleted: boolean;
     status: string;
     createdAt: string;
     updatedAt: string;
+    news: News;
 }

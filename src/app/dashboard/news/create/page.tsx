@@ -70,7 +70,7 @@ export default function CreateNewsPage() {
     const [bannerImage, setBannerImage] = useState<TFileDocument>();
     const [ogImage, setOgImage] = useState<TFileDocument>();
     const [editorContent, setEditorContent] = useState(
-        "<p>Scientists have developed a new solar panel that doubles efficiency...</p>"
+        "<p></p>"
     );
 
     const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
@@ -176,6 +176,10 @@ export default function CreateNewsPage() {
 
     const onFinish = async (values: any) => {
         setLoading(true);
+        if (!editorContent) {
+            message.error("অনুগ্রহ করে নিউজ কন্টেন্ট লিখুন।")
+            return
+        }
         values.details_html = editorContent;
         const {
             caption_title,
@@ -349,8 +353,8 @@ export default function CreateNewsPage() {
                             </Form.Item>
 
                             <Form.Item
-                                name="details_html"
                                 label="Content"
+                                name="details_html"
                                 rules={[
                                     {
                                         required: true,

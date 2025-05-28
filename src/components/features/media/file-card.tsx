@@ -8,7 +8,7 @@ import {
     FileOutlined,
     FileTextOutlined,
     FileZipOutlined,
-    VideoCameraOutlined
+    VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Image, Tag } from "antd";
 import { useState } from "react";
@@ -17,6 +17,27 @@ import MediaDetailsModal from "./media-details-modal";
 export default function FileCard({ item }: { item: TFileDocument }) {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const { isDark } = useTheme();
+
+    function formatFileSize(bytes: number): string {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+        if (bytes < 1024 * 1024 * 1024)
+            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    }
+    const renderIcon = () => {
+        switch (item.file_type) {
+            case "video":
+                return <VideoCameraOutlined />;
+            case "document":
+                return <FileTextOutlined />;
+            case "archive":
+                return <FileZipOutlined />;
+            default:
+                return <FileOutlined />;
+        }
+    };
+
     return (
         <>
             <div className={`media-item ${isDark ? "dark" : ""}`}>
@@ -24,7 +45,7 @@ export default function FileCard({ item }: { item: TFileDocument }) {
                     className="media-preview"
                     onClick={() => setIsDetailsModalOpen(true)}
                 >
-                    {item.fileType === "image" ? (
+                    {item.file_type === "image" ? (
                         <Image
                             alt={item.filename}
                             src={item.url || "/placeholder.svg"}
@@ -39,16 +60,8 @@ export default function FileCard({ item }: { item: TFileDocument }) {
                                 isDark ? "dark" : ""
                             }`}
                         >
-                            {item.fileType === "video" && <VideoCameraOutlined />}
-                            {item.fileType === "document" && <FileTextOutlined />}
-                            {item.fileType === "archive" && <FileZipOutlined />}
-                            {![
-                                "video",
-                                "document",
-                                "archive",
-                                "image",
-                            ].includes(item.fileType) && <FileOutlined />}
-                            <div className="file-type">{item.fileType}</div>
+                            {renderIcon()}
+                            <div className="file-type">{item.file_type}</div>
                         </div>
                     )}
                 </div>
@@ -59,24 +72,20 @@ export default function FileCard({ item }: { item: TFileDocument }) {
                     </div>
                     <div className="media-meta">
                         <span className="media-size">
-                            {item.size < 1024
-                                ? `${item.size} KB`
-                                : `${(item.size / 1024).toFixed(2)} MB`}
+                            {formatFileSize(item.size)}
                         </span>
+                        
                         <Tag
                             color={
-                                item.fileType === "image"
-                                    ? "blue"
-                                    : item.fileType === "video"
-                                    ? "red"
-                                    : item.fileType === "document"
-                                    ? "green"
-                                    : item.fileType === "archive"
-                                    ? "orange"
-                                    : "default"
+                                {
+                                    image: "blue",
+                                    video: "red",
+                                    document: "green",
+                                    archive: "orange",
+                                }[item.file_type] || "default"
                             }
                         >
-                            {item.fileType}
+                            {item.file_type}
                         </Tag>
                     </div>
                 </div>
@@ -90,6 +99,7 @@ export default function FileCard({ item }: { item: TFileDocument }) {
                     <Button type="text" icon={<EditOutlined />} />
                 </div>
             </div>
+
             <MediaDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}

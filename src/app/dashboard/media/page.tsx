@@ -4,51 +4,62 @@ import FileCard from "@/components/features/media/file-card";
 import FileCardInline from "@/components/features/media/file-card-inline";
 import { GlobalFilePicker } from "@/components/features/media/global-file-picker";
 import MediaFolders from "@/components/features/media/media-folders";
-import MediaStats from "@/components/features/media/media-stats";
 import { useTheme } from "@/components/theme-context";
-import { useMediaUtils } from "@/hooks/use-media-utils";
-import {
-    useGetMediaQuery
-} from "@/redux/features/media/mediaApi";
-import { TFileDocument } from "@/types";
+import { FileType } from "@/constants";
+import { useDebounced } from "@/hooks/use-debounce";
+import { useGetMediaQuery } from "@/redux/features/media/mediaApi";
+import { TArgsParam, TFileDocument } from "@/types";
 import {
     AppstoreOutlined,
     CloudUploadOutlined,
     FileOutlined,
     SearchOutlined,
     SortAscendingOutlined,
-    UnorderedListOutlined
+    UnorderedListOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Col, Input, Progress, Row, Select } from "antd";
+import {
+    Button,
+    Card,
+    Col,
+    Input,
+    Pagination,
+    Progress,
+    Row,
+    Select,
+} from "antd";
 import { useState } from "react";
 import "./media.css";
 
 export default function MediaLibraryPage() {
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+    const { isDark } = useTheme();
     const [searchText, setSearchText] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-    const [activeFolder, setActiveFolder] = useState<string>("all");
-    const [sortBy, setSortBy] = useState<string>("date");
+    const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-    const [filterType, setFilterType] = useState<string>("all");
+    const [filterType, setFilterType] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(12);
     const [openFilePicker, setOpenFilePicker] = useState(false);
     // RTK Query hooks
-    const { data: mediaItems = [], isLoading } = useGetMediaQuery();
 
-    const { filterMedia, getMediaStats } = useMediaUtils();
+    const query: TArgsParam = {};
+    query["page"] = currentPage;
+    query["limit"] = itemsPerPage;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["file_type"] = filterType;
 
-    // Filter and sort media items
-    const sortedMedia = filterMedia(
-        mediaItems,
-        searchText,
-        filterType,
-        activeFolder,
-        sortBy,
-        sortOrder
-    );
-    const mediaStats = getMediaStats(mediaItems);
+    const debouncedSearchTerm = useDebounced({
+        searchQuery: searchText,
+        delay: 600,
+    });
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
 
+    const { data: mediaItems, isLoading } = useGetMediaQuery(query);
+
+    const file_types = Object.values(FileType);
     return (
         <>
             <div className="media-header">
@@ -81,28 +92,33 @@ export default function MediaLibraryPage() {
                             onChange={setFilterType}
                         >
                             <Select.Option value="all">All Types</Select.Option>
-                            <Select.Option value="image">Images</Select.Option>
-                            <Select.Option value="video">Videos</Select.Option>
-                            <Select.Option value="document">
-                                Documents
-                            </Select.Option>
-                            <Select.Option value="archive">
-                                Archives
-                            </Select.Option>
+                            {file_types?.map((type) => (
+                                <Select.Option key={type} value={type}>
+                                    <span
+                                        style={{ textTransform: "capitalize" }}
+                                    >
+                                        {type}
+                                    </span>
+                                </Select.Option>
+                            ))}
                         </Select>
                     </div>
 
                     <div className="flex flex-wrap md:flex-nowrap gap-2">
                         <Select
-                            defaultValue="date"
+                            defaultValue="createdAt"
                             value={sortBy}
                             onChange={setSortBy}
                             className="media-sort"
                         >
-                            <Select.Option value="date">Date</Select.Option>
+                            <Select.Option value="createdAt">
+                                Date
+                            </Select.Option>
                             <Select.Option value="name">Name</Select.Option>
                             <Select.Option value="size">Size</Select.Option>
-                            <Select.Option value="type">Type</Select.Option>
+                            <Select.Option value="file_type">
+                                Type
+                            </Select.Option>
                         </Select>
 
                         <Button
@@ -143,50 +159,20 @@ export default function MediaLibraryPage() {
                         <Button
                             type="primary"
                             icon={<CloudUploadOutlined />}
-                            onClick={() =>
-                                document
-                                    .getElementById("media-upload-input")
-                                    ?.click()
-                            }
+                            onClick={() => setOpenFilePicker(true)}
                             className="media-upload-btn"
                         >
                             Upload
                         </Button>
-
-                        <input
-                            id="media-upload-input"
-                            type="file"
-                            multiple
-                            onChange={(e) =>
-                                e.target.files
-                            }
-                            style={{ display: "none" }}
-                        />
-                        <Button
-                            type="default"
-                            icon={<CloudUploadOutlined />}
-                            onClick={() => setOpenFilePicker(true)}
-                        >
-                            Upload Pop Up
-                        </Button>
                     </div>
                 </div>
-
-                {/* {isUploading && (
-                    <div className="upload-progress">
-                        <Progress percent={50} status="active" />
-                    </div>
-                )} */}
-
                 <div className="media-container">
                     <div className="media-sidebar">
                         <MediaFolders
-                            mediaItems={mediaItems}
-                            activeFolder={activeFolder}
-                            setActiveFolder={setActiveFolder}
-                            isDark={isDark}
+                            activeFolder={filterType}
+                            setActiveFolder={setFilterType}
                         />
-                        <MediaStats stats={mediaStats} isDark={isDark} />
+                        {/*  <MediaStats stats={mediaStats} isDark={isDark} /> */}
                     </div>
 
                     <div className="media-content">
@@ -199,7 +185,7 @@ export default function MediaLibraryPage() {
                                 <Progress type="circle" />
                                 <h3>Loading media ...</h3>
                             </div>
-                        ) : sortedMedia.length === 0 ? (
+                        ) : mediaItems?.data?.length === 0 ? (
                             <div
                                 className={`empty-state ${
                                     isDark ? "dark" : ""
@@ -213,13 +199,7 @@ export default function MediaLibraryPage() {
                                 <Button
                                     type="primary"
                                     icon={<CloudUploadOutlined />}
-                                    onClick={() =>
-                                        document
-                                            .getElementById(
-                                                "media-upload-input"
-                                            )
-                                            ?.click()
-                                    }
+                                    onClick={() => setOpenFilePicker(true)}
                                 >
                                     Upload Files
                                 </Button>
@@ -227,7 +207,7 @@ export default function MediaLibraryPage() {
                         ) : viewMode === "grid" ? (
                             <div className="media-grid">
                                 <Row gutter={[16, 16]}>
-                                    {sortedMedia.map((item) => (
+                                    {mediaItems?.data?.map((item) => (
                                         <Col
                                             xs={24}
                                             sm={12}
@@ -260,17 +240,59 @@ export default function MediaLibraryPage() {
                                     </span>
                                 </div>
 
-                                {sortedMedia.map((item) => (
+                                {mediaItems?.data?.map((item) => (
                                     <FileCardInline key={item.id} item={item} />
                                 ))}
+                            </div>
+                        )}
+                        {(mediaItems?.meta?.total ?? 0) > itemsPerPage && (
+                            <div
+                                style={{
+                                    textAlign: "center",
+                                    marginTop: 16,
+                                }}
+                                className="flex justify-between"
+                            >
+                                <Select
+                                    value={itemsPerPage}
+                                    onChange={(value) => {
+                                        setItemsPerPage(value);
+                                        setCurrentPage(1);
+                                    }}
+                                    style={{ width: 120 }}
+                                >
+                                    <Select.Option value={6}>
+                                        6 / page
+                                    </Select.Option>
+                                    <Select.Option value={12}>
+                                        12 / page
+                                    </Select.Option>
+                                    <Select.Option value={24}>
+                                        24 / page
+                                    </Select.Option>
+                                    <Select.Option value={48}>
+                                        48 / page
+                                    </Select.Option>
+                                </Select>
+                                <Pagination
+                                    current={currentPage}
+                                    pageSize={itemsPerPage}
+                                    total={mediaItems?.meta?.total || 0}
+                                    onChange={(page) => setCurrentPage(page)}
+                                    showSizeChanger={false}
+                                />
                             </div>
                         )}
                     </div>
                 </div>
             </Card>
-            <GlobalFilePicker open={openFilePicker} onCancel={()=>setOpenFilePicker(false)} onSelect={(selectedFiles: TFileDocument[]) => {
-                console.log(selectedFiles);
-            }}/>
+            <GlobalFilePicker
+                open={openFilePicker}
+                onCancel={() => setOpenFilePicker(false)}
+                onSelect={(selectedFiles: TFileDocument[]) => {
+                    console.log(selectedFiles);
+                }}
+            />
         </>
     );
 }
