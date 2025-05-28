@@ -69,63 +69,82 @@ export default function CreateNewsPage() {
     const [loading, setLoading] = useState(false);
     const [bannerImage, setBannerImage] = useState<TFileDocument>();
     const [ogImage, setOgImage] = useState<TFileDocument>();
-    const [editorContent, setEditorContent] = useState(
-        "<p></p>"
-    );
+    const [editorContent, setEditorContent] = useState("<p></p>");
 
-    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-    const [selectedDivision, setSelectedDivision] = useState<number | undefined>(undefined);
-    const [selectedDistrict, setSelectedDistrict] = useState<number | undefined>(undefined);
-    const [selectedUpazilla, setSelectedUpazilla] = useState<number | undefined>(undefined);
+    const [selectedCategory, setSelectedCategory] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedDivision, setSelectedDivision] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedDistrict, setSelectedDistrict] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedUpazilla, setSelectedUpazilla] = useState<
+        number | undefined
+    >(undefined);
 
     // Redux Queries
     const { data: categories, isLoading: isCategoryLoading } =
-        useGetAllCategoriesQuery([{ name: "limit", value: 999 }, { name: "status", value: "active" }]);
-    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery([
-        { name: "limit", value: 999 },
-        { name: "status", value: "active" }
-    ]);
+        useGetAllCategoriesQuery({ limit: 999, status: "active" });
+
+    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery({
+        limit: 999,
+        status: "active",
+    });
+
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(
-            [
-                { name: "country_id", value: 172 },
-                { name: "limit", value: 100 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" }
-            ],
-            { skip: selectedCategory != EnumIds.across_the_country }
+            selectedCategory === EnumIds.across_the_country
+                ? {
+                      country_id: 172,
+                      limit: 100,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
+            { skip: selectedCategory !== EnumIds.across_the_country }
         );
+
     const { data: districts, isLoading: isDistrictsLoading } =
         useGetAllDistrictsQuery(
-            [
-                { name: "division_id", value: selectedDivision },
-                { name: "limit", value: 500 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" }
-            ],
+            selectedDivision
+                ? {
+                      division_id: selectedDivision,
+                      limit: 500,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: !selectedDivision }
         );
+
     const { data: upazillas, isLoading: isUpazillaLoading } =
         useGetAllUpazillasQuery(
-            [
-                { name: "district_id", value: selectedDistrict },
-                { name: "limit", value: 500 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" }
-            ],
+            selectedDistrict
+                ? {
+                      district_id: selectedDistrict,
+                      limit: 500,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: !selectedDistrict }
         );
+
     const { data: unions, isLoading: isUnionLoading } = useGetAllUnionsQuery(
-        [
-            { name: "upazilla_id", value: selectedUpazilla },
-            { name: "limit", value: 1000 },
-            { name: "sortBy", value: "name" },
-            { name: "sortOrder", value: "asc" },
-            { name: "status", value: "active" }
-        ],
+        selectedUpazilla
+            ? {
+                  upazilla_id: selectedUpazilla,
+                  limit: 1000,
+                  sortBy: "name",
+                  sortOrder: "asc",
+                  status: "active",
+              }
+            : {},
         { skip: !selectedUpazilla }
     );
 
@@ -177,8 +196,8 @@ export default function CreateNewsPage() {
     const onFinish = async (values: any) => {
         setLoading(true);
         if (!editorContent) {
-            message.error("অনুগ্রহ করে নিউজ কন্টেন্ট লিখুন।")
-            return
+            message.error("অনুগ্রহ করে নিউজ কন্টেন্ট লিখুন।");
+            return;
         }
         values.details_html = editorContent;
         const {
@@ -348,7 +367,11 @@ export default function CreateNewsPage() {
                                 <Input placeholder="Enter Short headline" />
                             </Form.Item>
 
-                            <Form.Item name="slug" label="Custom URL" tooltip="নিউজের জন্য একটি কাস্টম URL লিখুন। এটি URL-ফ্রেন্ডলি হতে হবে।">
+                            <Form.Item
+                                name="slug"
+                                label="Custom URL"
+                                tooltip="নিউজের জন্য একটি কাস্টম URL লিখুন। এটি URL-ফ্রেন্ডলি হতে হবে।"
+                            >
                                 <Input placeholder="Enter custom url (URL-friendly)" />
                             </Form.Item>
 
@@ -371,10 +394,18 @@ export default function CreateNewsPage() {
                                 />
                             </Form.Item>
 
-                            <Form.Item name="details" label="Short Details" rules={[{
-                                required: true,
-                                message: "Please enter short details for the article",
-                            }]} tooltip="নিউজের জন্য সংক্ষিপ্ত বিবরণ লিখুন অথবা কন্টেন্ট থেকে কপি করুন।">
+                            <Form.Item
+                                name="details"
+                                label="Short Details"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            "Please enter short details for the article",
+                                    },
+                                ]}
+                                tooltip="নিউজের জন্য সংক্ষিপ্ত বিবরণ লিখুন অথবা কন্টেন্ট থেকে কপি করুন।"
+                            >
                                 <TextArea
                                     rows={3}
                                     placeholder="Enter a short details for the article"
