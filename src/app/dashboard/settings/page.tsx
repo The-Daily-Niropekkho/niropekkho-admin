@@ -2,15 +2,11 @@
 "use client"
 import { useTheme } from "@/components/theme-context"
 import {
-  ApiOutlined,
-  CloudOutlined,
   GlobalOutlined,
-  MailOutlined,
   NotificationOutlined,
   SaveOutlined,
   SecurityScanOutlined,
-  TeamOutlined,
-  UploadOutlined,
+  UploadOutlined
 } from "@ant-design/icons"
 import {
   Button,
@@ -24,10 +20,9 @@ import {
   Radio,
   Row,
   Select,
-  Space,
   Switch,
   Tabs,
-  Upload,
+  Upload
 } from "antd"
 import { useState } from "react"
 
@@ -236,72 +231,6 @@ export default function SettingsPage() {
                 </Col>
               </Row>
             </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <MailOutlined /> Email
-                </span>
-              }
-              key="2"
-            >
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="emailFrom"
-                    label="From Email"
-                    rules={[{ required: true, message: "Please enter from email", type: "email" }]}
-                  >
-                    <Input placeholder="noreply@example.com" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="emailName"
-                    label="From Name"
-                    rules={[{ required: true, message: "Please enter from name" }]}
-                  >
-                    <Input placeholder="Newspaper Name" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="smtpHost" label="SMTP Host">
-                    <Input placeholder="smtp.example.com" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item name="smtpPort" label="SMTP Port">
-                    <InputNumber min={1} max={65535} style={{ width: "100%" }} placeholder="587" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item name="smtpSecure" label="SMTP Secure" valuePropName="checked">
-                    <Switch checkedChildren="SSL/TLS" unCheckedChildren="None" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="smtpUsername" label="SMTP Username">
-                    <Input placeholder="username" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="smtpPassword" label="SMTP Password">
-                    <Input.Password placeholder="password" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item>
-                <Button type="default">Test Email Configuration</Button>
-              </Form.Item>
-            </TabPane>
-
             <TabPane
               tab={
                 <span>
@@ -404,165 +333,6 @@ export default function SettingsPage() {
                   </Form.Item>
                 </Col>
               </Row>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <TeamOutlined /> Comments
-                </span>
-              }
-              key="5"
-            >
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableComments" label="Enable Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="moderateComments" label="Moderate Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="allowGuestComments" label="Allow Guest Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="nestedComments" label="Allow Nested Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item name="commentMaxLength" label="Maximum Comment Length">
-                <InputNumber min={100} max={10000} style={{ width: "100%" }} />
-              </Form.Item>
-
-              <Form.Item name="bannedWords" label="Banned Words (comma separated)">
-                <TextArea rows={3} placeholder="Enter banned words" />
-              </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <CloudOutlined /> Performance
-                </span>
-              }
-              key="6"
-            >
-              <Row gutter={16}>
-                <Col xs={24} md={8}>
-                  <Form.Item name="enableCache" label="Enable Caching" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="enableImageOptimization" label="Image Optimization" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="enableMinification" label="CSS/JS Minification" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="cacheLifetime" label="Cache Lifetime (minutes)">
-                    <InputNumber min={1} max={1440} style={{ width: "100%" }} />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="maxImageSize" label="Maximum Image Size (KB)">
-                    <InputNumber min={100} max={10000} style={{ width: "100%" }} />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item>
-                <Space>
-                  <Button type="default">Clear Cache</Button>
-                  <Button type="default">Optimize Images</Button>
-                </Space>
-              </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <ApiOutlined /> Integrations
-                </span>
-              }
-              key="7"
-            >
-              <Divider orientation="left">Analytics</Divider>
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableAnalytics" label="Enable Analytics" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="analyticsProvider" label="Analytics Provider">
-                    <Select placeholder="Select provider">
-                      <Option value="google">Google Analytics</Option>
-                      <Option value="matomo">Matomo</Option>
-                      <Option value="plausible">Plausible</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Form.Item name="analyticsId" label="Analytics ID/Tracking Code">
-                <Input placeholder="Enter tracking ID" />
-              </Form.Item>
-
-              <Divider orientation="left">Social Media</Divider>
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableSocialSharing" label="Enable Social Sharing" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableSocialLogin" label="Enable Social Login" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col xs={24} md={8}>
-                  <Form.Item name="facebookAppId" label="Facebook App ID">
-                    <Input placeholder="Enter Facebook App ID" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="twitterHandle" label="Twitter Handle">
-                    <Input placeholder="@yourhandle" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="googleClientId" label="Google Client ID">
-                    <Input placeholder="Enter Google Client ID" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Divider orientation="left">Advertising</Divider>
-              <Form.Item name="enableAds" label="Enable Advertisements" valuePropName="checked">
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
-              </Form.Item>
-              <Form.Item name="adCode" label="Ad Code (header)">
-                <TextArea rows={3} placeholder="Enter ad code for header" />
-              </Form.Item>
             </TabPane>
           </Tabs>
 
