@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Division } from "@/types";
-import { Modal, Form, Input, message, Row, Col } from "antd";
+import { Modal, Form, Input, message, Row, Col, Select } from "antd";
 import {
   useCreateDivisionMutation,
   useUpdateDivisionMutation,
@@ -22,6 +22,15 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
   const [createDivision] = useCreateDivisionMutation();
   const [updateDivision] = useUpdateDivisionMutation();
   const [isLoading, setIsLoading] = React.useState(false);
+
+  // Static country data (no API dependency)
+  const staticCountries = [
+    { id: 172, name: "Bangladesh" },
+    { id: 116, name: "India" },
+    { id: 146, name: "Pakistan" },
+    { id: 231, name: "Sri Lanka" },
+    { id: 198, name: "Nepal" },
+  ];
 
   React.useEffect(() => {
     if (editingDivision) {
@@ -53,12 +62,16 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
       }
 
       close();
-    } catch {
+    } catch (error) {
       message.error("Failed to save Division");
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Sort countries by ID to ensure "ID-wise" display
+  const sortedCountries = [...staticCountries].sort((a, b) => a.id - b.id);
 
   return (
     <Modal
@@ -74,10 +87,28 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
           <Col span={12}>
             <Form.Item
               name="country_id"
-              label="Country ID"
-              rules={[{ required: true, message: "Please enter country ID" }]}
+              label="Country"
+              rules={[{ required: true, message: "Please select a country" }]}
             >
-              <Input type="number" />
+              <Select
+                placeholder="Select a country"
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+                notFoundContent={!sortedCountries.length ? "No data" : null}
+              >
+                {sortedCountries.map((country: { id: number; name: string }) => (
+                  <Select.Option
+                    key={country.id}
+                    value={country.id}
+                    label={country.name}
+                  >
+                    {country.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>

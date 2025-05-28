@@ -26,7 +26,7 @@ const CountryEditCreateModal: React.FC<CountryEditCreateModalProps> = ({
   React.useEffect(() => {
     if (editingCountry) {
       form.setFieldsValue({
-    
+      
         name: editingCountry.name,
         bn_name: editingCountry.bn_name,
         flag_url: editingCountry.flag_url,
@@ -74,11 +74,11 @@ const CountryEditCreateModal: React.FC<CountryEditCreateModalProps> = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="district_id"
-              label="District ID"
-              rules={[{ required: true, message: "Please enter district ID" }]}
+              name="country_code"
+              label="Country Code"
+              rules={[{ required: true, message: "Please enter Country code" }]}
             >
-              <Input type="number" />
+              <Input />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -104,7 +104,7 @@ const CountryEditCreateModal: React.FC<CountryEditCreateModalProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              name="url"
+              name="flag_url"
               label="URL"
               rules={[
                 { required: true, message: "Please enter URL" },

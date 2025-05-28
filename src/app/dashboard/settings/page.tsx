@@ -6,7 +6,8 @@ import {
   NotificationOutlined,
   SaveOutlined,
   SecurityScanOutlined,
-  UploadOutlined
+  UploadOutlined,
+  ContactsOutlined
 } from "@ant-design/icons"
 import {
   Button,
@@ -24,7 +25,9 @@ import {
   Tabs,
   Upload
 } from "antd"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useGetContactDetailsQuery, useUpdateContactMutation } from "@/redux/features/contact/contactApi"
+import { Contact } from "@/types"
 
 const { Option } = Select
 const { TabPane } = Tabs
@@ -36,15 +39,76 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
   const isDark = theme === "dark"
 
-  const onFinish = (values: any) => {
-    setLoading(true)
-    console.log("Form values:", values)
+ 
+  const contactId = "cmb61l6gy000emhf8iog51m9q"
+  const { 
+    data: contactData, 
+    isLoading: isContactLoading, 
+    isFetching: isContactFetching,
+    isError: isContactError,
+    error,
+    //refetch
+  } = useGetContactDetailsQuery(contactId)
+  const [updateContact] = useUpdateContactMutation()
 
-    // Simulate API call
-    setTimeout(() => {
+  useEffect(() => {
+    console.log("API Response:", {
+      data: contactData,
+      isLoading: isContactLoading,
+      isFetching: isContactFetching,
+      isError: isContactError,
+      error,
+    })
+  }, [contactData, isContactLoading, isContactFetching, isContactError, error])
+
+  // Populate form with fetched contact data
+  useEffect(() => {
+    if (contactData?.data) {
+      form.setFieldsValue({
+        editorName: contactData.data[0]?.editor_name || "Daily Niropekkho",
+        content: contactData.data[0]?.content || "The Daily Niropekkho",
+        address: contactData.data[0]?.address || "",
+        phone: contactData.data[0]?.phone || "",
+        phoneTwo: contactData.data[0]?.phoneTwo || "",
+        email: contactData.data[0]?.email || "",
+        website: contactData.data[0]?.website || "",
+        latitude: contactData.data[0]?.latitude || undefined,
+        longitude: contactData.data[0]?.longitude || undefined,
+        map: contactData.data[0]?.map || "",
+        rights: contactData.data[0]?.rights || "",
+      })
+    } else if (!isContactLoading && !isContactFetching && (!contactData?.data || contactData.data.length === 0)) {
+      console.warn("No contact data received for ID:", contactId)
+    }
+  }, [contactData, isContactLoading, isContactFetching, form])
+
+  const onFinish = async (values: any) => {
+    setLoading(true)
+    try {
+      // Prepare contact data for update
+      const contactUpdateData: Partial<Contact> = {
+        editor_name: values.editorName,
+        content: values.content,
+        address: values.address,
+        phone: values.phone,
+        phoneTwo: values.phoneTwo,
+        email: values.email,
+        website: values.website,
+        latitude: values.latitude,
+        longitude: values.longitude,
+        map: values.map,
+        rights: values.rights,
+      }
+
+      // Call the update mutation
+      await updateContact({ id: contactId, data: contactUpdateData }).unwrap()
+      message.success("Contact settings updated successfully!")
+    } catch (error) {
+      message.error("Failed to update contact settings. Please try again.")
+      console.error("Update error:", error)
+    } finally {
       setLoading(false)
-      message.success("Settings updated successfully!")
-    }, 1500)
+    }
   }
 
   const normFile = (e: any) => {
@@ -103,15 +167,105 @@ export default function SettingsPage() {
             enableCache: true,
             maintenanceMode: false,
           }}
+          disabled={isContactLoading || isContactFetching}
         >
           <Tabs defaultActiveKey="1">
+            <TabPane
+              tab={
+                <span>
+                  <ContactsOutlined /> Contact Settings
+                </span>
+              }
+              key="1"
+            >
+              {isContactError && (
+                <p style={{ color: "red" }}>Error loading contact details. Please try again.</p>
+              )}
+              <Form.Item
+                name="editorName"
+                label="Editor Name"
+                rules={[{ required: true, message: "Please enter the editor name" }]}
+              >
+                <Input placeholder="The Daily Niropekkho"></Input>
+              </Form.Item>
+              <Form.Item
+                name="content"
+                label="Content"
+                rules={[{ required: true, message: "Please enter the content" }]}
+              >
+                <Input.TextArea placeholder="Enter the content" rows={3} />
+              </Form.Item>
+              <Form.Item
+                name="address"
+                label="Address"
+                rules={[{ required: true, message: "Please enter the address" }]}
+              >
+                <Input.TextArea placeholder="Enter the address" rows={3} />
+              </Form.Item>
+              <Form.Item
+                name="phone"
+                label="Phone"
+                rules={[{ required: true, message: "Please enter the phone number" }]}
+              >
+                <Input placeholder="Enter the phone number" />
+              </Form.Item>
+              <Form.Item name="phoneTwo" label="Phone Two">
+                <Input placeholder="Enter the second phone number" />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter the email" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input placeholder="Enter the email" />
+              </Form.Item>
+              <Form.Item
+                name="website"
+                label="Website"
+                rules={[
+                  { required: true, message: "Please enter the website" },
+                  { type: "url", message: "Please enter a valid URL" },
+                ]}
+              >
+                <Input placeholder="Enter the website" />
+              </Form.Item>
+              <div className="flex gap-4">
+                <Form.Item
+                  name="latitude"
+                  label="Latitude"
+                  className="flex-1"
+                  rules={[{ pattern: /^-?\d*\.?\d+$/, message: "Please enter a valid latitude" }]}
+                >
+                  <Input placeholder="Enter the latitude" />
+                </Form.Item>
+                <Form.Item
+                  name="longitude"
+                  label="Longitude"
+                  className="flex-1"
+                  rules={[{ pattern: /^-?\d*\.?\d+$/, message: "Please enter a valid longitude" }]}
+                >
+                  <Input placeholder="Enter the longitude" />
+                </Form.Item>
+              </div>
+              <Form.Item
+                name="map"
+                label="Map"
+                rules={[{ type: "url", message: "Please enter a valid map URL" }]}
+              >
+                <Input placeholder="Embed a map src URL" />
+              </Form.Item>
+            </TabPane>
+
             <TabPane
               tab={
                 <span>
                   <GlobalOutlined /> General
                 </span>
               }
-              key="1"
+              key="2"
             >
               <Row gutter={16}>
                 <Col xs={24} md={12}>
@@ -231,6 +385,7 @@ export default function SettingsPage() {
                 </Col>
               </Row>
             </TabPane>
+
             <TabPane
               tab={
                 <span>
@@ -339,7 +494,13 @@ export default function SettingsPage() {
           <Divider style={{ borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.06)" }} />
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={loading}>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              icon={<SaveOutlined />} 
+              loading={loading || isContactLoading || isContactFetching}
+              disabled={isContactLoading || isContactFetching}
+            >
               Save Settings
             </Button>
           </Form.Item>

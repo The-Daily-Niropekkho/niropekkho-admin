@@ -25,8 +25,13 @@ import {
   Space,
   Tag,
   Tooltip,
+  Typography,
+
 } from "antd";
 import DistrictEditCreateModal from "@/components/features/districts/district-edit-create-modal";
+import Link from "next/link";
+
+const { Title, Text } = Typography;
 
 export default function DistrictsPage() {
   const [searchText, setSearchText] = useState("");
@@ -57,8 +62,7 @@ export default function DistrictsPage() {
     isFetching: isDistrictFetching,
   } = useGetAllDistrictsQuery(query);
 
-  const [deleteDistrict, { isLoading: isDeleting }] =
-    useDeleteDistrictMutation();
+  const [deleteDistrict, { isLoading: isDeleting }] = useDeleteDistrictMutation();
 
   const handleEdit = (record: District) => {
     setEditingDistrict(record);
@@ -87,7 +91,9 @@ export default function DistrictsPage() {
       key: "name",
       sorter: true,
       render: (text: string) => (
-        <div style={{ fontWeight: 500 }}>{text}</div>
+        <div style={{ fontWeight: 500, color: isDark ? "#fff" : "#1a1a1a" }}>
+          {text}
+        </div>
       ),
     },
     {
@@ -95,41 +101,78 @@ export default function DistrictsPage() {
       dataIndex: "bn_name",
       key: "bn_name",
       sorter: true,
+      render: (text: string) => (
+        <div style={{ color: isDark ? "#d9d9d9" : "#595959" }}>{text}</div>
+      ),
     },
     {
       title: "URL",
       dataIndex: "url",
       key: "url",
-      render: (text: string) => text || "-",
+      render: (text: string) =>
+        text ? (
+          <Link
+            href={text}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: isDark ? "#40a9ff" : "#1890ff",
+              textDecoration: "none",
+              transition: "color 0.3s",
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = isDark ? "#69b1ff" : "#40a9ff")}
+            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = isDark ? "#40a9ff" : "#1890ff")}
+          >
+            {text}
+          </Link>
+        ) : (
+          <div style={{ color: isDark ? "#b3b3b3" : "#8c8c8c" }}>-</div>
+        ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "ACTIVE" ? "success" : "default"}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
-      filters: [
-        { text: "Active", value: "ACTIVE" },
-        { text: "Inactive", value: "INACTIVE" },
-      ],
-      onFilter: (value: any, record: District) => record.status === value,
-    },
+                title: "Status",
+                dataIndex: "status",
+                key: "status",
+                render: (status: string) => (
+                    <Tag color={status === "active" ? "success" : "default"}>
+                        {status.toUpperCase()}
+                    </Tag>
+                ),
+                filters: [
+                    { text: "Active", value: "active" },
+                    { text: "Inactive", value: "inactive" },
+                ],
+                onFilter: (value: any, record: District) => record.status === value,
+            },
     {
-      title: "Country ID",
-      dataIndex: "country_id",
-      key: "country_id",
+      title: "Division ID",
+      dataIndex: "division_id",
+      key: "division_id",
       sorter: true,
+      hidden: true,
     },
     {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      title: "Division Name",
+      dataIndex: "division_id",
+      key: "division_name",
       sorter: true,
-      render: (createdAt: string) =>
-        new Date(createdAt).toLocaleDateString() || "-",
+      render: (division_id: number) => {
+        const divisionMap: { [key: number]: string } = {
+          1: "চট্টগ্রাম", // Chattogram
+          2: "রাজশাহী", // Rajshahi
+          3: "খুলনা", // Khulna
+          4: "বরিশাল", // Barisal
+          5: "সিলেট", // Sylhet
+          6: "ঢাকা", // Dhaka
+          7: "রংপুর", // Rangpur
+          8: "ময়মনসিংহ", // Mymensingh
+        };
+        return (
+          <div style={{ color: isDark ? "#d9d9d9" : "#595959" }}>
+            {divisionMap[division_id] || "-"}
+          </div>
+        );
+      },
     },
     {
       title: "Updated At",
@@ -138,18 +181,29 @@ export default function DistrictsPage() {
       sorter: true,
       render: (updatedAt: string) =>
         new Date(updatedAt).toLocaleDateString() || "-",
+      hidden: true,
     },
     {
       title: "Actions",
       key: "actions",
       render: (_: any, record: District) => (
-        <Space>
+        <Space size="small">
           <Tooltip title="Edit">
             <Button
               type="text"
               icon={<EditOutlined />}
               size="small"
               onClick={() => handleEdit(record)}
+              style={{
+                color: isDark ? "#40a9ff" : "#1890ff",
+                transition: "all 0.3s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
             />
           </Tooltip>
           <Tooltip title="Delete">
@@ -168,6 +222,16 @@ export default function DistrictsPage() {
                 size="small"
                 disabled={record.is_deleted || isDeleting}
                 loading={isDeleting}
+                style={{
+                  color: isDark ? "#ff4d4f" : "#f5222d",
+                  transition: "all 0.3s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = isDark ? "rgba(255, 77, 79, 0.2)" : "rgba(245, 34, 45, 0.1)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "transparent")
+                }
               />
             </Popconfirm>
           </Tooltip>
@@ -177,69 +241,89 @@ export default function DistrictsPage() {
   ];
 
   return (
-    <>
-      <div style={{ marginBottom: 24 }}>
-        <h1
+    <div >
+      <div style={{ marginBottom: "24px" }}>
+        <Title
+          level={3}
           style={{
-            fontSize: "24px",
-            fontWeight: "bold",
+            fontWeight: 700,
+            color: isDark ? "#fff" : "#1a1a1a",
             marginBottom: "8px",
-            color: isDark ? "#fff" : "#000",
           }}
         >
           Districts
-        </h1>
-        <p
+        </Title>
+        <Text
           style={{
-            color: isDark
-              ? "rgba(255, 255, 255, 0.65)"
-              : "rgba(0, 0, 0, 0.45)",
+            color: isDark ? "rgba(255, 255, 255, 0.65)" : "rgba(0, 0, 0, 0.45)",
+            fontSize: "14px",
           }}
         >
           Manage districts for organizing your content
-        </p>
+        </Text>
       </div>
 
       <Row gutter={[16, 16]}>
         <Col xs={24}>
           <Card
-            variant="borderless"
+            bordered={false}
             style={{
-              borderRadius: "8px",
-              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+              borderRadius: "12px",
+              boxShadow: isDark ? "0 4px 12px rgba(0, 0, 0, 0.3)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
               background: isDark ? "#1f1f1f" : "#fff",
+              transition: "all 0.3s",
+            }}
+            styles={{
+              body: {
+                padding: "24px",
+              },
             }}
           >
             <div
               style={{
-                marginBottom: 16,
+                marginBottom: "24px",
                 display: "flex",
                 justifyContent: "space-between",
+                alignItems: "center",
                 flexWrap: "wrap",
-                gap: 8,
+                gap: "12px",
               }}
             >
-              <Space wrap>
-                <Input
-                  placeholder="Search districts"
-                  prefix={<SearchOutlined />}
-                  value={searchText}
-                  onChange={(e) => {
-                    setSearchText(e.target.value);
-                    setPage(1); // Reset to first page on search
-                  }}
-                  style={{ width: 250 }}
-                />
-              </Space>
-              <Space wrap>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={handleCreate}
-                >
-                  Add District
-                </Button>
-              </Space>
+              <Input
+                placeholder="Search districts"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  setPage(1); // Reset to first page on search
+                }}
+                style={{
+                  width: "300px",
+                  borderRadius: "8px",
+                  background: isDark ? "#2d2d2d" : "#f5f5f5",
+                  transition: "all 0.3s",
+                }}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleCreate}
+                style={{
+                  borderRadius: "8px",
+                  padding: "0 20px",
+                  background: isDark ? "#40a9ff" : "#1890ff",
+                  border: "none",
+                  transition: "all 0.3s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = isDark ? "#69b1ff" : "#40a9ff")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = isDark ? "#40a9ff" : "#1890ff")
+                }
+              >
+                Add District
+              </Button>
             </div>
 
             <Table<District>
@@ -255,6 +339,7 @@ export default function DistrictsPage() {
               setStatus={setStatus}
               setSortOrder={setSortOrder}
               isFetching={isDistrictFetching}
+              //setMediaType={setMediaType}
             />
           </Card>
         </Col>
@@ -264,6 +349,6 @@ export default function DistrictsPage() {
         open={isModalVisible}
         close={() => setIsModalVisible(false)}
       />
-    </>
+    </div>
   );
 }

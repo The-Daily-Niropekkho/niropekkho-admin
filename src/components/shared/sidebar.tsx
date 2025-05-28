@@ -125,29 +125,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 },
             ],
         },
-        {
-            key: "/dashboard/pages",
-            icon: <FileOutlined />,
-            label: "Pages",
-            children: [
-                {
-                    key: "/dashboard/pages/contact-page",
-                    label: (
-                        <Link href="/dashboard/pages/contact-page">
-                            Contact Pages
-                        </Link>
-                    ),
-                },
-                {
-                    key: "/dashboard/pages/footer-page",
-                    label: (
-                        <Link href="/dashboard/pages/footer-page">
-                            Footer Pages
-                        </Link>
-                    ),
-                },
-            ],
-        },
+       
         {
             key: "/dashboard/reporters",
             icon: <IdcardOutlined />,

@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
-import { Union } from "@/types";
-import { Modal, Form, Input, message, Row, Col } from "antd";
+import { Union, Upazilla } from "@/types";
+import { Modal, Form, Input, message, Row, Col, Select } from "antd";
 import {
-   useCreateUnionMutation,
-    useUpdateUnionMutation
+  useCreateUnionMutation,
+  useUpdateUnionMutation,
 } from "@/redux/features/zone/unionApi";
+import { useGetAllUpazillasQuery } from "@/redux/features/zone/upazillaApi";
 
 interface UnionEditCreateModalProps {
   editingUnion: Union | null;
@@ -23,10 +24,24 @@ const UnionEditCreateModal: React.FC<UnionEditCreateModalProps> = ({
   const [updateUnion] = useUpdateUnionMutation();
   const [isLoading, setIsLoading] = React.useState(false);
 
+  // Fetch upazillas for the dropdown
+  const { data: upazillas, isLoading: isUpazillasLoading, error: upazillasError } = useGetAllUpazillasQuery({});
+
+  // Log API response for debugging
+  React.useEffect(() => {
+    if (upazillas) {
+      console.log("Upazillas API Response:", upazillas);
+    }
+    if (upazillasError) {
+      console.error("Error fetching upazillas:", upazillasError);
+    }
+  }, [upazillas, upazillasError]);
+
+  // Set form values when editingUnion changes
   React.useEffect(() => {
     if (editingUnion) {
       form.setFieldsValue({
-        district_id: editingUnion.upazilla_id,
+        upazilla_id: editingUnion.upazilla_id,
         name: editingUnion.name,
         bn_name: editingUnion.bn_name,
         url: editingUnion.url,
@@ -35,6 +50,17 @@ const UnionEditCreateModal: React.FC<UnionEditCreateModalProps> = ({
       form.resetFields();
     }
   }, [editingUnion, form]);
+
+  // Handle upazilla selection to auto-fill name and bn_name
+  const handleUpazillaChange = (upazillaId: number) => {
+    const selectedUpazilla = upazillas?.data?.find((upazilla: Upazilla) => upazilla.id === upazillaId);
+    if (selectedUpazilla) {
+      form.setFieldsValue({
+        name: selectedUpazilla.name,
+        bn_name: selectedUpazilla.bn_name,
+      });
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -53,8 +79,9 @@ const UnionEditCreateModal: React.FC<UnionEditCreateModalProps> = ({
       }
 
       close();
-    } catch {
+    } catch (error) {
       message.error("Failed to save Union");
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -74,10 +101,34 @@ const UnionEditCreateModal: React.FC<UnionEditCreateModalProps> = ({
           <Col span={12}>
             <Form.Item
               name="upazilla_id"
-              label="Upazilla ID"
-              rules={[{ required: true, message: "Please enter Upazilla ID" }]}
+              label="Upazilla"
+              rules={[{ required: true, message: "Please select an Upazilla" }]}
             >
-              <Input type="number" />
+              <Select
+                placeholder="Select an Upazilla"
+                loading={isUpazillasLoading}
+                disabled={isUpazillasLoading}
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+                onChange={handleUpazillaChange}
+                notFoundContent={
+                  upazillasError ? "Error loading upazillas" :
+                  !upazillas?.data || upazillas?.data?.length === 0 ? "No data" : null
+                }
+              >
+                {upazillas?.data?.map((upazilla: { id: number; name: string }) => (
+                  <Select.Option
+                    key={upazilla.id}
+                    value={upazilla.id}
+                    label={upazilla.name}
+                  >
+                    {upazilla.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>

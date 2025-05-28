@@ -27,6 +27,7 @@ import {
   Tooltip,
 } from "antd";
 import UpazillaEditCreateModal from "@/components/features/upazillas/upazilla-edit-create-modal";
+import Link from "next/link";
 
 export default function UpazillasPage() {
   const [searchText, setSearchText] = useState("");
@@ -100,29 +101,130 @@ export default function UpazillasPage() {
       title: "URL",
       dataIndex: "url",
       key: "url",
-      render: (text: string) => text || "-",
+      render: (text: string) =>
+        text ? (
+          <Link
+            href={text}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: isDark ? "#40a9ff" : "#1890ff",
+              textDecoration: "none",
+              transition: "color 0.3s",
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = isDark ? "#69b1ff" : "#40a9ff")}
+            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = isDark ? "#40a9ff" : "#1890ff")}
+          >
+            {text}
+          </Link>
+        ) : (
+          <div style={{ color: isDark ? "#b3b3b3" : "#8c8c8c" }}>-</div>
+        ),
     },
     {
       title: "District ID",
       dataIndex: "district_id",
       key: "district_id",
       sorter: true,
+      hidden: true
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "ACTIVE" ? "success" : "default"}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
-      filters: [
-        { text: "Active", value: "ACTIVE" },
-        { text: "Inactive", value: "INACTIVE" },
-      ],
-      onFilter: (value: any, record: Upazilla) => record.status === value,
+      title:"District Name",
+      dataIndex:"district_id",
+      key: "district_id",
+      render: (division_id: number) => {
+        const divisionMap: { [key: number]: string } = {
+  1:  "কুমিল্লা",         // Cumilla
+  2:  "ফেনী",             // Feni
+  3:  "ব্রাহ্মণবাড়িয়া",   // Brahmanbaria
+  4:  "রাঙ্গামাটি",        // Rangamati
+  5:  "নোয়াখালী",        // Noakhali
+  6:  "চাঁদপুর",           // Chandpur
+  7:  "লক্ষ্মীপুর",        // Lakshmipur
+  8:  "চট্টগ্রাম",         // Chattogram
+  9:  "কক্সবাজার",        // Cox’s Bazar
+  10: "খাগড়াছড়ি",        // Khagrachhari
+  11: "বান্দরবান",        // Bandarban
+
+  12: "সিরাজগঞ্জ",        // Sirajganj
+  13: "পাবনা",            // Pabna
+  14: "বগুড়া",            // Bogura
+  15: "রাজশাহী",         // Rajshahi
+  16: "নাটোর",           // Natore
+  17: "জয়পুরহাট",        // Joypurhat
+  18: "চাঁপাইনবাবগঞ্জ",   // Chapainawabganj
+  19: "নওগাঁ",            // Naogaon
+  20: "যশোর",            // Jessore
+  21: "সাতক্ষীরা",       // Satkhira
+  22: "মেহেরপুর",        // Meherpur
+  23: "নড়াইল",           // Narail
+  24: "চুয়াডাঙ্গা",       // Chuadanga
+  25: "কুষ্টিয়া",         // Kushtia
+  26: "মাগুরা",           // Magura
+  27: "খুলনা",            // Khulna
+  28: "বাগেরহাট",         // Bagerhat
+  29: "ঝিনাইদহ",         // Jhenaidah
+  30: "ঝালকাঠি",         // Jhalokati
+  31: "পটুয়াখালী",       // Patuakhali
+  32: "পিরোজপুর",        // Pirojpur
+  33: "বরিশাল",          // Barishal
+  34: "ভোলা",            // Bhola
+  35: "বরগুনা",          // Barguna
+
+  36: "সিলেট",           // Sylhet
+  37: "মৌলভীবাজার",     // Maulvibazar
+  38: "হবিগঞ্জ",          // Habiganj
+  39: "সুনামগঞ্জ",       // Sunamganj
+
+  40: "নরসিংদী",        // Narsingdi
+  41: "গাজীপুর",         // Gazipur
+  42: "শরিয়তপুর",       // Shariatpur
+  43: "নারায়ণগঞ্জ",      // Narayanganj
+  44: "টাঙ্গাইল",         // Tangail
+  45: "কিশোরগঞ্জ",      // Kishoreganj
+  46: "মানিকগঞ্জ",       // Manikganj
+  47: "ঢাকা",            // Dhaka
+  48: "মুন্সিগঞ্জ",       // Munshiganj
+  49: "রাজবাড়ী",         // Rajbari
+  50: "মাদারীপুর",       // Madaripur
+  51: "গোপালগঞ্জ",       // Gopalganj
+  52: "ফরিদপুর",         // Faridpur
+
+  53: "পঞ্চগড়",         // Panchagarh
+  54: "দিনাজপুর",        // Dinajpur
+  55: "লালমনিরহাট",     // Lalmonirhat
+  56: "নীলফামারী",      // Nilphamari
+  57: "গাইবান্ধা",       // Gaibandha
+  58: "ঠাকুরগাঁও",       // Thakurgaon
+  59: "রংপুর",          // Rangpur
+  60: "কুড়িগ্রাম",       // Kurigram
+  61: "শেরপুর",          // Sherpur
+  62: "ময়মনসিংহ",       // Mymensingh
+  63: "জামালপুর",        // Jamalpur
+  64: "নেত্রকোণা"        // Netrokona
+        };
+        return (
+          <div style={{ color: isDark ? "#d9d9d9" : "#595959" }}>
+            {divisionMap[division_id] || "-"}
+          </div>
+        );
+      },
     },
+    {
+                        title: "Status",
+                        dataIndex: "status",
+                        key: "status",
+                        render: (status: string) => (
+                            <Tag color={status === "active" ? "success" : "default"}>
+                                {status.toUpperCase()}
+                            </Tag>
+                        ),
+                        filters: [
+                            { text: "Active", value: "active" },
+                            { text: "Inactive", value: "inactive" },
+                        ],
+                        onFilter: (value: any, record: Upazilla) => record.status === value,
+                    },
     {
       title: "Created At",
       dataIndex: "createdAt",
@@ -130,6 +232,7 @@ export default function UpazillasPage() {
       sorter: true,
       render: (createdAt: string) =>
         new Date(createdAt).toLocaleDateString() || "-",
+      hidden: true,
     },
     {
       title: "Updated At",
@@ -138,6 +241,7 @@ export default function UpazillasPage() {
       sorter: true,
       render: (updatedAt: string) =>
         new Date(updatedAt).toLocaleDateString() || "-",
+      hidden: true,
     },
     {
       title: "Actions",

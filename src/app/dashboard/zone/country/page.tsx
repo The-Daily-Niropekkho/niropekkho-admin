@@ -27,6 +27,7 @@ import {
   Tooltip,
 } from "antd";
 import CountryEditCreateModal from "@/components/features/countries/countries-edit-create-modal";
+//import { render } from "react-dom";
 
 export default function CountrysPage() {
   const [searchText, setSearchText] = useState("");
@@ -96,56 +97,47 @@ export default function CountrysPage() {
       key: "bn_name",
       sorter: true,
     },
+
     {
-      title: "URL",
-      dataIndex: "url",
+      title: "Country Code",
+      dataIndex: "country_code",
       key: "url",
       render: (text: string) => text || "-",
     },
-    {
-  title: "Status",
-  dataIndex: "status",
-  key: "status",
-  render: (status: string) => {
-    const statusProps = status === "ACTIVE" 
-      ? { color: "green", text: "Active" }
-      : { color: "red", text: "Inactive" };
+
+ {
+                 title: "Status",
+                 dataIndex: "status",
+                 key: "status",
+                 render: (status: string) => (
+                     <Tag color={status === "active" ? "success" : "default"}>
+                         {status.toUpperCase()}
+                     </Tag>
+                 ),
+                 filters: [
+                     { text: "Active", value: "active" },
+                     { text: "Inactive", value: "inactive" },
+                 ],
+                 onFilter: (value: any, record: Country) => record.status === value,
+             },
+
     
-    return (
-      <Tag 
-        color={statusProps.color}
-        style={{
-          fontWeight: 500,
-          textTransform: 'uppercase',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}
-      >
-        {statusProps.text}
-      </Tag>
-    );
-  },
-  filters: [
-    { text: "Active", value: "ACTIVE" },
-    { text: "Inactive", value: "INACTIVE" },
-  ],
-  onFilter: (value: any, record: Country) => record.status === value,
-},
     {
       title: "Country ID",
-      dataIndex: "country_id",
+      dataIndex: "id",
       key: "country_id",
       sorter: true,
+
     },
+    
     {
-      title: "Created At",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      title: "Flag",
+      dataIndex: "flag_url",
+      key: "flag_url",
       sorter: true,
-      render: (createdAt: string) =>
-        new Date(createdAt).toLocaleDateString() || "-",
+      render: (flag_url: string) => <img style={{ width: 50 }} src={flag_url} alt="Flag" />,
     },
+
     {
       title: "Updated At",
       dataIndex: "updatedAt",
