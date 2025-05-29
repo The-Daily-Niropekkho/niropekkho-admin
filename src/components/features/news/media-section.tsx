@@ -5,7 +5,8 @@ import { useTheme } from "@/components/theme-context";
 import { TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import { PictureOutlined } from "@ant-design/icons";
-import { Col, Form, FormInstance, Image, Input, Row, Typography } from "antd";
+import { Col, Form, FormInstance, Input, Row, Typography } from "antd";
+import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
 import { GlobalFilePicker } from "../media/global-file-picker";
 
@@ -73,7 +74,6 @@ export const MediaSection = ({
                                 width={120}
                                 height={80}
                                 style={{ objectFit: "cover", borderRadius: 8 }}
-                                preview={false}
                             />
                             <span
                                 onClick={(e) => {
@@ -208,7 +208,6 @@ export const MediaSection = ({
                             width={120}
                             height={80}
                             style={{ objectFit: "cover", borderRadius: 8 }}
-                            preview={false}
                         />
                     ) : (
                         <>

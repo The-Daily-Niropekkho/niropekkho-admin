@@ -16,7 +16,7 @@ import {
     ScheduleOutlined,
     SettingOutlined,
     TagsOutlined,
-    UserOutlined
+    UserOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
@@ -63,7 +63,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 },
                 {
                     key: "/dashboard/news/breakings",
-                    label: <Link href="/dashboard/news/breakings">Breakings</Link>,
+                    label: (
+                        <Link href="/dashboard/news/breakings">Breakings</Link>
+                    ),
                 },
             ],
         },
@@ -103,48 +105,14 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: "Pages",
             children: [
                 {
-                    key: "/dashboard/pages/contact-page",
-                    label: <Link href="/dashboard/pages/contact-page">Contact Pages</Link>,
+                    key: "/dashboard/pages/all",
+                    label: <Link href="/dashboard/pages/all">All Pages</Link>,
                 },
                 {
-                    key: "/dashboard/pages/footer-page",
-                    label: <Link href="/dashboard/pages/footer-page">Footer Pages</Link>,
-                }],
-        },
-
-        {
-            key: "zone",
-            icon: <GlobalOutlined />,
-            label: "Zone",
-            children: [
-                {
-                    key: "/dashboard/zone/country",
+                    key: "/dashboard/pages/create",
                     label: (
-                        <Link href="/dashboard/zone/country">
-                            Country
-                        </Link>
+                        <Link href="/dashboard/pages/create">Create Page</Link>
                     ),
-                },
-                {
-                    key: "/dashboard/zone/division",
-                    label: (
-                        <Link href="/dashboard/zone/division">
-                            Division
-                        </Link>
-                    ),
-                },
-                
-                {
-                    key: "/dashboard/zone/district",
-                    label: <Link href="/dashboard/zone/district">District</Link>,
-                },
-                {
-                    key: "/dashboard/zone/upazilla",
-                    label: <Link href="/dashboard/zone/upazilla">Upazila</Link>,
-                },
-                {
-                    key: "/dashboard/zone/union",
-                    label: <Link href="/dashboard/zone/union">Union</Link>,
                 },
             ],
         },
@@ -169,9 +137,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 },
                 {
                     key: "/dashboard/users/writer",
-                    label: (
-                        <Link href="/dashboard/users/writer">Writers</Link>
-                    ),
+                    label: <Link href="/dashboard/users/writer">Writers</Link>,
                 },
                 {
                     key: "/dashboard/users/moderator",
@@ -182,6 +148,38 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 {
                     key: "/dashboard/users/add",
                     label: <Link href="/dashboard/users/add">Create User</Link>,
+                },
+            ],
+        },
+        {
+            key: "zone",
+            icon: <GlobalOutlined />,
+            label: "Zone",
+            children: [
+                {
+                    key: "/dashboard/zone/country",
+                    label: <Link href="/dashboard/zone/country">Country</Link>,
+                },
+                {
+                    key: "/dashboard/zone/division",
+                    label: (
+                        <Link href="/dashboard/zone/division">Division</Link>
+                    ),
+                },
+
+                {
+                    key: "/dashboard/zone/district",
+                    label: (
+                        <Link href="/dashboard/zone/district">District</Link>
+                    ),
+                },
+                {
+                    key: "/dashboard/zone/upazilla",
+                    label: <Link href="/dashboard/zone/upazilla">Upazila</Link>,
+                },
+                {
+                    key: "/dashboard/zone/union",
+                    label: <Link href="/dashboard/zone/union">Union</Link>,
                 },
             ],
         },

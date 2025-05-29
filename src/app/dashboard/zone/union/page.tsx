@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import UnionEditCreateModal from "@/components/features/union/union-edit-create-modal";
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
+import { useDebounced } from "@/hooks/use-debounce";
 import {
   useDeleteUnionMutation,
   useGetAllUnionsQuery,
 } from "@/redux/features/zone/unionApi";
-import { Union } from "@/types";
+import { TArgsParam, Union } from "@/types";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -26,15 +27,14 @@ import {
   Tag,
   Tooltip,
 } from "antd";
-import UnionEditCreateModal from "@/components/features/union/union-edit-create-modal";
+import { useState } from "react";
 
 export default function UnionsPage() {
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUnion, setEditingUnion] = useState<Union | null>(null);
 
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { isDark } = useTheme();
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -42,14 +42,21 @@ export default function UnionsPage() {
   const [sortOrder, setSortOrder] = useState("desc");
   const [status, setStatus] = useState<string | undefined>(undefined);
 
-  const query = [
-    { name: "searchTerm", value: searchText },
-    { name: "limit", value: limit },
-    { name: "page", value: page },
-    { name: "sortBy", value: sortBy },
-    { name: "sortOrder", value: sortOrder },
-    { name: "status", value: status },
-  ];
+    const query: TArgsParam = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["status"] = status;
+
+    const debouncedSearchTerm = useDebounced({
+        searchQuery: searchText,
+        delay: 600,
+    });
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
+
 
   const {
     data: Unions,
