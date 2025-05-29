@@ -13,18 +13,10 @@ import {
     MenuOutlined,
     NotificationOutlined,
     PictureOutlined,
-<<<<<<< HEAD
+    ScheduleOutlined,
     SettingOutlined,
     TagsOutlined,
     UserOutlined
-=======
-    ScheduleOutlined,
-    SearchOutlined,
-    SettingOutlined,
-    TagsOutlined,
-    UserOutlined,
-    
->>>>>>> 64febea44489b4277d63c5b373143b83b4ffa413
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
