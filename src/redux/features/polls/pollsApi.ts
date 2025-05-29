@@ -43,17 +43,11 @@ const pollApi = baseApi.injectEndpoints({
             providesTags: [pollTag],
         }),
         createPoll: builder.mutation({
-            query: (data: Omit<Poll, 'id'>) => {
+            query: (data) => {
                 return {
                     url: url,
                     method: "POST",
-                    body: {
-                        title: data.title,
-                        description: data.description,
-                        status: data.status,
-                        options: data.options,
-                        banner_image: data.banner_image
-                    },
+                    body: data,
                 };
             },
             transformResponse: (response: TResponseRedux<Poll>) => {
@@ -64,17 +58,11 @@ const pollApi = baseApi.injectEndpoints({
             invalidatesTags: [pollTag],
         }),
         updatePoll: builder.mutation({
-            query: ({ id, ...data }: { id: string; data: Partial<Poll> }) => {
+            query: ({ id, data }: { id: string; data: Partial<Poll> }) => {
                 return {
                     url: `${url}/${id}`,
                     method: "PATCH",
-                    body: {
-                        title: data.data.title,
-                        description: data.data.description,
-                        status: data.data.status,
-                        options: data.data.options,
-                        banner_image: data
-                    },
+                    body: data,
                 };
             },
             transformResponse: (response: TResponseRedux<Poll>) => {

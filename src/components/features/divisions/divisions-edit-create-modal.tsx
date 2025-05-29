@@ -1,12 +1,12 @@
 "use client";
 import { useGetAllCountriesQuery } from "@/redux/features/zone/countryApi";
 import {
-  useCreateDivisionMutation,
-  useUpdateDivisionMutation,
+    useCreateDivisionMutation,
+    useUpdateDivisionMutation,
 } from "@/redux/features/zone/divisionApi";
 import { Country, Division } from "@/types";
 import { Col, Form, Input, message, Modal, Row, Select } from "antd";
-import React from "react";
+import React, { useState } from "react";
 
 interface DivisionEditCreateModalProps {
     editingDivision: Division | null;
@@ -22,7 +22,7 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
     const [form] = Form.useForm();
     const [createDivision] = useCreateDivisionMutation();
     const [updateDivision] = useUpdateDivisionMutation();
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const { data: countries, isLoading: isCountryLoading } =
         useGetAllCountriesQuery({
@@ -34,7 +34,7 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
     React.useEffect(() => {
         if (editingDivision) {
             form.setFieldsValue({
-                country_id: editingDivision.country_id,
+                country_id: Number(editingDivision.country_id),
                 name: editingDivision.name,
                 bn_name: editingDivision.bn_name,
                 url: editingDivision.url,
@@ -48,15 +48,16 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
         try {
             setIsLoading(true);
             const values = await form.validateFields();
-
+            console.log(values);
+            
             if (editingDivision) {
                 await updateDivision({
                     id: editingDivision.id,
-                    data: values,
+                    data: {...values, country_id: Number(values.country_id)},
                 }).unwrap();
                 message.success("Division updated successfully");
             } else {
-                await createDivision(values).unwrap();
+                await createDivision({...values, country_id: Number(values.country_id)}).unwrap();
                 message.success("Division created successfully");
             }
 
@@ -95,7 +96,7 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
                                 options={countries?.data?.map(
                                     (country: Country) => ({
                                         label: country.name,
-                                        value: country.country_code,
+                                        value: country.id,
                                     })
                                 )}
                                 showSearch
@@ -140,11 +141,7 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
                             name="url"
                             label="URL"
                             rules={[
-                                { required: true, message: "Please enter URL" },
-                                {
-                                    type: "url",
-                                    message: "Please enter a valid URL",
-                                },
+                                { required: false, message: "Please enter URL" }
                             ]}
                         >
                             <Input placeholder="https://example.com" />
