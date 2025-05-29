@@ -6,20 +6,20 @@ import { useUpdateCategoryPositionMutation } from "@/redux/features/categories/c
 import { Category } from "@/types";
 import { DeleteOutlined, MenuOutlined, SaveOutlined } from "@ant-design/icons";
 import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
+    closestCenter,
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button, Empty, message } from "antd";
@@ -29,13 +29,13 @@ import "./position-editor.css";
 interface Position {
     id: string;
     name: string;
-    position: number;
+    position_in_home: number;
 }
 
 interface SortableItemProps {
     id: string;
     name: string;
-    position: number;
+    position_in_home: number;
     onRemove: (id: string) => void;
 }
 
@@ -47,10 +47,10 @@ interface PagePositionEditorProps {
     allCategories: Category[];
     setSortBy: Dispatch<SetStateAction<string>>;
     setSortOrder: Dispatch<SetStateAction<string>>;
-    setIsHome: Dispatch<SetStateAction<boolean | undefined>>
+    setIsHome: Dispatch<SetStateAction<boolean>>
 }
 
-const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
+const SortableItem = ({ id, name, position_in_home, onRemove }: SortableItemProps) => {
     const { isDark } = useTheme();
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id });
@@ -86,7 +86,7 @@ const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
                         isDark ? "position-editor__position-badge--dark" : ""
                     }`}
                 >
-                    Position: {position}
+                    Position: {position_in_home}
                 </span>
                 <Button
                     danger
@@ -128,7 +128,7 @@ const PagePositionEditor = ({
             const initial = allCategories.map((cat, index) => ({
                 id: cat.id,
                 name: cat.title,
-                position: index + 1,
+                position_in_home: index + 1,
             }));
             setPositions(initial);
         }
@@ -162,7 +162,7 @@ const PagePositionEditor = ({
 
                 return newItems.map((item, index) => ({
                     ...item,
-                    position: index + 1,
+                    position_in_home: index + 1,
                 }));
             });
 
@@ -175,7 +175,7 @@ const PagePositionEditor = ({
             .filter((pos) => pos.id !== id)
             .map((item, index) => ({
                 ...item,
-                position: index + 1,
+                position_in_home: index + 1,
             }));
 
         setPositions(updated);
@@ -186,10 +186,10 @@ const PagePositionEditor = ({
     const handleSave = async () => {
         const payload = positions.map((p, i) => ({
             id: p.id,
-            position: i + 1,
+            position_in_home: i + 1,
         }));
         try {
-            await updatePositions({ positions: payload }).unwrap();
+            await updatePositions({ payload: payload }).unwrap();
             message.success("Page positions updated");
             setHasChanges(false);
         } catch (err) {
@@ -244,7 +244,7 @@ const PagePositionEditor = ({
                                     key={p.id}
                                     id={p.id}
                                     name={p.name}
-                                    position={p.position}
+                                    position_in_home={p.position_in_home}
                                     onRemove={handleRemove}
                                 />
                             ))}
