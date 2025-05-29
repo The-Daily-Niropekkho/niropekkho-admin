@@ -4,7 +4,7 @@
 import { useTheme } from "@/components/theme-context";
 import { useUpdateCategoryPositionMutation } from "@/redux/features/categories/categoriesApi";
 import { Category } from "@/types";
-import { DeleteOutlined, MenuOutlined, SaveOutlined } from "@ant-design/icons";
+import { MenuOutlined, SaveOutlined } from "@ant-design/icons";
 import {
     closestCenter,
     DndContext,
@@ -36,7 +36,6 @@ interface SortableItemProps {
     id: string;
     name: string;
     position: number;
-    onRemove: (id: string) => void;
 }
 
 interface NavbarPositionEditorProps {
@@ -50,7 +49,7 @@ interface NavbarPositionEditorProps {
     setSortOrder: Dispatch<SetStateAction<string>>;
 }
 
-const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
+const SortableItem = ({ id, name, position }: SortableItemProps) => {
     const { isDark } = useTheme();
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id });
@@ -88,15 +87,6 @@ const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
                 >
                     Position: {position}
                 </span>
-                <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => onRemove(id)}
-                    size="middle"
-                    className="position-editor__remove-button"
-                >
-                    Remove
-                </Button>
             </div>
         </div>
     );
@@ -172,19 +162,6 @@ const NavbarPositionEditor = ({
         }
     };
 
-    const handleRemove = (id: string) => {
-        const updated = positions
-            .filter((pos) => pos.id !== id)
-            .map((item, index) => ({
-                ...item,
-                position: index + 1,
-            }));
-
-        setPositions(updated);
-        setHasChanges(true);
-        message.success("Category removed");
-    };
-
     const handleSave = async () => {
         const payload = positions.map((p, i) => ({
             id: p.id,
@@ -248,7 +225,6 @@ const NavbarPositionEditor = ({
                                     id={p.id}
                                     name={p.name}
                                     position={p.position}
-                                    onRemove={handleRemove}
                                 />
                             ))}
                         </SortableContext>
