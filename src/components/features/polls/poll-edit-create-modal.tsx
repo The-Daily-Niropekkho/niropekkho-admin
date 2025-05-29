@@ -1,33 +1,47 @@
 "use client";
-import React, { useState } from "react";
-import { Poll, BannerImage } from "@/types";
-import { 
-  Modal, 
-  Form, 
-  Input, 
-  message, 
-  Row, 
-  Col, 
-  Upload, 
-  Button, 
+import React, { useState, useEffect } from "react";
+import { Poll, TFileDocument } from "@/types";
+import {
+  Modal,
+  Form,
+  Input,
+  message,
+  Row,
+  Col,
+  Upload,
+  Button,
   Select,
   Space,
-  Tag
+  Tag,
+  
 } from "antd";
 import { UploadOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import {
   useCreatePollMutation,
   useUpdatePollMutation,
 } from "@/redux/features/polls/pollsApi";
+import { GlobalFilePicker } from "../media/global-file-picker";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
+interface BannerImage {
+  url: string;
+  originalUrl: string;
+  filename: string;
+  modifyFileName: string;
+  mimetype: string;
+  platform: string;
+  path: string;
+  cdn: string;
+  size: number;
+}
+
 interface PollEditCreateModalProps {
-  editingPoll: Poll | null;
+  editingPoll?: Poll;
   open: boolean;
   pollImage?: BannerImage;
-  setPollImage: (image?: BannerImage) => void;
+  setPollImage: (image: BannerImage | undefined) => void;
   close: () => void;
 }
 
@@ -44,16 +58,16 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [openFilePicker, setOpenFilePicker] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingPoll) {
-      const initialOptions = editingPoll.options?.map(opt => opt.label) || [];
+      const initialOptions = editingPoll.options?.map((opt) => opt.label) || [];
       form.setFieldsValue({
         title: editingPoll.title,
         description: editingPoll.description,
         status: editingPoll.status,
         slug: editingPoll.slug,
-        options: initialOptions,
       });
       setOptions(initialOptions);
       setPollImage(editingPoll.banner_image);
@@ -72,7 +86,65 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
   };
 
   const handleRemoveOption = (optionToRemove: string) => {
-    setOptions(options.filter(option => option !== optionToRemove));
+    setOptions(options.filter((option) => option !== optionToRemove));
+  };
+
+  // Handle file selection from GlobalFilePicker
+  const handleFileSelect = (selectedFiles: TFileDocument[]) => {
+    if (selectedFiles.length > 0) {
+      const file = selectedFiles[0];
+      const newBannerImage: BannerImage = {
+        url: file.url,
+        originalUrl: file.originalUrl || file.url,
+        filename: file.filename || "",
+        modifyFileName: file.filename || "",
+        mimetype: file.mimetype,
+        platform: file.platform || "cdn",
+        path: file.path || "",
+        cdn: file.cdn || "",
+        size: file.size,
+      };
+      setPollImage(newBannerImage);
+    }
+    setOpenFilePicker(false);
+  };
+
+ 
+  const handleFileUpload = async (file: File) => {
+    try {
+     
+      const formData = new FormData();
+      formData.append("file", file);
+
+    
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("File upload failed");
+      }
+
+      const fileData = await response.json();
+      const newBannerImage: BannerImage = {
+        url: fileData.url,
+        originalUrl: fileData.url,
+        filename: file.name,
+        modifyFileName: file.name,
+        mimetype: file.type || "image/jpeg",
+        platform: "cdn",
+        path: fileData.path || "",
+        cdn: fileData.cdn || "",
+        size: file.size,
+      };
+      setPollImage(newBannerImage);
+      message.success("File uploaded successfully");
+    } catch (error) {
+      console.error("File upload error:", error);
+      message.error("Failed to upload file");
+    }
+    return false;
   };
 
   const handleSubmit = async () => {
@@ -80,7 +152,7 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
       setIsLoading(true);
       const values = await form.validateFields();
 
-      const pollData: Omit<Poll, 'id'> = {
+      const pollData: Omit<Poll, "id"> = {
         _id: "",
         title: values.title,
         description: values.description,
@@ -95,9 +167,9 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
           platform: "",
           path: "",
           cdn: "",
-          size: 0
+          size: 0,
         },
-        options: options.map(label => ({ label })),
+        options: options.map((label) => ({ label })),
       };
 
       if (editingPoll && editingPoll._id) {
@@ -118,22 +190,6 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleFileUpload = (file: File) => {
-    const newBannerImage: BannerImage = {
-      url: URL.createObjectURL(file),
-      originalUrl: "",
-      filename: file.name,
-      modifyFileName: file.name,
-      mimetype: file.type || "image/jpeg",
-      platform: "local",
-      path: "",
-      cdn: "",
-      size: file.size
-    };
-    setPollImage(newBannerImage);
-    return false; // Prevent default upload behavior
   };
 
   return (
@@ -189,25 +245,31 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
             <Form.Item
               label="Poll Options"
               required
-              rules={[{ required: true, message: "Please add at least one option" }]}
+              rules={[
+                {
+                  validator: () =>
+                    options.length > 0
+                      ? Promise.resolve()
+                      : Promise.reject("Please add at least one option"),
+                },
+              ]}
             >
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Space.Compact style={{ width: '100%' }}>
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <Space.Compact style={{ width: "100%" }}>
                   <Input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Enter an option"
                     onPressEnter={handleAddOption}
                   />
-                  <Button 
-                    type="primary" 
+                  <Button
+                    type="primary"
                     onClick={handleAddOption}
                     icon={<PlusOutlined />}
                   >
                     Add
                   </Button>
                 </Space.Compact>
-                
                 <div style={{ marginTop: 8 }}>
                   {options.map((option) => (
                     <Tag
@@ -245,40 +307,55 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
         <Row gutter={16}>
           <Col span={24}>
             <Form.Item label="Banner Image">
-              <Upload
-                listType="picture-card"
-                maxCount={1}
-                showUploadList={false}
-                beforeUpload={handleFileUpload}
-                accept="image/*"
-              >
-                {pollImage?.url ? (
-                  <img
-                    src={pollImage.url}
-                    alt="Poll banner"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div>
-                    <UploadOutlined />
-                    <div style={{ marginTop: 8 }}>Upload</div>
-                  </div>
-                )}
-              </Upload>
-              {pollImage?.url && (
+              <Space direction="vertical">
+                <Upload
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                  beforeUpload={handleFileUpload}
+                  accept="image/*"
+                >
+                  {pollImage?.url ? (
+                    <img
+                      src={pollImage.url}
+                      alt="Poll banner"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div>
+                      <UploadOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  )}
+                </Upload>
                 <Button
-                  danger
-                  icon={<CloseOutlined />}
-                  onClick={() => setPollImage(undefined)}
+                  type="primary"
+                  onClick={() => setOpenFilePicker(true)}
                   style={{ marginTop: 8 }}
                 >
-                  Remove Image
+                  Choose from Media Library
                 </Button>
-              )}
+                {pollImage?.url && (
+                  <Button
+                    danger
+                    icon={<CloseOutlined />}
+                    onClick={() => setPollImage(undefined)}
+                    style={{ marginTop: 8 }}
+                  >
+                    Remove Image
+                  </Button>
+                )}
+              </Space>
             </Form.Item>
           </Col>
         </Row>
       </Form>
+
+      <GlobalFilePicker
+        open={openFilePicker}
+        onCancel={() => setOpenFilePicker(false)}
+        onSelect={handleFileSelect}
+      />
     </Modal>
   );
 };

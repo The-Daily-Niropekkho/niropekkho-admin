@@ -8,6 +8,7 @@ import {
   useGetAllPollsQuery,
 } from "@/redux/features/polls/pollsApi";
 import { Poll, TFileDocument } from "@/types";
+
 import {
   DeleteOutlined,
   EditOutlined,
@@ -31,7 +32,7 @@ import { useState } from "react";
 export default function PollsPage() {
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingPoll, setEditingPoll] = useState<Poll | null>(null);
+  const [editingPoll, setEditingPoll] = useState<Poll | undefined>(undefined);
 
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -94,7 +95,7 @@ export default function PollsPage() {
   };
 
   const handleCreate = () => {
-    setEditingPoll(null);
+    setEditingPoll(undefined);
     setPollImage(undefined);
     setIsModalVisible(true);
   };

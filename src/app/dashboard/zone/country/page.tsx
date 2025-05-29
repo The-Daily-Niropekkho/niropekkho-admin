@@ -26,12 +26,8 @@ import {
   Tag,
   Tooltip,
 } from "antd";
-<<<<<<< HEAD
 import { useState } from "react";
-=======
-import CountryEditCreateModal from "@/components/features/countries/countries-edit-create-modal";
-//import { render } from "react-dom";
->>>>>>> 1796b03c5e57537816ecf172d13c0941b8e5641d
+
 
 export default function CountrysPage() {
   const [searchText, setSearchText] = useState("");

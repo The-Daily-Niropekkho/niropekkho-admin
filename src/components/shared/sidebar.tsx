@@ -16,11 +16,7 @@ import {
     ScheduleOutlined,
     SettingOutlined,
     TagsOutlined,
-<<<<<<< HEAD
-    UserOutlined,
-=======
     UserOutlined
->>>>>>> 7e016bfd9a40f9229258a6d26ec6d5afd88805f8
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
@@ -102,22 +98,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/polls">Polls</Link>,
         },
         {
-<<<<<<< HEAD
-            key: "/dashboard/seo",
-            icon: <SearchOutlined />,
-            label: <Link href="/dashboard/seo">SEO</Link>,
-        },
-        {
-            key: "analytics",
-            icon: <BarChartOutlined />,
-            label: "Analytics",
-            children: [
-                {
-                    key: "/dashboard/analytics/overview",
-                    label: (
-                        <Link href="/dashboard/analytics/overview">
-                            Overview
-=======
             key: "/dashboard/pages",
             icon: <FileOutlined />,
             label: "Pages",
@@ -142,19 +122,10 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     label: (
                         <Link href="/dashboard/zone/country">
                             Country
->>>>>>> 7e016bfd9a40f9229258a6d26ec6d5afd88805f8
                         </Link>
                     ),
                 },
                 {
-<<<<<<< HEAD
-                    key: "/dashboard/reports",
-                    label: <Link href="/dashboard/reports">Reports</Link>,
-                },
-            ],
-        },
-       
-=======
                     key: "/dashboard/zone/division",
                     label: (
                         <Link href="/dashboard/zone/division">
@@ -177,7 +148,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 },
             ],
         },
->>>>>>> 7e016bfd9a40f9229258a6d26ec6d5afd88805f8
         {
             key: "/dashboard/reporters",
             icon: <IdcardOutlined />,
@@ -199,7 +169,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 },
                 {
                     key: "/dashboard/users/writer",
-                    label: <Link href="/dashboard/users/writer">Writers</Link>,
+                    label: (
+                        <Link href="/dashboard/users/writer">Writers</Link>
+                    ),
                 },
                 {
                     key: "/dashboard/users/moderator",
@@ -210,38 +182,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 {
                     key: "/dashboard/users/add",
                     label: <Link href="/dashboard/users/add">Create User</Link>,
-                },
-            ],
-        },
-        {
-            key: "zone",
-            icon: <GlobalOutlined />,
-            label: "Zone",
-            children: [
-                {
-                    key: "/dashboard/zone/country",
-                    label: <Link href="/dashboard/zone/country">Country</Link>,
-                },
-                {
-                    key: "/dashboard/zone/division",
-                    label: (
-                        <Link href="/dashboard/zone/division">Division</Link>
-                    ),
-                },
-
-                {
-                    key: "/dashboard/zone/district",
-                    label: (
-                        <Link href="/dashboard/zone/district">District</Link>
-                    ),
-                },
-                {
-                    key: "/dashboard/zone/upazilla",
-                    label: <Link href="/dashboard/zone/upazilla">Upazila</Link>,
-                },
-                {
-                    key: "/dashboard/zone/union",
-                    label: <Link href="/dashboard/zone/union">Union</Link>,
                 },
             ],
         },
