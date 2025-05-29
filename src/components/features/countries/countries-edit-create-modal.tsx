@@ -1,11 +1,11 @@
 "use client";
-import React from "react";
-import { Country } from "@/types";
-import { Modal, Form, Input, message, Row, Col } from "antd";
 import {
   useCreateCountryMutation,
   useUpdateCountryMutation,
 } from "@/redux/features/zone/countryApi";
+import { Country } from "@/types";
+import { Col, Form, Input, message, Modal, Row } from "antd";
+import React from "react";
 
 interface CountryEditCreateModalProps {
   editingCountry: Country | null;
@@ -78,7 +78,7 @@ const CountryEditCreateModal: React.FC<CountryEditCreateModalProps> = ({
               label="Country Code"
               rules={[{ required: true, message: "Please enter Country code" }]}
             >
-              <Input />
+              <Input placeholder="Enter Country Code" />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -87,7 +87,7 @@ const CountryEditCreateModal: React.FC<CountryEditCreateModalProps> = ({
               label="Country Name"
               rules={[{ required: true, message: "Please enter Country name" }]}
             >
-              <Input />
+              <Input placeholder="Enter Country Name"/>
             </Form.Item>
           </Col>
         </Row>
@@ -99,19 +99,19 @@ const CountryEditCreateModal: React.FC<CountryEditCreateModalProps> = ({
               label="Bangla Name"
               rules={[{ required: true, message: "Please enter Bangla name" }]}
             >
-              <Input />
+              <Input placeholder="Enter Bangla Name"/>
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
               name="flag_url"
-              label="URL"
+              label="Flag URL"
               rules={[
                 { required: true, message: "Please enter URL" },
                 { type: "url", message: "Please enter a valid URL" },
               ]}
             >
-              <Input />
+              <Input placeholder="eg: https://flagcdn.com/w320/bn.png"/>
             </Form.Item>
           </Col>
         </Row>
