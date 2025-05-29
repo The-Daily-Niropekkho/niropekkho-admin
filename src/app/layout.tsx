@@ -8,7 +8,7 @@ import "../styles/globals.css";
 
 export const metadata: Metadata = {
     title: "Dashboard App",
-    description: "A Next.js dashboard with i18n and Redux",
+    description: "Niropekkho Admin Dashboard",
 };
 
 export default function RootLayout({

@@ -2,8 +2,6 @@
 "use client";
 
 import NavbarPositionEditor from "@/components/features/menus/navbar-position-editor";
-import PagePositionEditor from "@/components/features/menus/page-position-editor";
-import SidebarPositionEditor from "@/components/features/menus/sidebar-position-editor";
 import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
 import { TArgsParam } from "@/types";
 import { Alert, Button, Card, Spin, Tabs } from "antd";
@@ -16,6 +14,12 @@ export interface Position {
     position: number;
 }
 
+export interface HomePosition {
+    id: string;
+    name: string;
+    position_in_home: number;
+}
+
 const CategoriesPage = () => {
     const router = useRouter();
 
@@ -24,7 +28,7 @@ const CategoriesPage = () => {
     const [sortBy, setSortBy] = useState("position,position_update_at");
     const [sortOrder, setSortOrder] = useState("asc");
     const [status, setStatus] = useState<string | undefined>(undefined);
-    const [is_home, setIsHome] = useState<boolean | undefined>(undefined);
+    const [is_home, setIsHome] = useState<boolean>(false);
 
     const query: TArgsParam = {};
     query["page"] = page;
@@ -44,8 +48,7 @@ const CategoriesPage = () => {
 
     const [activeTab, setActiveTab] = useState<string>("navbar");
     const [navbarPositions, setNavbarPositions] = useState<Position[]>([]);
-    const [sidebarPositions, setSidebarPositions] = useState<Position[]>([]);
-    const [pagePositions, setPagePositions] = useState<Position[]>([]);
+    const [pagePositions, setPagePositions] = useState<HomePosition[]>([]);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -73,34 +76,26 @@ const CategoriesPage = () => {
                     positions={navbarPositions}
                     setPositions={setNavbarPositions}
                     allCategories={categories?.data || []}
-                />
-            ),
-        },
-        {
-            key: "sidebar",
-            label: "Sidebar Position",
-            children: (
-                <SidebarPositionEditor
-                    positions={sidebarPositions}
-                    setPositions={setSidebarPositions}
-                    allCategories={categories?.data || []}
-                />
-            ),
-        },
-        {
-            key: "page",
-            label: "Page Position",
-            children: (
-                <PagePositionEditor
-                    positions={pagePositions}
-                    setPositions={setPagePositions}
-                    allCategories={categories?.data || []}
                     setSortBy={setSortBy}
                     setSortOrder={setSortOrder}
                     setIsHome={setIsHome}
                 />
             ),
         },
+        // {
+        //     key: "page",
+        //     label: "Page Position",
+        //     children: (
+        //         <PagePositionEditor
+        //             positions={pagePositions}
+        //             setPositions={setPagePositions}
+        //             allCategories={categories?.data || []}
+        //             setSortBy={setSortBy}
+        //             setSortOrder={setSortOrder}
+        //             setIsHome={setIsHome}
+        //         />
+        //     ),
+        // },
     ];
 
     return (

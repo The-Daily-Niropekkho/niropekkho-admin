@@ -6,24 +6,24 @@ import { useUpdateCategoryPositionMutation } from "@/redux/features/categories/c
 import { Category } from "@/types";
 import { DeleteOutlined, MenuOutlined, SaveOutlined } from "@ant-design/icons";
 import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
+    closestCenter,
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button, Empty, message } from "antd";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "./position-editor.css";
 
 export interface Position {
@@ -45,6 +45,9 @@ interface NavbarPositionEditorProps {
         positions: Position[] | ((prev: Position[]) => Position[])
     ) => void;
     allCategories: Category[];
+    setIsHome: Dispatch<SetStateAction<boolean>>;
+    setSortBy: Dispatch<SetStateAction<string>>;
+    setSortOrder: Dispatch<SetStateAction<string>>;
 }
 
 const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
@@ -103,6 +106,9 @@ const NavbarPositionEditor = ({
     positions,
     setPositions,
     allCategories,
+    setSortBy,
+    setSortOrder,
+    setIsHome,
 }: NavbarPositionEditorProps) => {
     const { isDark } = useTheme();
     const [updatePositions, { isLoading }] =
@@ -130,6 +136,17 @@ const NavbarPositionEditor = ({
             setPositions(initialized);
         }
     }, [allCategories]);
+
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+
+    useEffect(() => {
+        if (tab === "page") {
+            setSortBy("position,position_update_at");
+            setSortOrder("asc");
+            setIsHome(true);
+        }
+    }, []);
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
