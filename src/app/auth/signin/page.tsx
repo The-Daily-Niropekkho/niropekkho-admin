@@ -13,7 +13,7 @@ import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message, Spin, Typography } from "antd";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function LoginPage() {
@@ -23,12 +23,12 @@ export default function LoginPage() {
     const [showOtpForm, setShowOtpForm] = useState(false);
     const [tokenID, setTokenID] = useState("");
     const [countdown, setCountdown] = useState(59);
+    const [redirect, setRedirect] = useState("/dashboard");
 
     const [loginForm] = Form.useForm();
     const [otpForm] = Form.useForm();
 
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { login } = useAuth();
 
     const [getLoginOTP] = useSendLoginRequestMutation();
@@ -37,10 +37,16 @@ export default function LoginPage() {
     useEffect(() => {
         setMounted(true);
 
-        const urlToken = searchParams.get("token_id");
+        const params = new URLSearchParams(window.location.search);
+        const urlToken = params.get("token_id");
+        const redirectParam = params.get("redirect");
+
         if (urlToken) {
             setTokenID(urlToken);
             setShowOtpForm(true);
+        }
+        if (redirectParam) {
+            setRedirect(decodeURIComponent(redirectParam));
         }
     }, []);
 
@@ -71,7 +77,7 @@ export default function LoginPage() {
                 const tokenId = response?.data?.token_id;
                 setTokenID(tokenId);
                 setShowOtpForm(true);
-                router.replace(`/auth/signin?token_id=${tokenId}`);
+                router.replace(`/auth/signin?token_id=${tokenId}&redirect=${encodeURIComponent(redirect)}`);
                 message.success("OTP sent to your email.");
                 setCountdown(59);
             } else {
@@ -97,11 +103,7 @@ export default function LoginPage() {
                 localStorage.setItem("token", response.data.accessToken);
                 login(response.data.userData);
                 message.success("Logged In Successfully");
-                router.replace(
-                    decodeURIComponent(
-                        searchParams.get("redirect") || "/dashboard"
-                    )
-                );
+                router.replace(redirect);
             } else {
                 message.error(response.message || "OTP verification failed");
             }
@@ -114,13 +116,12 @@ export default function LoginPage() {
     };
 
     const handleResendOtp = async () => {
-        const urlToken = searchParams.get("token_id");
-        if (!urlToken) {
+        if (!tokenID) {
             message.error("No token ID found");
             return;
         }
         const response: any = await resendOtp({
-            token_id: urlToken,
+            token_id: tokenID,
         });
 
         if (response?.data?.success) {
@@ -170,9 +171,7 @@ export default function LoginPage() {
                 </Typography.Title>
                 <Typography.Text type="secondary">
                     {showOtpForm
-                        ? `Enter the 6-digit OTP sent to ${
-                              loginForm.getFieldValue("email") || ""
-                          }`
+                        ? `Enter the 6-digit OTP sent to ${loginForm.getFieldValue("email") || ""}`
                         : "Welcome to Naria! Sign in to continue"}
                 </Typography.Text>
             </div>
@@ -205,9 +204,7 @@ export default function LoginPage() {
 
                     <Form.Item
                         name="password"
-                        rules={[
-                            { required: true, message: "Password is required" },
-                        ]}
+                        rules={[{ required: true, message: "Password is required" }]}
                     >
                         <Input.Password
                             prefix={<LockOutlined />}
@@ -222,18 +219,12 @@ export default function LoginPage() {
                     </Form.Item>
 
                     <div style={{ textAlign: "right", marginBottom: 16 }}>
-                        <Link
-                            href="/auth/forgot-password"
-                            style={{ color: "#10b981", fontWeight: 500 }}
-                        >
+                        <Link href="/auth/forgot-password" style={{ color: "#10b981", fontWeight: 500 }}>
                             Forgot password?
                         </Link>
                     </div>
 
-                    <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -285,10 +276,7 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                             type="primary"
                             htmlType="submit"

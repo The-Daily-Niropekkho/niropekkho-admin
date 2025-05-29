@@ -3,11 +3,12 @@
 import CategoryEditCreateModal from "@/components/features/categories/category-edit-create-modal";
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
+import { useDebounced } from "@/hooks/use-debounce";
 import {
     useDeleteCategoryMutation,
     useGetAllCategoriesQuery,
 } from "@/redux/features/categories/categoriesApi";
-import { Category, TFileDocument } from "@/types";
+import { Category, TArgsParam, TFileDocument } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -48,14 +49,20 @@ export default function CategoriesPage() {
         TFileDocument | undefined
     >(undefined);
 
-    const query = [
-        { name: "searchTerm", value: searchText },
-        { name: "limit", value: limit },
-        { name: "page", value: page },
-        { name: "sortBy", value: sortBy },
-        { name: "sortOrder", value: sortOrder },
-        { name: "status", value: status },
-    ];
+    const query: TArgsParam = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["status"] = status;
+
+    const debouncedSearchTerm = useDebounced({
+        searchQuery: searchText,
+        delay: 600,
+    });
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
 
     const {
         data: categories,

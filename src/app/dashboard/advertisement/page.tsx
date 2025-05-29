@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Card as EnhancedCard } from "@/components/ant";
 import { useTheme } from "@/components/theme-context";
 import { Area } from "@ant-design/charts";
 import {
@@ -497,7 +496,7 @@ export default function AdvertisementPage() {
 
             <Row gutter={[16, 16]}>
                 <Col xs={24} md={8}>
-                    <EnhancedCard variant="default">
+                    <Card>
                         <Statistic
                             title="Total Revenue"
                             value={8063.0}
@@ -519,10 +518,10 @@ export default function AdvertisementPage() {
                                 85% of monthly target
                             </div>
                         </div>
-                    </EnhancedCard>
+                    </Card>
                 </Col>
                 <Col xs={24} md={8}>
-                    <EnhancedCard variant="default">
+                    <Card>
                         <Statistic
                             title="Total Impressions"
                             value={206935}
@@ -542,10 +541,10 @@ export default function AdvertisementPage() {
                                 72% of monthly target
                             </div>
                         </div>
-                    </EnhancedCard>
+                    </Card>
                 </Col>
                 <Col xs={24} md={8}>
-                    <EnhancedCard variant="default">
+                    <Card>
                         <Statistic
                             title="Average CTR"
                             value={3.46}
@@ -567,15 +566,15 @@ export default function AdvertisementPage() {
                                 92% of monthly target
                             </div>
                         </div>
-                    </EnhancedCard>
+                    </Card>
                 </Col>
             </Row>
 
             <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
                 <Col xs={24} lg={16}>
-                    <EnhancedCard
+                    <Card
                         title="Revenue Trend (Last 30 Days)"
-                        variant="default"
+                    
                         extra={
                             <Space>
                                 <Button
@@ -589,7 +588,7 @@ export default function AdvertisementPage() {
                         style={{ marginBottom: "16px", height: "350px" }}
                     >
                         <Area {...areaConfig} height={250} />
-                    </EnhancedCard>
+                    </Card>
 
                     <Card
                         variant="borderless"
@@ -712,9 +711,9 @@ export default function AdvertisementPage() {
                     </Card>
                 </Col>
                 <Col xs={24} lg={8}>
-                    <EnhancedCard
+                    <Card
                         title="Top Performing Ads"
-                        variant="default"
+                    
                         style={{ marginBottom: "16px" }}
                     >
                         <Table
@@ -771,11 +770,11 @@ export default function AdvertisementPage() {
                                 },
                             ]}
                         />
-                    </EnhancedCard>
+                    </Card>
 
-                    <EnhancedCard
+                    <Card
                         title="Ad Positions Performance"
-                        variant="default"
+                    
                         style={{ marginBottom: "16px" }}
                     >
                         {[
@@ -826,9 +825,9 @@ export default function AdvertisementPage() {
                                 />
                             </div>
                         ))}
-                    </EnhancedCard>
+                    </Card>
 
-                    <EnhancedCard title="Quick Actions" variant="default">
+                    <Card title="Quick Actions">
                         <Space direction="vertical" style={{ width: "100%" }}>
                             <Button
                                 icon={<PlusOutlined />}
@@ -848,7 +847,7 @@ export default function AdvertisementPage() {
                                 Ad Templates
                             </Button>
                         </Space>
-                    </EnhancedCard>
+                    </Card>
                 </Col>
             </Row>
 

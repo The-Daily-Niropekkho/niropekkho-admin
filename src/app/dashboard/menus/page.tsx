@@ -1,166 +1,107 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import CategoryFormModal from "@/components/features/menus/category-form-modal";
-import CategoryList from "@/components/features/menus/category-list";
 import NavbarPositionEditor from "@/components/features/menus/navbar-position-editor";
 import PagePositionEditor from "@/components/features/menus/page-position-editor";
 import SidebarPositionEditor from "@/components/features/menus/sidebar-position-editor";
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Tabs } from "antd";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
+import { TArgsParam } from "@/types";
+import { Alert, Button, Card, Spin, Tabs } from "antd";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-const { TabPane } = Tabs;
-
-interface Category {
-    id: string;
-    name: string;
-    slug: string;
-    description: string;
-    status: string;
-    postCount: number;
-}
-
-interface Position {
+export interface Position {
     id: string;
     name: string;
     position: number;
 }
 
-// Mock categories data
-const initialCategories: Category[] = [
-    {
-        id: "1",
-        name: "Politics",
-        slug: "politics",
-        description: "Political news and updates",
-        status: "active",
-        postCount: 45,
-    },
-    {
-        id: "2",
-        name: "Technology",
-        slug: "technology",
-        description: "Tech news and reviews",
-        status: "active",
-        postCount: 32,
-    },
-    {
-        id: "3",
-        name: "Sports",
-        slug: "sports",
-        description: "Sports news and events",
-        status: "active",
-        postCount: 28,
-    },
-    {
-        id: "4",
-        name: "Entertainment",
-        slug: "entertainment",
-        description: "Entertainment and celebrity news",
-        status: "active",
-        postCount: 37,
-    },
-    {
-        id: "5",
-        name: "Business",
-        slug: "business",
-        description: "Business and financial news",
-        status: "active",
-        postCount: 19,
-    },
-    {
-        id: "6",
-        name: "Health",
-        slug: "health",
-        description: "Health and wellness news",
-        status: "inactive",
-        postCount: 12,
-    },
-    {
-        id: "7",
-        name: "Science",
-        slug: "science",
-        description: "Science news and discoveries",
-        status: "active",
-        postCount: 15,
-    },
-];
-
 const CategoriesPage = () => {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const tabParam = searchParams.get("tab");
 
-    const [activeTab, setActiveTab] = useState<string>(
-        tabParam || "categoryList"
-    );
-    const [categories, setCategories] = useState<Category[]>(initialCategories);
-    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [editingCategory, setEditingCategory] = useState<Category | null>(
-        null
-    );
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(999);
+    const [sortBy, setSortBy] = useState("position,position_update_at");
+    const [sortOrder, setSortOrder] = useState("asc");
+    const [status, setStatus] = useState<string | undefined>(undefined);
+    const [is_home, setIsHome] = useState<boolean | undefined>(undefined);
 
-    // Navbar position data
-    const [navbarPositions, setNavbarPositions] = useState<Position[]>([
-        { id: "1", name: "Politics", position: 1 },
-        { id: "2", name: "Technology", position: 2 },
-        { id: "4", name: "Entertainment", position: 3 },
-        { id: "3", name: "Sports", position: 4 },
-    ]);
+    const query: TArgsParam = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["status"] = status;
+    query["is_home"] = is_home;
 
-    // Sidebar position data
-    const [sidebarPositions, setSidebarPositions] = useState<Position[]>([
-        { id: "1", name: "Politics", position: 1 },
-        { id: "5", name: "Business", position: 2 },
-        { id: "7", name: "Science", position: 3 },
-        { id: "6", name: "Health", position: 4 },
-    ]);
+    const {
+        data: categories,
+        isLoading,
+        isError,
+        isFetching,
+        refetch,
+    } = useGetAllCategoriesQuery(query);
 
-    // Page position data
-    const [pagePositions, setPagePositions] = useState<Position[]>([
-        { id: "2", name: "Technology", position: 1 },
-        { id: "3", name: "Sports", position: 2 },
-        { id: "4", name: "Entertainment", position: 3 },
-        { id: "5", name: "Business", position: 4 },
-        { id: "7", name: "Science", position: 5 },
-    ]);
+    const [activeTab, setActiveTab] = useState<string>("navbar");
+    const [navbarPositions, setNavbarPositions] = useState<Position[]>([]);
+    const [sidebarPositions, setSidebarPositions] = useState<Position[]>([]);
+    const [pagePositions, setPagePositions] = useState<Position[]>([]);
 
-    const handleAddCategory = (values: Omit<Category, "id" | "postCount">) => {
-        const newCategory: Category = {
-            id: `${Date.now()}`,
-            ...values,
-            postCount: 0,
-        };
-
-        setCategories([...categories, newCategory]);
-        setIsModalVisible(false);
-    };
-
-    const handleEditCategory = (values: Omit<Category, "id" | "postCount">) => {
-        if (!editingCategory) return;
-
-        const updatedCategories = categories.map((category) =>
-            category.id === editingCategory.id
-                ? { ...category, ...values }
-                : category
-        );
-
-        setCategories(updatedCategories);
-        setIsModalVisible(false);
-        setEditingCategory(null);
-    };
-
-    const handleDeleteCategory = (id: string) => {
-        setCategories(categories.filter((category) => category.id !== id));
-    };
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get("tab");
+            if (tab) {
+                setActiveTab(tab);
+            }
+        }
+    }, []);
 
     const handleTabChange = (key: string) => {
         setActiveTab(key);
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams(window.location.search);
         params.set("tab", key);
         router.replace(`?${params.toString()}`);
     };
+
+    const tabItems = [
+        {
+            key: "navbar",
+            label: "Navbar Position",
+            children: (
+                <NavbarPositionEditor
+                    positions={navbarPositions}
+                    setPositions={setNavbarPositions}
+                    allCategories={categories?.data || []}
+                />
+            ),
+        },
+        {
+            key: "sidebar",
+            label: "Sidebar Position",
+            children: (
+                <SidebarPositionEditor
+                    positions={sidebarPositions}
+                    setPositions={setSidebarPositions}
+                    allCategories={categories?.data || []}
+                />
+            ),
+        },
+        {
+            key: "page",
+            label: "Page Position",
+            children: (
+                <PagePositionEditor
+                    positions={pagePositions}
+                    setPositions={setPagePositions}
+                    allCategories={categories?.data || []}
+                    setSortBy={setSortBy}
+                    setSortOrder={setSortOrder}
+                    setIsHome={setIsHome}
+                />
+            ),
+        },
+    ];
 
     return (
         <div style={{ padding: "24px" }}>
@@ -175,69 +116,33 @@ const CategoriesPage = () => {
                 <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
                     Menu Management
                 </h1>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                        setEditingCategory(null);
-                        setIsModalVisible(true);
-                    }}
-                >
-                    Create Category
-                </Button>
             </div>
 
             <Card>
-                <Tabs activeKey={activeTab} onChange={handleTabChange} centered>
-                    <TabPane tab="Category List" key="categoryList">
-                        <CategoryList
-                            categories={categories}
-                            onEdit={(category) => {
-                                setEditingCategory(category);
-                                setIsModalVisible(true);
-                            }}
-                            onDelete={handleDeleteCategory}
-                        />
-                    </TabPane>
-
-                    <TabPane tab="Navbar Position" key="navbar">
-                        <NavbarPositionEditor
-                            positions={navbarPositions}
-                            setPositions={setNavbarPositions}
-                            allCategories={categories}
-                        />
-                    </TabPane>
-
-                    <TabPane tab="Sidebar Position" key="sidebar">
-                        <SidebarPositionEditor
-                            positions={sidebarPositions}
-                            setPositions={setSidebarPositions}
-                            allCategories={categories}
-                        />
-                    </TabPane>
-
-                    <TabPane tab="Page Position" key="page">
-                        <PagePositionEditor
-                            positions={pagePositions}
-                            setPositions={setPagePositions}
-                            allCategories={categories}
-                        />
-                    </TabPane>
-                </Tabs>
+                {isLoading || isFetching ? (
+                    <div style={{ padding: "60px 0", textAlign: "center" }}>
+                        <Spin size="large" tip="Loading categories..." />
+                    </div>
+                ) : isError ? (
+                    <Alert
+                        type="error"
+                        message="Failed to load categories"
+                        description="Please check your connection or try again later."
+                        action={
+                            <Button onClick={() => refetch()} type="primary">
+                                Retry
+                            </Button>
+                        }
+                    />
+                ) : (
+                    <Tabs
+                        activeKey={activeTab}
+                        onChange={handleTabChange}
+                        centered
+                        items={tabItems}
+                    />
+                )}
             </Card>
-
-            <CategoryFormModal
-                visible={isModalVisible}
-                onCancel={() => {
-                    setIsModalVisible(false);
-                    setEditingCategory(null);
-                }}
-                onSubmit={
-                    editingCategory ? handleEditCategory : handleAddCategory
-                }
-                initialValues={editingCategory}
-                title={editingCategory ? "Edit Category" : "Create Category"}
-            />
         </div>
     );
 };

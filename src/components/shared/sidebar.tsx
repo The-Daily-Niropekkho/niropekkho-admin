@@ -4,24 +4,25 @@
 import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
 import {
-    BarChartOutlined,
     BarsOutlined,
     DashboardOutlined,
     FileOutlined,
     FileTextOutlined,
     GlobalOutlined,
     IdcardOutlined,
-    InboxOutlined,
     MenuOutlined,
     NotificationOutlined,
     PictureOutlined,
     ScheduleOutlined,
-    SearchOutlined,
     SettingOutlined,
     TagsOutlined,
+<<<<<<< HEAD
     UserOutlined,
+=======
+    UserOutlined
+>>>>>>> 7e016bfd9a40f9229258a6d26ec6d5afd88805f8
 } from "@ant-design/icons";
-import { Avatar, Badge, Layout, Menu, MenuProps } from "antd";
+import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -64,6 +65,10 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     key: "/dashboard/news/drafts",
                     label: <Link href="/dashboard/news/drafts">Drafts</Link>,
                 },
+                {
+                    key: "/dashboard/news/breakings",
+                    label: <Link href="/dashboard/news/breakings">Breakings</Link>,
+                },
             ],
         },
         {
@@ -87,11 +92,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/topics">Topics</Link>,
         },
         {
-            key: "/dashboard/archive",
-            icon: <InboxOutlined />,
-            label: <Link href="/dashboard/archive">Archive</Link>,
-        },
-        {
             key: "/dashboard/advertisement",
             icon: <NotificationOutlined />,
             label: <Link href="/dashboard/advertisement">Advertisement</Link>,
@@ -102,6 +102,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/polls">Polls</Link>,
         },
         {
+<<<<<<< HEAD
             key: "/dashboard/seo",
             icon: <SearchOutlined />,
             label: <Link href="/dashboard/seo">SEO</Link>,
@@ -116,16 +117,67 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     label: (
                         <Link href="/dashboard/analytics/overview">
                             Overview
+=======
+            key: "/dashboard/pages",
+            icon: <FileOutlined />,
+            label: "Pages",
+            children: [
+                {
+                    key: "/dashboard/pages/contact-page",
+                    label: <Link href="/dashboard/pages/contact-page">Contact Pages</Link>,
+                },
+                {
+                    key: "/dashboard/pages/footer-page",
+                    label: <Link href="/dashboard/pages/footer-page">Footer Pages</Link>,
+                }],
+        },
+
+        {
+            key: "zone",
+            icon: <GlobalOutlined />,
+            label: "Zone",
+            children: [
+                {
+                    key: "/dashboard/zone/country",
+                    label: (
+                        <Link href="/dashboard/zone/country">
+                            Country
+>>>>>>> 7e016bfd9a40f9229258a6d26ec6d5afd88805f8
                         </Link>
                     ),
                 },
                 {
+<<<<<<< HEAD
                     key: "/dashboard/reports",
                     label: <Link href="/dashboard/reports">Reports</Link>,
                 },
             ],
         },
        
+=======
+                    key: "/dashboard/zone/division",
+                    label: (
+                        <Link href="/dashboard/zone/division">
+                            Division
+                        </Link>
+                    ),
+                },
+                
+                {
+                    key: "/dashboard/zone/district",
+                    label: <Link href="/dashboard/zone/district">District</Link>,
+                },
+                {
+                    key: "/dashboard/zone/upazilla",
+                    label: <Link href="/dashboard/zone/upazilla">Upazila</Link>,
+                },
+                {
+                    key: "/dashboard/zone/union",
+                    label: <Link href="/dashboard/zone/union">Union</Link>,
+                },
+            ],
+        },
+>>>>>>> 7e016bfd9a40f9229258a6d26ec6d5afd88805f8
         {
             key: "/dashboard/reporters",
             icon: <IdcardOutlined />,
@@ -339,7 +391,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             <div
                 style={{
                     padding: "12px 0",
-                    height: "calc(100vh - 80px - 80px)",
+                    height: "calc(100vh - 80px)",
                     overflowY: "auto",
                     overflowX: "hidden",
                 }}
@@ -360,7 +412,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 />
             </div>
 
-            {!collapsed && (
+            {/* {!collapsed && (
                 <div
                     style={{
                         padding: "20px 24px",
@@ -407,7 +459,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             <style jsx global>{`
                 .custom-sidebar-menu .ant-menu-item {

@@ -4,6 +4,7 @@
 import DeleteUserModal from "@/components/features/users/delete-user-modal";
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
+import { useDebounced } from "@/hooks/use-debounce";
 import { useGetAllModeratorUserQuery } from "@/redux/features/user/userApi";
 import { Admin, Moderator, User, Writer } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
@@ -44,18 +45,23 @@ export default function ModeratorsPage() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [status, setStatus] = useState<string | undefined>(undefined);
 
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+    const { isDark } = useTheme();
+    
+    const query: Record<string, any> = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["status"] = status;
 
-    const query = [
-        { name: "searchTerm", value: searchText },
-        { name: "status", value: status },
-        { name: "limit", value: limit },
-        { name: "page", value: page },
-        { name: "sortBy", value: sortBy },
-        { name: "sortOrder", value: sortOrder },
-    ];
-
+    const debouncedSearchTerm = useDebounced({
+        searchQuery: searchText,
+        delay: 600,
+    });
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
+    
     const { data: moderatorUsers, isLoading, isFetching } =
         useGetAllModeratorUserQuery(query);
     const [isViewModalVisible, setIsViewModalVisible] = useState(false);

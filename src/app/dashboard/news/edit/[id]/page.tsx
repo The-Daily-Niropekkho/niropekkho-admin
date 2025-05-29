@@ -41,8 +41,8 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Dynamically import the CKEditor component
 const CKEditor = dynamic(() => import("@/components/ck-editor"), {
@@ -71,7 +71,7 @@ export default function EditNewsPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const { id } = useParams();
-
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [bannerImage, setBannerImage] = useState<TFileDocument>();
     const [ogImage, setOgImage] = useState<TFileDocument>();
@@ -88,8 +88,7 @@ export default function EditNewsPage() {
     const [selectedUpazilla, setSelectedUpazilla] = useState<
         number | undefined
     >(undefined);
-
-    const isEditorInitialized = useRef(false);
+    const [changedValues, setChangedValues] = useState<any>({});
 
     const { data: news, isLoading: isNewsLoading } = useGetNewsDetailsQuery(
         id,
@@ -100,69 +99,80 @@ export default function EditNewsPage() {
     );
 
     const { data: categories, isLoading: isCategoryLoading } =
-        useGetAllCategoriesQuery([
-            { name: "limit", value: 999 },
-            { name: "status", value: "active" },
-        ]);
-    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery([
-        { name: "limit", value: 999 },
-        { name: "status", value: "active" },
-    ]);
+        useGetAllCategoriesQuery({ limit: 999 });
+
+    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery({
+        limit: 999,
+        status: "active",
+    });
+
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(
-            [
-                { name: "country_id", value: 172 },
-                { name: "limit", value: 100 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" },
-            ],
+            selectedCategory === EnumIds.across_the_country
+                ? {
+                      country_id: 172,
+                      limit: 100,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: selectedCategory !== EnumIds.across_the_country }
         );
+
     const { data: districts, isLoading: isDistrictsLoading } =
         useGetAllDistrictsQuery(
-            [
-                { name: "division_id", value: selectedDivision },
-                { name: "limit", value: 500 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" },
-            ],
+            selectedDivision
+                ? {
+                      division_id: selectedDivision,
+                      limit: 500,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: !selectedDivision }
         );
+
     const { data: upazillas, isLoading: isUpazillaLoading } =
         useGetAllUpazillasQuery(
-            [
-                { name: "district_id", value: selectedDistrict },
-                { name: "limit", value: 500 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" },
-            ],
+            selectedDistrict
+                ? {
+                      district_id: selectedDistrict,
+                      limit: 500,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: !selectedDistrict }
         );
+
     const { data: unions, isLoading: isUnionLoading } = useGetAllUnionsQuery(
-        [
-            { name: "upazilla_id", value: selectedUpazilla },
-            { name: "limit", value: 1000 },
-            { name: "sortBy", value: "name" },
-            { name: "sortOrder", value: "asc" },
-            { name: "status", value: "active" },
-        ],
+        selectedUpazilla
+            ? {
+                  upazilla_id: selectedUpazilla,
+                  limit: 1000,
+                  sortBy: "name",
+                  sortOrder: "asc",
+                  status: "active",
+              }
+            : {},
         { skip: !selectedUpazilla }
     );
 
     const [updateNews, { isError, isSuccess, error, reset: resetMutation }] =
         useUpdateNewsMutation();
 
-    // Watch form fields
     const isBreaking = Form.useWatch("is_breaking", form);
     const isTopBreakingNews = Form.useWatch("is_top_breaking_news", form);
 
-    // Populate form with news data
+    console.log(news);
+
     useEffect(() => {
         if (news) {
-            form.setFieldsValue({
+            const initialValues = {
+                ...form.getFieldsValue(),
                 headline: news?.headline,
                 short_headline: news?.short_headline,
                 slug: news?.slug,
@@ -170,8 +180,10 @@ export default function EditNewsPage() {
                 excerpt: news?.excerpt,
                 reference: news?.reference,
                 status: news?.status,
-                is_breaking: news?.is_breaking,
-                is_top_breaking_news: news?.is_top_breaking_news,
+                is_breaking: Boolean(news?.breaking_news?.id),
+                is_top_breaking_news: Boolean(
+                    news?.breaking_news?.is_top_breaking_news
+                ),
                 category_id: news?.category_id,
                 division_id: news?.division_id,
                 district_id: news?.district_id,
@@ -191,8 +203,6 @@ export default function EditNewsPage() {
                 meta_description: news?.meta_description,
                 og_title: news?.og_title,
                 og_description: news?.og_description,
-                banner_image: news?.banner_image,
-                og_image: news?.og_image,
                 caption_title: news?.banner_image?.caption_title,
                 thumb_image_width: news?.banner_image?.thumb_image_size?.width,
                 thumb_image_height:
@@ -200,8 +210,9 @@ export default function EditNewsPage() {
                 banner_image_width: news?.banner_image?.large_image_size?.width,
                 banner_image_height:
                     news?.banner_image?.large_image_size?.height,
-            });
-            isEditorInitialized.current = true;
+            };
+
+            form.setFieldsValue(initialValues);
             setEditorContent(news?.details_html || "");
             setBannerImage(news?.banner_image);
             setOgImage(news?.og_image);
@@ -212,7 +223,6 @@ export default function EditNewsPage() {
         }
     }, [news, form]);
 
-    // Reset dependent fields when is_breaking or is_top_breaking_news changes
     useEffect(() => {
         if (!isBreaking) {
             form.setFieldsValue({
@@ -227,7 +237,6 @@ export default function EditNewsPage() {
         }
     }, [isBreaking, isTopBreakingNews, form]);
 
-    // Handle mutation status
     useEffect(() => {
         if (isError) {
             const errorResponse = error as ErrorResponse;
@@ -239,37 +248,73 @@ export default function EditNewsPage() {
             message.success("News updated successfully!");
             setLoading(false);
             resetMutation();
+            router.push("/dashboard/news/all");
         }
-    }, [isError, isSuccess, error, resetMutation]);
+    }, [isError, isSuccess, error, resetMutation, router]);
 
-    const onFinish = async (values: any) => {
+    const onFinish = async () => {
         setLoading(true);
-        values.details_html = editorContent;
         const {
             caption_title,
-            thumb_image_width,
-            thumb_image_height,
-            banner_image_width,
             banner_image_height,
+            banner_image_width,
+            thumb_image_height,
+            thumb_image_width,
             ...rest
-        } = values;
-        const payload = {
-            id,
+        } = changedValues;
+        const payload: any = {
             ...rest,
-            banner_image: {
+        };
+
+        // Always include the HTML content if it has changed
+        if (editorContent !== news?.details_html) {
+            payload.details_html = editorContent;
+        }
+
+        // Always include banner/OG image if changed
+        if (
+            changedValues.caption_title ||
+            changedValues.banner_image_width ||
+            changedValues.banner_image_height ||
+            bannerImage !== news?.banner_image
+        ) {
+            payload.banner_image = {
                 ...bannerImage,
-                caption_title: caption_title,
+                caption_title: caption_title ?? bannerImage?.caption_title,
                 thumb_image_size: {
-                    width: thumb_image_width,
-                    height: thumb_image_height,
+                    width:
+                        (thumb_image_width ??
+                            bannerImage?.thumb_image_size?.width) ||
+                        800,
+                    height:
+                        (thumb_image_height ??
+                            bannerImage?.thumb_image_size?.height) ||
+                        450,
                 },
                 large_image_size: {
-                    width: banner_image_width,
-                    height: banner_image_height,
+                    width:
+                        (banner_image_width ??
+                            bannerImage?.large_image_size?.width) ||
+                        1200,
+                    height:
+                        (banner_image_height ??
+                            bannerImage?.large_image_size?.height) ||
+                        600,
                 },
-            },
-        };
-        await updateNews(payload);
+            };
+        }
+
+        if (ogImage !== news?.og_image) {
+            payload.og_image = {
+                ...ogImage,
+            };
+        }
+        if (Object.keys(payload).length === 0) {
+            message.info("No changes detected");
+            setLoading(false);
+            return;
+        }
+        await updateNews({ id: id, data: payload }).unwrap();
     };
 
     const onReset = () => {
@@ -291,7 +336,7 @@ export default function EditNewsPage() {
                 union_id: news.union_id,
                 category_serial: news.category_serial,
                 home_serial: news.home_serial,
-                topics: news.topics?.map((topic: any) => topic.id),
+                topics: news.allTopics?.map((topic: any) => topic.id),
                 tags: news.tags,
                 generic_reporter_id: news.generic_reporter_id,
                 reporter_id: news.reporter_id,
@@ -437,6 +482,12 @@ export default function EditNewsPage() {
                     name="news_form"
                     layout="vertical"
                     onFinish={onFinish}
+                    onValuesChange={(changed) => {
+                        setChangedValues((prev: any) => ({
+                            ...prev,
+                            ...changed,
+                        }));
+                    }}
                 >
                     <Row gutter={24}>
                         <Col xs={24} lg={17}>
@@ -490,7 +541,6 @@ export default function EditNewsPage() {
                                     }
                                 />
                             </Form.Item>
-
                             <Form.Item
                                 name="details"
                                 label="Short Details"

@@ -41,7 +41,6 @@ export default function AllNewsPage() {
     const [limit, setLimit] = useState(10);
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
-    const [status, setStatus] = useState<string | undefined>(undefined);
     const [mediaType, setMediaType] = useState<string | undefined>(undefined);
 
     const query: TArgsParam = {};
@@ -49,7 +48,7 @@ export default function AllNewsPage() {
     query["limit"] = limit;
     query["sortBy"] = sortBy;
     query["sortOrder"] = sortOrder;
-    query["status"] = status;
+    query["status"] = "draft";
     query["mediaType"] = mediaType;
 
     const debouncedSearchTerm = useDebounced({
@@ -65,8 +64,6 @@ export default function AllNewsPage() {
         isLoading: isNewsLoading,
         isFetching: isNewsFetching,
     } = useGetAllNewsQuery(query);
-
-    console.log(news);
 
     const [deleteNews, { isLoading: isDeleting }] = useDeleteNewsMutation();
 
@@ -95,7 +92,7 @@ export default function AllNewsPage() {
             key: "headline",
             render: (text: string, record: News) => (
                 <Link
-                    href={`${config?.host_front}/${record?.category?.slug}/${record?.id}/${record?.slug}`}
+                    href={`${config.host_front}/${record?.category?.slug}/${record?.id}/${record.slug}`}
                     target="_blank"
                     style={{ maxWidth: "300px", display: "block" }}
                 >
@@ -107,7 +104,7 @@ export default function AllNewsPage() {
             title: "Category",
             dataIndex: "category",
             key: "category",
-            render: (category: Category) => <Tag>{category?.title}</Tag>,
+            render: (category: Category) => <Tag>{category.title}</Tag>,
             onFilter: (value: any, record: News) =>
                 record.category.title === value,
         },
@@ -119,7 +116,6 @@ export default function AllNewsPage() {
                 text: status[0].toUpperCase() + status.slice(1),
                 value: status,
             })),
-            filteredValue: status ? [status] : undefined,
             render: (status: string) => {
                 const colorMap: Record<string, string> = {
                     published: "green",
@@ -250,7 +246,7 @@ export default function AllNewsPage() {
                         color: isDark ? "#fff" : "#000",
                     }}
                 >
-                    All News
+                    All Drafts
                 </h1>
                 <p
                     style={{
@@ -259,7 +255,7 @@ export default function AllNewsPage() {
                             : "rgba(0, 0, 0, 0.45)",
                     }}
                 >
-                    Manage and organize all news articles with advanced
+                    Manage and organize all drafts articles with advanced
                     filtering and sorting options.
                 </p>
             </div>
@@ -313,7 +309,6 @@ export default function AllNewsPage() {
                     setPage={setPage}
                     setSortBy={setSortBy}
                     setSortOrder={setSortOrder}
-                    setStatus={setStatus}
                     setMediaType={setMediaType}
                     isFetching={isNewsFetching}
                 />

@@ -86,12 +86,12 @@ export default function AppHeader({
             label: <Link href="/dashboard/profile?tab=2">Change Password</Link>,
         },
         {
-            key: "2",
+            key: "3",
             icon: <SolutionOutlined />,
             label: <Link href="/dashboard/profile?tab=3">Activity Logs</Link>,
         },
         {
-            key: "3",
+            key: "4",
             icon: <SettingOutlined />,
             label: <Link href="/dashboard/settings">Settings</Link>,
         },
@@ -99,7 +99,7 @@ export default function AppHeader({
             type: "divider" as const,
         },
         {
-            key: "4",
+            key: "5",
             icon: <LogoutOutlined />,
             label: (
                 <span onClick={handleLogout}>

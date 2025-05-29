@@ -109,8 +109,7 @@ const demoAds = [
 ];
 
 export default function Editor({ value, onChange }: CKEditorProps) {
-    console.log(value, "value from editor");
-    
+    // Refs and state
     const editorContainerRef = useRef(null);
     const [, setFileProgressList] = useState<
         Array<{ name: string; progress: number; status: string; url?: string }>

@@ -2,8 +2,7 @@
 "use client";
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
-import { GenericReporter } from "@/types";
-import { TError, TFileDocument } from "@/types/global";
+import { GenericReporter, TArgsParam, TError, TFileDocument } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -25,6 +24,7 @@ import { useState } from "react";
 
 import ReporterCreateEditModal from "@/components/features/reporters/reporter-create-edit-modal";
 import CustomImage from "@/components/ui/image";
+import { useDebounced } from "@/hooks/use-debounce";
 import {
     useDeleteGenericReporterMutation,
     useGetAllGenericReportersQuery,
@@ -48,14 +48,19 @@ export default function ReportersPage() {
         TFileDocument | undefined
     >(undefined);
 
-    const query = [
-        { name: "searchTerm", value: searchText },
-        { name: "limit", value: limit },
-        { name: "page", value: page },
-        { name: "sortBy", value: sortBy },
-        { name: "sortOrder", value: sortOrder },
-    ];
+    const query: TArgsParam = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
 
+    const debouncedSearchTerm = useDebounced({
+        searchQuery: searchText,
+        delay: 600,
+    });
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
     const {
         data: reporters,
         isLoading,

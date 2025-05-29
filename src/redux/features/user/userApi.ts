@@ -1,5 +1,5 @@
 import { userTag, userTags } from "@/constants";
-import { TQueryParam, TResponseRedux, User } from "@/types";
+import { TArgsParam, TResponseRedux, User } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const userApi = baseApi.injectEndpoints({
@@ -12,18 +12,25 @@ const userApi = baseApi.injectEndpoints({
             }),
         }),
         getAllAdminUser: builder.query({
-            query: (args) => {
-                const params = new URLSearchParams();
-                if (args) {
-                    args.forEach((item: TQueryParam) => {
-                        if (item.value !== undefined && item.value !== "") {
-                            params.append(item.name, item.value as string);
+            query: (args: TArgsParam) => {
+                const cleanedParams = Object.entries(args || {}).reduce(
+                    (acc, [key, value]) => {
+                        if (
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "" &&
+                            value !== "all"
+                        ) {
+                            acc[key] = value;
                         }
-                    });
-                }
+                        return acc;
+                    },
+                    {} as TArgsParam
+                );
+
                 return {
                     url: `users/get-admin`,
-                    params: params,
+                    params: cleanedParams,
                 };
             },
             transformResponse: (response: TResponseRedux<User[]>) => {
@@ -32,42 +39,54 @@ const userApi = baseApi.injectEndpoints({
             providesTags: [userTags.admin],
         }),
         getAllWriterUser: builder.query({
-            query: (args) => {
-                const params = new URLSearchParams();
-                if (args) {
-                    args.forEach((item: TQueryParam) => {
-                        if (item.value !== undefined && item.value !== "") {
-                            params.append(item.name, item.value as string);
+            query: (args: TArgsParam) => {
+                const cleanedParams = Object.entries(args || {}).reduce(
+                    (acc, [key, value]) => {
+                        if (
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "" &&
+                            value !== "all"
+                        ) {
+                            acc[key] = value;
                         }
-                    });
-                }
+                        return acc;
+                    },
+                    {} as TArgsParam
+                );
+
                 return {
                     url: `users/get-writer-users`,
-                    params: params,
+                    params: cleanedParams,
                 };
             },
-
             transformResponse: (response: TResponseRedux<User[]>) => {
                 return { data: response.data, meta: response.meta };
             },
             providesTags: [userTags.writer],
         }),
         getAllModeratorUser: builder.query({
-            query: (args) => {
-                const params = new URLSearchParams();
-                if (args) {
-                    args.forEach((item: TQueryParam) => {
-                        if (item.value !== undefined && item.value !== "") {
-                            params.append(item.name, item.value as string);
+            query: (args: TArgsParam) => {
+                const cleanedParams = Object.entries(args || {}).reduce(
+                    (acc, [key, value]) => {
+                        if (
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "" &&
+                            value !== "all"
+                        ) {
+                            acc[key] = value;
                         }
-                    });
-                }
+                        return acc;
+                    },
+                    {} as TArgsParam
+                );
+
                 return {
                     url: `users/get-moderator-users`,
-                    params: params,
+                    params: cleanedParams,
                 };
             },
-
             transformResponse: (response: TResponseRedux<User[]>) => {
                 return { data: response.data, meta: response.meta };
             },

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseQueryApi } from "@reduxjs/toolkit/query";
 
 export type TError = {
@@ -36,6 +37,8 @@ export type TQueryParam = {
     value: boolean | React.Key;
 };
 
+export type TArgsParam = Record<string, any>
+
 export interface ErrorSource {
     path: string;
     message: string;
@@ -69,9 +72,22 @@ export interface TFileDocument {
     durl?: string;
     fileUniqueId?: string;
     platform: IImagePlatform;
-    fileType: string;
+    file_type: string;
     cdn?: string;
     size: number;
     createdAt: string;
     updatedAt: string;
+    caption_title: string;
+    thumb_image_size: ThumbImageSize;
+    large_image_size: LargeImageSize;
+}
+
+export interface ThumbImageSize {
+    width: number;
+    height: number;
+}
+
+export interface LargeImageSize {
+    width: number;
+    height: number;
 }

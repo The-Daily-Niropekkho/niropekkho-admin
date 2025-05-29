@@ -1,4 +1,5 @@
 import { TFileDocument } from "./global"
+import { News } from "./news"
 
 export interface Category {
   id: string
@@ -14,5 +15,5 @@ export interface Category {
   is_deleted: boolean
   createdAt: string
   updatedAt: string
-  news: null
+  news: News
 }

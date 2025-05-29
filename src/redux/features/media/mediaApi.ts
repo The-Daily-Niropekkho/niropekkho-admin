@@ -1,17 +1,38 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/redux/api/baseApi";
-import { TFileDocument, TResponseRedux } from "@/types";
+import { TArgsParam, TFileDocument, TResponseRedux } from "@/types";
 
+const url = `/file-manager`;
 export const mediaApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getMedia: builder.query<TFileDocument[], void>({
-            query: () => ({
-                url: `/aws/get-all-files?continuationToken=1F3weZoZzVI0LtxwjTLx+Ql0pZo0dRiFOcE34BcODDBLSYmp0lkdB7pmhwJy6g1K7iP4Oev0dytZqnqmku3mHjKqTFVpE9h45`,
-                method: "GET",
-            }),
+        getMedia: builder.query({
+            query: (args: TArgsParam) => {
+                const cleanedParams = Object.entries(args || {}).reduce(
+                    (acc, [key, value]) => {
+                        if (
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "" &&
+                            value !== "all"
+                        ) {
+                            acc[key] = value;
+                        }
+                        return acc;
+                    },
+                    {} as TArgsParam
+                );
+
+                return {
+                    url: url,
+                    params: cleanedParams,
+                };
+            },
             transformResponse: (response: TResponseRedux<TFileDocument[]>) => {
-                return response.data || [];
+                return {
+                    data: response.data || [],
+                    meta: response.meta,
+                };
             },
             providesTags: [{ type: "Media", id: "LIST" }],
         }),

@@ -14,12 +14,11 @@ import {
 } from "@ant-design/icons";
 import { Button, Form, Input, message, Typography } from "antd";
 import { motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ForgotPasswordAntd() {
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const [form] = Form.useForm();
     const [otpForm] = Form.useForm();
@@ -33,15 +32,18 @@ export default function ForgotPasswordAntd() {
     const [verifyOtp] = useGetTokenOTPforgetPasswordMutation();
     const [resetPassword] = useResetPasswordMutation();
     const [resendOtp] = useResendOtpMutation();
+    const [tokenId, setTokenId] = useState<string | null>(null);
 
     useEffect(() => {
-        const email = searchParams.get("email");
-        const tokenId = searchParams.get("token_id");
+        const params = new URLSearchParams(window.location.search);
+        const tokenParam = params.get("token_id");
 
-        if (email && tokenId) {
+        setTokenId(tokenParam);
+
+        if (tokenParam) {
             setStep(2);
         }
-    }, [searchParams]);
+    }, []);
 
     useEffect(() => {
         if (step === 2 && countdown > 0) {
@@ -71,14 +73,12 @@ export default function ForgotPasswordAntd() {
                 searchParams.set("token_id", res.data.data.token_id);
 
                 router.push(`?${searchParams.toString()}`);
-
+                setTokenId(res.data.data.token_id);
                 setStep(2);
                 setCountdown(59);
                 message.success("OTP sent to your email.");
             } else {
-                message.error(
-                    res?.error?.data?.message || "Failed to send OTP"
-                );
+                message.error(res?.error?.data?.message || "Failed to send OTP");
             }
         } catch {
             message.error("Something went wrong");
@@ -86,7 +86,6 @@ export default function ForgotPasswordAntd() {
     };
 
     const handleOtpSubmit = async (values: { otp: string }) => {
-        const tokenId = searchParams.get("token_id");
         if (!tokenId) return message.error("Missing token ID");
 
         try {
@@ -111,7 +110,6 @@ export default function ForgotPasswordAntd() {
         newPassword: string;
         confirmPassword: string;
     }) => {
-        const tokenId = searchParams.get("token_id");
         if (!tokenId) return message.error("Missing token ID");
 
         if (values.newPassword !== values.confirmPassword) {
@@ -126,14 +124,10 @@ export default function ForgotPasswordAntd() {
             });
 
             if (res.data?.success) {
-                message.success(
-                    "Password changed successfully. Redirecting..."
-                );
+                message.success("Password changed successfully. Redirecting...");
                 router.push("/auth/signin");
             } else {
-                message.error(
-                    res?.error?.data?.message || "Failed to reset password"
-                );
+                message.error(res?.error?.data?.message || "Failed to reset password");
             }
         } catch {
             message.error("Error resetting password");
@@ -141,19 +135,22 @@ export default function ForgotPasswordAntd() {
     };
 
     const handleResendOtp = async () => {
-        const tokenId = searchParams.get("token_id");
         if (!tokenId) {
             message.error("No token ID found");
             return;
         }
 
-        const response: any = await resendOtp({ token_id: tokenId });
+        try {
+            const response: any = await resendOtp({ token_id: tokenId });
 
-        if (response?.data?.success) {
-            setCountdown(59);
-            message.success(response?.data?.data?.message || "OTP resent.");
-        } else {
-            message.error("Failed to resend OTP.");
+            if (response?.data?.success) {
+                setCountdown(59);
+                message.success(response?.data?.data?.message || "OTP resent.");
+            } else {
+                message.error("Failed to resend OTP.");
+            }
+        } catch {
+            message.error("Error resending OTP.");
         }
     };
 
@@ -181,11 +178,7 @@ export default function ForgotPasswordAntd() {
             </Typography.Title>
 
             {step === 1 && (
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleEmailSubmit}
-                >
+                <Form form={form} layout="vertical" onFinish={handleEmailSubmit}>
                     <Form.Item
                         name="email"
                         rules={[
@@ -206,10 +199,7 @@ export default function ForgotPasswordAntd() {
                         />
                     </Form.Item>
 
-                    <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -230,11 +220,7 @@ export default function ForgotPasswordAntd() {
             )}
 
             {step === 2 && (
-                <Form
-                    form={otpForm}
-                    layout="vertical"
-                    onFinish={handleOtpSubmit}
-                >
+                <Form form={otpForm} layout="vertical" onFinish={handleOtpSubmit}>
                     <Form.Item
                         name="otp"
                         rules={[
@@ -261,10 +247,7 @@ export default function ForgotPasswordAntd() {
                         )}
                     </div>
 
-                    <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -285,25 +268,15 @@ export default function ForgotPasswordAntd() {
             )}
 
             {step === 3 && (
-                <Form
-                    form={passwordForm}
-                    layout="vertical"
-                    onFinish={handlePasswordSubmit}
-                >
+                <Form form={passwordForm} layout="vertical" onFinish={handlePasswordSubmit}>
                     <Form.Item
                         name="newPassword"
-                        rules={[
-                            { required: true, message: "Enter a new password" },
-                        ]}
+                        rules={[{ required: true, message: "Enter a new password" }]}
                     >
                         <Input.Password
                             placeholder="New Password"
                             iconRender={(visible) =>
-                                visible ? (
-                                    <EyeTwoTone />
-                                ) : (
-                                    <EyeInvisibleOutlined />
-                                )
+                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                             }
                         />
                     </Form.Item>
@@ -312,16 +285,10 @@ export default function ForgotPasswordAntd() {
                         name="confirmPassword"
                         dependencies={["newPassword"]}
                         rules={[
-                            {
-                                required: true,
-                                message: "Confirm your password",
-                            },
+                            { required: true, message: "Confirm your password" },
                             ({ getFieldValue }) => ({
                                 validator(_, value) {
-                                    if (
-                                        !value ||
-                                        getFieldValue("newPassword") === value
-                                    ) {
+                                    if (!value || getFieldValue("newPassword") === value) {
                                         return Promise.resolve();
                                     }
                                     return Promise.reject(
@@ -334,19 +301,12 @@ export default function ForgotPasswordAntd() {
                         <Input.Password
                             placeholder="Confirm Password"
                             iconRender={(visible) =>
-                                visible ? (
-                                    <EyeTwoTone />
-                                ) : (
-                                    <EyeInvisibleOutlined />
-                                )
+                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                             }
                         />
                     </Form.Item>
 
-                    <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button
                             type="primary"
                             htmlType="submit"

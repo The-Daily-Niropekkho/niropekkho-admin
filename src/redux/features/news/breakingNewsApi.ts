@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { newsTag } from "@/constants";
-import { News, TArgsParam, TResponseRedux } from "@/types";
+import { breakingNewsTag } from "@/constants";
+import { BreakingNews, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/news`;
+const url = `/breaking-news`;
 
-const newsApi = baseApi.injectEndpoints({
+const breakingNewsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllNews: builder.query({
+        getAllBreakingNews: builder.query({
             query: (args: TArgsParam) => {
                 const cleanedParams = Object.entries(args || {}).reduce(
                     (acc, [key, value]) => {
@@ -29,41 +29,15 @@ const newsApi = baseApi.injectEndpoints({
                     params: cleanedParams,
                 };
             },
-            transformResponse: (response: TResponseRedux<News[]>) => {
+            transformResponse: (response: TResponseRedux<BreakingNews[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [newsTag],
+            providesTags: [breakingNewsTag],
         }),
-        getNewsDetails: builder.query({
-            query: (id) => {
-                return {
-                    url: `${url}/${id}`,
-                };
-            },
-            transformResponse: (response: TResponseRedux<News>) => {
-                return response.data;
-            },
-            providesTags: [newsTag],
-        }),
-        createNews: builder.mutation({
-            query: (data) => {
-                return {
-                    url: url,
-                    method: "POST",
-                    body: data,
-                };
-            },
-            transformResponse: (response: TResponseRedux<News>) => {
-                return {
-                    data: response.data,
-                };
-            },
-            invalidatesTags: [newsTag],
-        }),
-        updateNews: builder.mutation({
+        updateBreakingNews: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -71,29 +45,27 @@ const newsApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<News>) => {
+            transformResponse: (response: TResponseRedux<BreakingNews>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [newsTag],
+            invalidatesTags: [breakingNewsTag],
         }),
-        deleteNews: builder.mutation({
+        deleteBreakingNews: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [newsTag],
+            invalidatesTags: [breakingNewsTag],
         }),
     }),
 });
 
 export const {
-    useGetAllNewsQuery,
-    useGetNewsDetailsQuery,
-    useCreateNewsMutation,
-    useUpdateNewsMutation,
-    useDeleteNewsMutation,
-} = newsApi;
+    useGetAllBreakingNewsQuery,
+    useUpdateBreakingNewsMutation,
+    useDeleteBreakingNewsMutation,
+} = breakingNewsApi;

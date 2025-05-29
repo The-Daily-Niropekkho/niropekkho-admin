@@ -1,31 +1,31 @@
-// components/features/media/MediaFolders.tsx
-import { TFileDocument } from "@/types";
+"use client";
+
+import { useTheme } from "@/components/theme-context";
+import { FileType } from "@/constants";
 import { FolderOutlined } from "@ant-design/icons";
 
 interface MediaFoldersProps {
-    mediaItems: TFileDocument[];
     activeFolder: string;
-    isDark?: boolean;
     setActiveFolder: (folder: string) => void;
 }
 
 export default function MediaFolders({
-    mediaItems,
     activeFolder,
     setActiveFolder,
-    isDark,
 }: MediaFoldersProps) {
     //     folder: ["Images", "Videos", "Documents", "Archives", "Uncategorized"][
     //     Math.floor(Math.random() * 5)
     // ]
-
-    const folders = Array.from(new Set(mediaItems.map((item) => item.fileType)));
+    const { isDark } = useTheme();
+    const folders = Object.values(FileType);
 
     return (
         <div className="media-folders">
-            <h3 className={`sidebar-title ${isDark ? "dark" : ""}`}>
-                <FolderOutlined /> Folders
-            </h3>
+            <div className="flex justify-between" style={{marginBottom: 10}}>
+                <h3 className={`sidebar-title ${isDark ? "dark" : ""}`}>
+                    <FolderOutlined /> Folders
+                </h3>
+            </div>
             <ul className="folder-list">
                 <li
                     className={`folder-item ${
@@ -34,7 +34,6 @@ export default function MediaFolders({
                     onClick={() => setActiveFolder("all")}
                 >
                     <FolderOutlined /> All Files
-                    <span className="folder-count">{mediaItems.length}</span>
                 </li>
                 {folders.map((folder) => (
                     <li
@@ -42,17 +41,10 @@ export default function MediaFolders({
                         className={`folder-item ${
                             activeFolder === folder ? "active" : ""
                         } ${isDark ? "dark" : ""}`}
-                        onClick={() => setActiveFolder(folder)}
+                        onClick={() => setActiveFolder(String(folder))}
                     >
-                        <FolderOutlined /> {folder.charAt(0).toUpperCase() + folder.slice(1)}
-                        <span className="folder-count">
-                            {
-                                mediaItems.filter(
-                                    (item) => item.fileType === folder
-                                ).length
-                            }
-
-                        </span>
+                        <FolderOutlined />{" "}
+                        {String(folder)}
                     </li>
                 ))}
             </ul>
