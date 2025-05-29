@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import ActivityLogs from "@/components/features/profile/activity-logs";
 import ChangePassword from "@/components/features/profile/change-password";
 import ProfileInformation from "@/components/features/profile/profile-information";
@@ -14,17 +15,16 @@ import {
     UserOutlined,
 } from "@ant-design/icons";
 import { Avatar, Card, Col, Divider, Row, Spin, Tabs, Tag } from "antd";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
     const { isDark } = useTheme();
     const { data: user, isLoading } = useGetUserProfileQuery(undefined);
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState("1");
 
-    // Get the specific profile data based on user type
+    // Get specific profile data
     const getProfileData = (): Admin | Writer | Moderator | null => {
         if (!user) return null;
 
@@ -42,15 +42,15 @@ export default function ProfilePage() {
 
     const profileData = getProfileData();
 
-    // Set initial tab from URL parameter
+    // Parse query param manually
     useEffect(() => {
-        const tab = searchParams.get("tab");
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get("tab");
         if (tab && ["1", "2", "3"].includes(tab)) {
             setActiveTab(tab);
         }
-    }, [searchParams]);
+    }, []);
 
-    // Handle tab change and update URL
     const handleTabChange = (key: string) => {
         setActiveTab(key);
         router.push(`/dashboard/profile?tab=${key}`, { scroll: false });
@@ -75,7 +75,6 @@ export default function ProfilePage() {
         return <div>No user data available</div>;
     }
 
-    // Define tabs using items prop
     const tabItems = [
         {
             key: "1",
@@ -146,7 +145,8 @@ export default function ProfilePage() {
                                     color: isDark ? "#fff" : "#000",
                                 }}
                             >
-                                {profileData.first_name} {profileData.last_name}
+                                {profileData.first_name}{" "}
+                                {profileData.last_name}
                             </h2>
                             <p
                                 style={{

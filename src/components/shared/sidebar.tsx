@@ -4,23 +4,27 @@
 import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
 import {
-    BarChartOutlined,
     BarsOutlined,
     DashboardOutlined,
     FileOutlined,
     FileTextOutlined,
     GlobalOutlined,
     IdcardOutlined,
-    InboxOutlined,
     MenuOutlined,
     NotificationOutlined,
     PictureOutlined,
+<<<<<<< HEAD
+    SettingOutlined,
+    TagsOutlined,
+    UserOutlined
+=======
     ScheduleOutlined,
     SearchOutlined,
     SettingOutlined,
     TagsOutlined,
     UserOutlined,
     
+>>>>>>> 64febea44489b4277d63c5b373143b83b4ffa413
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
@@ -65,6 +69,10 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     key: "/dashboard/news/drafts",
                     label: <Link href="/dashboard/news/drafts">Drafts</Link>,
                 },
+                {
+                    key: "/dashboard/news/breakings",
+                    label: <Link href="/dashboard/news/breakings">Breakings</Link>,
+                },
             ],
         },
         {
@@ -86,11 +94,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             key: "/dashboard/topics",
             icon: <BarsOutlined />,
             label: <Link href="/dashboard/topics">Topics</Link>,
-        },
-        {
-            key: "/dashboard/archive",
-            icon: <InboxOutlined />,
-            label: <Link href="/dashboard/archive">Archive</Link>,
         },
         {
             key: "/dashboard/advertisement",
@@ -150,30 +153,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 {
                     key: "/dashboard/zone/union",
                     label: <Link href="/dashboard/zone/union">Union</Link>,
-                },
-            ],
-        },
-        {
-            key: "/dashboard/seo",
-            icon: <SearchOutlined />,
-            label: <Link href="/dashboard/seo">SEO</Link>,
-        },
-        {
-            key: "analytics",
-            icon: <BarChartOutlined />,
-            label: "Analytics",
-            children: [
-                {
-                    key: "/dashboard/analytics/overview",
-                    label: (
-                        <Link href="/dashboard/analytics/overview">
-                            Overview
-                        </Link>
-                    ),
-                },
-                {
-                    key: "/dashboard/reports",
-                    label: <Link href="/dashboard/reports">Reports</Link>,
                 },
             ],
         },

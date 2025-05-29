@@ -1,5 +1,5 @@
 import { upazillaTag } from "@/constants";
-import { TQueryParam, TResponseRedux, Upazilla } from "@/types";
+import { TArgsParam, TResponseRedux, Upazilla } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const url = "/upazillas";
@@ -7,18 +7,25 @@ const url = "/upazillas";
 const upazillaApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getAllUpazillas: builder.query({
-            query: (args) => {
-                const params = new URLSearchParams();
-                if (args) {
-                    args.forEach((item: TQueryParam) => {
-                        if (item.value !== undefined && item.value !== "") {
-                            params.append(item.name, item.value as string);
+            query: (args: TArgsParam) => {
+                const cleanedParams = Object.entries(args || {}).reduce(
+                    (acc, [key, value]) => {
+                        if (
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "" &&
+                            value !== "all"
+                        ) {
+                            acc[key] = value;
                         }
-                    });
-                }
+                        return acc;
+                    },
+                    {} as TArgsParam
+                );
+
                 return {
-                    url: url,
-                    params: params,
+                      url: url,
+                    params: cleanedParams,
                 };
             },
             transformResponse: (response: TResponseRedux<Upazilla[]>) => {

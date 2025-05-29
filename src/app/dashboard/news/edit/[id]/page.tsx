@@ -41,7 +41,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Dynamically import the CKEditor component
@@ -71,7 +71,7 @@ export default function EditNewsPage() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const { id } = useParams();
-
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [bannerImage, setBannerImage] = useState<TFileDocument>();
     const [ogImage, setOgImage] = useState<TFileDocument>();
@@ -99,66 +99,76 @@ export default function EditNewsPage() {
     );
 
     const { data: categories, isLoading: isCategoryLoading } =
-        useGetAllCategoriesQuery([
-            { name: "limit", value: 999 },
-            { name: "status", value: "active" },
-        ]);
-    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery([
-        { name: "limit", value: 999 },
-        { name: "status", value: "active" },
-    ]);
+        useGetAllCategoriesQuery({ limit: 999 });
+
+    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery({
+        limit: 999,
+        status: "active",
+    });
+
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(
-            [
-                { name: "country_id", value: 172 },
-                { name: "limit", value: 100 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" },
-            ],
+            selectedCategory === EnumIds.across_the_country
+                ? {
+                      country_id: 172,
+                      limit: 100,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: selectedCategory !== EnumIds.across_the_country }
         );
+
     const { data: districts, isLoading: isDistrictsLoading } =
         useGetAllDistrictsQuery(
-            [
-                { name: "division_id", value: selectedDivision },
-                { name: "limit", value: 500 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" },
-            ],
+            selectedDivision
+                ? {
+                      division_id: selectedDivision,
+                      limit: 500,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: !selectedDivision }
         );
+
     const { data: upazillas, isLoading: isUpazillaLoading } =
         useGetAllUpazillasQuery(
-            [
-                { name: "district_id", value: selectedDistrict },
-                { name: "limit", value: 500 },
-                { name: "sortBy", value: "name" },
-                { name: "sortOrder", value: "asc" },
-                { name: "status", value: "active" },
-            ],
+            selectedDistrict
+                ? {
+                      district_id: selectedDistrict,
+                      limit: 500,
+                      sortBy: "name",
+                      sortOrder: "asc",
+                      status: "active",
+                  }
+                : {},
             { skip: !selectedDistrict }
         );
+
     const { data: unions, isLoading: isUnionLoading } = useGetAllUnionsQuery(
-        [
-            { name: "upazilla_id", value: selectedUpazilla },
-            { name: "limit", value: 1000 },
-            { name: "sortBy", value: "name" },
-            { name: "sortOrder", value: "asc" },
-            { name: "status", value: "active" },
-        ],
+        selectedUpazilla
+            ? {
+                  upazilla_id: selectedUpazilla,
+                  limit: 1000,
+                  sortBy: "name",
+                  sortOrder: "asc",
+                  status: "active",
+              }
+            : {},
         { skip: !selectedUpazilla }
     );
 
     const [updateNews, { isError, isSuccess, error, reset: resetMutation }] =
         useUpdateNewsMutation();
 
-    // Watch form fields
     const isBreaking = Form.useWatch("is_breaking", form);
     const isTopBreakingNews = Form.useWatch("is_top_breaking_news", form);
 
-    // Populate form with news data
+    console.log(news);
+
     useEffect(() => {
         if (news) {
             const initialValues = {
@@ -171,7 +181,9 @@ export default function EditNewsPage() {
                 reference: news?.reference,
                 status: news?.status,
                 is_breaking: Boolean(news?.breaking_news?.id),
-                is_top_breaking_news: Boolean(news?.breaking_news?.is_top_breaking_news),
+                is_top_breaking_news: Boolean(
+                    news?.breaking_news?.is_top_breaking_news
+                ),
                 category_id: news?.category_id,
                 division_id: news?.division_id,
                 district_id: news?.district_id,
@@ -211,7 +223,6 @@ export default function EditNewsPage() {
         }
     }, [news, form]);
 
-    // Reset dependent fields when is_breaking or is_top_breaking_news changes
     useEffect(() => {
         if (!isBreaking) {
             form.setFieldsValue({
@@ -226,7 +237,6 @@ export default function EditNewsPage() {
         }
     }, [isBreaking, isTopBreakingNews, form]);
 
-    // Handle mutation status
     useEffect(() => {
         if (isError) {
             const errorResponse = error as ErrorResponse;
@@ -238,8 +248,9 @@ export default function EditNewsPage() {
             message.success("News updated successfully!");
             setLoading(false);
             resetMutation();
+            router.push("/dashboard/news/all");
         }
-    }, [isError, isSuccess, error, resetMutation]);
+    }, [isError, isSuccess, error, resetMutation, router]);
 
     const onFinish = async () => {
         setLoading(true);
@@ -264,12 +275,12 @@ export default function EditNewsPage() {
         if (
             changedValues.caption_title ||
             changedValues.banner_image_width ||
-            changedValues.banner_image_height
+            changedValues.banner_image_height ||
+            bannerImage !== news?.banner_image
         ) {
             payload.banner_image = {
                 ...bannerImage,
-                caption_title:
-                    caption_title ?? bannerImage?.caption_title,
+                caption_title: caption_title ?? bannerImage?.caption_title,
                 thumb_image_size: {
                     width:
                         (thumb_image_width ??
@@ -297,9 +308,7 @@ export default function EditNewsPage() {
             payload.og_image = {
                 ...ogImage,
             };
-            
         }
-        console.log(payload);
         if (Object.keys(payload).length === 0) {
             message.info("No changes detected");
             setLoading(false);

@@ -1,8 +1,7 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Input, Table, Tag } from "antd";
-import { Card } from "../ant";
+import { Card, Input, Table, Tag } from "antd";
 import { useTheme } from "../theme-context";
 
 export default function RecentPosts() {

@@ -29,11 +29,9 @@ import CategoryEditCreateModal from "../categories/category-edit-create-modal";
 import ReporterCreateEditModal from "../reporters/reporter-create-edit-modal";
 import TopicEditCreateModal from "../topic/create-edit-modal";
 
-const { Option } = Select;
-
 interface GeneralSectionProps {
     form: FormInstance<any>;
-    selectedCategory: number | string | undefined;
+    selectedCategory: string| undefined;
     setSelectedCategory: Dispatch<SetStateAction<string | undefined>>;
     selectedDivision: number | string | undefined;
     setSelectedDivision: Dispatch<SetStateAction<number | undefined>>;
@@ -151,6 +149,9 @@ export const GeneralSection = ({
                     disabled={isCategoryLoading}
                     showSearch
                     onChange={(value) => setSelectedCategory(value)}
+                    options={categories?.map((category: Category) => ({
+                         value: category.id, label: category.title, disabled: category.status !== "active" 
+                    }))}
                     popupRender={(menu) => (
                         <>
                             <div style={{ padding: "4px" }}>
@@ -169,13 +170,8 @@ export const GeneralSection = ({
                             {menu}
                         </>
                     )}
-                >
-                    {categories?.map((category: Category) => (
-                        <Option key={category.id} value={category.id}>
-                            {category.title}
-                        </Option>
-                    ))}
-                </Select>
+                />
+                
             </Form.Item>
             {selectedCategory == EnumIds.across_the_country && (
                 <div className="grid grid-cols-2 gap-x-5">
@@ -187,9 +183,9 @@ export const GeneralSection = ({
                             onChange={(value) => setSelectedDivision(value)}
                         >
                             {divisions?.map((division: Division) => (
-                                <Option key={division.id} value={division.id}>
+                                <Select.Option key={division.id} value={division.id}>
                                     {division.bn_name}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -202,9 +198,9 @@ export const GeneralSection = ({
                             onChange={(value) => setSelectedDistrict(value)}
                         >
                             {districts?.map((district: District) => (
-                                <Option key={district.id} value={district.id}>
+                                <Select.Option key={district.id} value={district.id}>
                                     {district.bn_name}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -217,9 +213,9 @@ export const GeneralSection = ({
                             onChange={(value) => setSelectedUpazilla(value)}
                         >
                             {upazillas?.map((upazilla: Upazilla) => (
-                                <Option key={upazilla.id} value={upazilla.id}>
+                                <Select.Option key={upazilla.id} value={upazilla.id}>
                                     {upazilla.bn_name}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -231,9 +227,9 @@ export const GeneralSection = ({
                             showSearch
                         >
                             {unions?.map((union: Union) => (
-                                <Option key={union.id} value={union.id}>
+                                <Select.Option key={union.id} value={union.id}>
                                     {union.bn_name}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -248,9 +244,9 @@ export const GeneralSection = ({
                         >
                             {Array.from({ length: 20 }, (_, i) => i+1).map(
                                 (position) => (
-                                    <Option key={position} value={position}>
+                                    <Select.Option key={position} value={position}>
                                         {position}
-                                    </Option>
+                                    </Select.Option>
                                 )
                             )}
                         </Select>
@@ -261,9 +257,9 @@ export const GeneralSection = ({
                         <Select placeholder="Select a home position" allowClear>
                             {Array.from({ length: 20 }, (_, i) => i+1).map(
                                 (position) => (
-                                    <Option key={position} value={position}>
+                                    <Select.Option key={position} value={position}>
                                         {position}
-                                    </Option>
+                                    </Select.Option>
                                 )
                             )}
                         </Select>
@@ -293,11 +289,12 @@ export const GeneralSection = ({
                             {menu}
                         </>
                     )}
+                    maxCount={5}
                 >
                     {topics?.map((topic: Topic) => (
-                        <Option key={topic.id} value={topic.id}>
+                        <Select.Option key={topic.id} value={topic.id}>
                             {topic.title}
-                        </Option>
+                        </Select.Option>
                     ))}
                 </Select>
             </Form.Item>
@@ -305,9 +302,9 @@ export const GeneralSection = ({
             <Form.Item name="tags" label="Tags">
                 <Select mode="tags" placeholder="Select or create tags">
                     {tags.map((tag) => (
-                        <Option key={tag} value={tag}>
+                        <Select.Option key={tag} value={tag}>
                             {tag}
-                        </Option>
+                        </Select.Option>
                     ))}
                 </Select>
             </Form.Item>
@@ -347,9 +344,9 @@ export const GeneralSection = ({
                             allowClear
                         >
                             {genericReporter?.data?.map((reporter: any) => (
-                                <Option key={reporter.id} value={reporter.id}>
+                                <Select.Option key={reporter.id} value={reporter.id}>
                                     {reporter?.name}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -357,19 +354,19 @@ export const GeneralSection = ({
                 <Col span={12}>
                     <Form.Item
                         name="reporter_id"
-                        label="Reporter"
+                        label="Writer"
                         rules={[{ validator: validateReporter }]}
                     >
                         <Select
-                            placeholder="Select a reporter"
+                            placeholder="Select a writer"
                             showSearch
                             disabled={isWriterLoading || !!genericReporterId}
                             allowClear
                         >
                             {writers?.data?.map((reporter: User) => (
-                                <Option key={reporter.id} value={reporter.id}>
+                                <Select.Option key={reporter.id} value={reporter.id}>
                                     {`${reporter?.writer?.first_name} ${reporter?.writer?.last_name}`}
-                                </Option>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
@@ -398,9 +395,9 @@ export const GeneralSection = ({
                 ]}
             >
                 <Select placeholder="Select media type">
-                    <Option value="online">Online</Option>
-                    <Option value="print">Print</Option>
-                    <Option value="both">Both</Option>
+                    <Select.Option value="online">Online</Select.Option>
+                    <Select.Option value="print">Print</Select.Option>
+                    <Select.Option value="both">Both</Select.Option>
                 </Select>
             </Form.Item>
             <TopicEditCreateModal

@@ -1,5 +1,7 @@
 import config from "@/config";
 import {
+    breakingNewsTag,
+    categoryPosistionTag,
     categoryTag,
     contactTag,
     countryTag,
@@ -45,6 +47,8 @@ export const baseApi = createApi({
         unionTag,
         contactTag,
         newsTag,
+        breakingNewsTag,
         reporterTag,
+        categoryPosistionTag
     ],
 });
