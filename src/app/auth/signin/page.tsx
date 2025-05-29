@@ -1,4 +1,5 @@
 "use client";
+import { useTheme } from "@/components/theme-context";
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -24,6 +25,7 @@ export default function LoginPage() {
     const [tokenID, setTokenID] = useState("");
     const [countdown, setCountdown] = useState(59);
     const [redirect, setRedirect] = useState("/dashboard");
+    const { isDark } = useTheme();
 
     const [loginForm] = Form.useForm();
     const [otpForm] = Form.useForm();
@@ -77,7 +79,11 @@ export default function LoginPage() {
                 const tokenId = response?.data?.token_id;
                 setTokenID(tokenId);
                 setShowOtpForm(true);
-                router.replace(`/auth/signin?token_id=${tokenId}&redirect=${encodeURIComponent(redirect)}`);
+                router.replace(
+                    `/auth/signin?token_id=${tokenId}&redirect=${encodeURIComponent(
+                        redirect
+                    )}`
+                );
                 message.success("OTP sent to your email.");
                 setCountdown(59);
             } else {
@@ -85,7 +91,9 @@ export default function LoginPage() {
             }
         } catch (error) {
             const errorResponse = error as TError;
-            message.error(errorResponse?.data?.message || "Something went wrong");
+            message.error(
+                errorResponse?.data?.message || "Something went wrong"
+            );
         } finally {
             setLoading(false);
         }
@@ -109,7 +117,9 @@ export default function LoginPage() {
             }
         } catch (error) {
             const errorResponse = error as TError;
-            message.error(errorResponse?.data?.message || "Something went wrong");
+            message.error(
+                errorResponse?.data?.message || "Something went wrong"
+            );
         } finally {
             setOtpLoading(false);
         }
@@ -142,7 +152,7 @@ export default function LoginPage() {
                     justifyContent: "center",
                     alignItems: "center",
                     height: "100vh",
-                    background: "#f0f4f8",
+                    background: isDark ? "#1A2231" : "#ffffff",
                 }}
             >
                 <Spin size="large" />
@@ -159,7 +169,7 @@ export default function LoginPage() {
                 width: "100%",
                 maxWidth: "420px",
                 padding: "32px",
-                backgroundColor: "#ffffff",
+                background: isDark ? "#1A2231" : "#ffffff",
                 borderRadius: "16px",
                 boxShadow:
                     "0 10px 30px rgba(0, 0, 0, 0.06), 0 6px 10px rgba(0, 0, 0, 0.04)",
@@ -171,7 +181,9 @@ export default function LoginPage() {
                 </Typography.Title>
                 <Typography.Text type="secondary">
                     {showOtpForm
-                        ? `Enter the 6-digit OTP sent to ${loginForm.getFieldValue("email") || ""}`
+                        ? `Enter the 6-digit OTP sent to ${
+                              loginForm.getFieldValue("email") || ""
+                          }`
                         : "Welcome to Naria! Sign in to continue"}
                 </Typography.Text>
             </div>
@@ -196,7 +208,7 @@ export default function LoginPage() {
                             style={{
                                 height: "50px",
                                 borderRadius: "10px",
-                                background: "#f9fafb",
+                                background: isDark ? "transparent" : "#f9fafb",
                                 border: "1px solid #e5e7eb",
                             }}
                         />
@@ -204,7 +216,9 @@ export default function LoginPage() {
 
                     <Form.Item
                         name="password"
-                        rules={[{ required: true, message: "Password is required" }]}
+                        rules={[
+                            { required: true, message: "Password is required" },
+                        ]}
                     >
                         <Input.Password
                             prefix={<LockOutlined />}
@@ -212,19 +226,25 @@ export default function LoginPage() {
                             style={{
                                 height: "50px",
                                 borderRadius: "10px",
-                                background: "#f9fafb",
+                                background: isDark ? "transparent" : "#f9fafb",
                                 border: "1px solid #e5e7eb",
                             }}
                         />
                     </Form.Item>
 
                     <div style={{ textAlign: "right", marginBottom: 16 }}>
-                        <Link href="/auth/forgot-password" style={{ color: "#10b981", fontWeight: 500 }}>
+                        <Link
+                            href="/auth/forgot-password"
+                            style={{ color: "#10b981", fontWeight: 500 }}
+                        >
                             Forgot password?
                         </Link>
                     </div>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -276,7 +296,10 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"

@@ -255,7 +255,7 @@ body {
 .dark .ant-cascader-dropdown,
 .dark .ant-picker-dropdown,
 .dark .ant-select-item {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    /* background-color: rgba(255, 255, 255, 0.05) !important; */
     color: rgba(255, 255, 255, 0.85) !important;
     border-color: rgba(255, 255, 255, 0.15) !important;
 }

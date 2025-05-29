@@ -32,7 +32,6 @@ export async function middleware(req: NextRequest) {
     //     return NextResponse.redirect(url);
     // }
 
-    // সেশন থাকলে এবং /auth রাউটে থাকলে হোমে রিডাইরেক্ট
     if (session?.userId && pathname.startsWith("/auth")) {
         return NextResponse.redirect(new URL("/", req.nextUrl));
     }
@@ -46,7 +45,7 @@ async function handleRefreshOrLogout(req: NextRequest, pathname: string) {
             `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
             {
                 method: "POST",
-                credentials: "include", // refreshToken কুকি পাঠানোর জন্য
+                credentials: "include",
             }
         );
 

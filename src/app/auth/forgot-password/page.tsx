@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useTheme } from "@/components/theme-context";
 import {
     useForgetPasswordMutation,
     useGetTokenOTPforgetPasswordMutation,
@@ -19,6 +20,7 @@ import { useEffect, useState } from "react";
 
 export default function ForgotPasswordAntd() {
     const router = useRouter();
+    const { isDark } = useTheme();
 
     const [form] = Form.useForm();
     const [otpForm] = Form.useForm();
@@ -163,7 +165,7 @@ export default function ForgotPasswordAntd() {
                 width: "100%",
                 maxWidth: "420px",
                 padding: "32px",
-                backgroundColor: "#ffffff",
+                background: isDark ? "#1A2231" : "#ffffff",
                 borderRadius: "16px",
                 boxShadow:
                     "0 10px 30px rgba(0, 0, 0, 0.06), 0 6px 10px rgba(0, 0, 0, 0.04)",
@@ -193,7 +195,7 @@ export default function ForgotPasswordAntd() {
                             style={{
                                 height: "50px",
                                 borderRadius: "10px",
-                                background: "#f9fafb",
+                                // background: "#f9fafb",
                                 border: "1px solid #e5e7eb",
                             }}
                         />

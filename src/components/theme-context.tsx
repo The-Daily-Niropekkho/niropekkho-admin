@@ -161,7 +161,7 @@ const darkTokens: ThemeTokens = {
 
 // Create the theme provider component
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<ThemeMode>("light");
+    const [theme, setTheme] = useState<ThemeMode>("light"); // dark or light
     const isDark = theme === "dark";
     const tokens = isDark ? darkTokens : lightTokens;
 
