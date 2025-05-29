@@ -1,24 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useTheme } from "@/components/theme-context";
 import {
-  useCreatePollMutation,
-  useUpdatePollMutation,
+    useCreatePollMutation,
+    useUpdatePollMutation,
 } from "@/redux/features/polls/pollsApi";
 import { Poll, TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
-import { PictureOutlined, PlusOutlined } from "@ant-design/icons";
 import {
-  Button,
-  Col,
-  Form,
-  Input,
-  message,
-  Modal,
-  Row,
-  Select,
-  Space,
-  Tag,
-  Typography,
+    DeleteOutlined,
+    EditOutlined,
+    PictureOutlined,
+    PlusOutlined,
+} from "@ant-design/icons";
+import {
+    Button,
+    Col,
+    Form,
+    Input,
+    message,
+    Modal,
+    Row,
+    Select,
+    Space,
+    Typography,
 } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -26,6 +31,11 @@ import { GlobalFilePicker } from "../media/global-file-picker";
 
 const { Option } = Select;
 const { TextArea } = Input;
+
+type LocalPollOption = {
+    id?: string;
+    label: string;
+};
 
 interface PollEditCreateModalProps {
     editingPoll?: Poll;
@@ -46,23 +56,30 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
     const [createPoll] = useCreatePollMutation();
     const [updatePoll] = useUpdatePollMutation();
     const [isLoading, setIsLoading] = useState(false);
-    const [options, setOptions] = useState<string[]>([]);
+    const [options, setOptions] = useState<LocalPollOption[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [openFilePicker, setOpenFilePicker] = useState(false);
+    const [editingOption, setEditingOption] = useState<string | null>(null);
+    const [editInputValue, setEditInputValue] = useState("");
 
     const { isDark } = useTheme();
 
     useEffect(() => {
         if (editingPoll) {
-            const initialOptions =
-                editingPoll.options?.map((opt) => opt.label) || [];
             form.setFieldsValue({
                 title: editingPoll.title,
                 description: editingPoll.description,
                 status: editingPoll.status,
                 slug: editingPoll.slug,
             });
-            setOptions(initialOptions);
+
+            setOptions(
+                editingPoll.options?.map((opt) => ({
+                    id: opt.id,
+                    label: opt.label,
+                })) || []
+            );
+
             setPollImage(editingPoll.banner_image);
         } else {
             form.resetFields();
@@ -72,19 +89,57 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
     }, [editingPoll, form, setPollImage]);
 
     const handleAddOption = () => {
-        if (inputValue && !options.includes(inputValue)) {
-            setOptions([...options, inputValue]);
+        const trimmed = inputValue.trim();
+        if (trimmed && !options.some((opt) => opt.label === trimmed)) {
+            setOptions([...options, { label: trimmed }]);
             setInputValue("");
         }
     };
 
-    const handleRemoveOption = (optionToRemove: string) => {
-        setOptions(options.filter((option) => option !== optionToRemove));
+    const handleDeleteOption = (labelToRemove: string) => {
+        setOptions(options.filter((opt) => opt.label !== labelToRemove));
+        if (editingOption === labelToRemove) {
+            setEditingOption(null);
+            setEditInputValue("");
+        }
     };
+
+    const handleEditOption = (option: LocalPollOption) => {
+        setEditingOption(option.label);
+        setEditInputValue(option.label);
+    };
+
+    const handleSaveEdit = (originalLabel: string) => {
+        const trimmed = editInputValue.trim();
+        if (
+            trimmed &&
+            !options.some(
+                (opt) => opt.label === trimmed && opt.label !== originalLabel
+            )
+        ) {
+            setOptions(
+                options.map((opt) =>
+                    opt.label === originalLabel
+                        ? { ...opt, label: trimmed }
+                        : opt
+                )
+            );
+            setEditingOption(null);
+            setEditInputValue("");
+        } else if (trimmed === originalLabel) {
+            setEditingOption(null);
+            setEditInputValue("");
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingOption(null);
+        setEditInputValue("");
+    };
+
     const handleFileSelect = (selectedFiles: TFileDocument[]) => {
         if (selectedFiles.length > 0) {
-            const file = selectedFiles[0];
-            setPollImage(file);
+            setPollImage(selectedFiles[0]);
         }
         setOpenFilePicker(false);
     };
@@ -93,24 +148,71 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
         try {
             setIsLoading(true);
             const values = await form.validateFields();
-
-            const pollData = {
-                title: values.title,
-                description: values.description,
-                status: values.status,
-                slug: values.slug || "",
-                banner_image: pollImage,
-                options: options.map((label) => ({ label })),
+            const changedFields: any = {};
+            const initialValues = {
+                title: editingPoll?.title,
+                description: editingPoll?.description,
+                status: editingPoll?.status,
+                slug: editingPoll?.slug,
             };
 
-            if (editingPoll && editingPoll.id) {
+            Object.entries(values).forEach(([key, value]) => {
+                if (value !== (initialValues as any)[key]) {
+                    changedFields[key] = value;
+                }
+            });
+
+            const initialOptionMap = new Map(
+                (editingPoll?.options || []).map((opt) => [opt.label, opt])
+            );
+
+            const currentLabels = options.map((opt) => opt.label);
+            const originalLabels = Array.from(initialOptionMap.keys());
+
+            const newOptions = options
+                .filter((opt) => !opt.id && !initialOptionMap.has(opt.label))
+                .map((opt) => ({ label: opt.label }));
+
+            const unchangedOptions = options
+                .filter((opt) => opt.id)
+                .map((opt) => ({ id: opt.id, label: opt.label }));
+
+            const finalOptions = [...unchangedOptions, ...newOptions];
+
+            if (
+                newOptions.length > 0 ||
+                currentLabels.length !== originalLabels.length ||
+                !currentLabels.every((label) => originalLabels.includes(label))
+            ) {
+                changedFields.options = finalOptions;
+            }
+
+            if (
+                pollImage &&
+                (!editingPoll?.banner_image ||
+                    pollImage !== editingPoll.banner_image)
+            ) {
+                changedFields.banner_image = pollImage;
+            }
+
+            if (Object.keys(changedFields).length === 0) {
+                message.info("No changes detected.");
+                setIsLoading(false);
+                return;
+            }
+
+            if (editingPoll?.id) {
                 await updatePoll({
                     id: editingPoll.id,
-                    data: pollData,
+                    data: changedFields,
                 }).unwrap();
                 message.success("Poll updated successfully");
             } else {
-                await createPoll(pollData).unwrap();
+                await createPoll({
+                    ...values,
+                    banner_image_id: pollImage?.id,
+                    options: finalOptions,
+                }).unwrap();
                 message.success("Poll created successfully");
             }
 
@@ -167,16 +269,7 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
 
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item
-                            name="description"
-                            label="Description"
-                            rules={[
-                                {
-                                    required: false,
-                                    message: "Please enter description",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="description" label="Description">
                             <TextArea
                                 rows={3}
                                 placeholder="Enter poll description"
@@ -187,16 +280,7 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
 
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item
-                            name="slug"
-                            label="Slug"
-                            rules={[
-                                {
-                                    required: false,
-                                    message: "Please enter slug",
-                                },
-                            ]}
-                        >
+                        <Form.Item name="slug" label="Slug">
                             <Input placeholder="Enter poll slug" />
                         </Form.Item>
                     </Col>
@@ -241,16 +325,85 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
                                 </Space.Compact>
                                 <div style={{ marginTop: 8 }}>
                                     {options.map((option) => (
-                                        <Tag
-                                            key={option}
-                                            closable
-                                            onClose={() =>
-                                                handleRemoveOption(option)
-                                            }
-                                            style={{ marginBottom: 8 }}
+                                        <div
+                                            key={option.id || option.label}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                marginBottom: 8,
+                                            }}
                                         >
-                                            {option}
-                                        </Tag>
+                                            {editingOption === option.label ? (
+                                                <Space.Compact
+                                                    style={{ width: "100%" }}
+                                                >
+                                                    <Input
+                                                        value={editInputValue}
+                                                        onChange={(e) =>
+                                                            setEditInputValue(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        placeholder="Edit option"
+                                                        onPressEnter={() =>
+                                                            handleSaveEdit(
+                                                                option.label
+                                                            )
+                                                        }
+                                                    />
+                                                    <Button
+                                                        type="primary"
+                                                        onClick={() =>
+                                                            handleSaveEdit(
+                                                                option.label
+                                                            )
+                                                        }
+                                                    >
+                                                        Save
+                                                    </Button>
+                                                    <Button
+                                                        onClick={
+                                                            handleCancelEdit
+                                                        }
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </Space.Compact>
+                                            ) : (
+                                                <>
+                                                    <Typography.Text
+                                                        style={{
+                                                            flex: 1,
+                                                            marginRight: 8,
+                                                        }}
+                                                    >
+                                                        {option.label}
+                                                    </Typography.Text>
+                                                    <Button
+                                                        icon={<EditOutlined />}
+                                                        onClick={() =>
+                                                            handleEditOption(
+                                                                option
+                                                            )
+                                                        }
+                                                        style={{
+                                                            marginRight: 8,
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        icon={
+                                                            <DeleteOutlined />
+                                                        }
+                                                        onClick={() =>
+                                                            handleDeleteOption(
+                                                                option.label
+                                                            )
+                                                        }
+                                                        danger
+                                                    />
+                                                </>
+                                            )}
+                                        </div>
                                     ))}
                                 </div>
                             </Space>
@@ -283,6 +436,7 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
                                 style={{
                                     ...uploadBoxStyle,
                                     position: "relative",
+                                    overflow: "hidden",
                                 }}
                             >
                                 {pollImage ? (
@@ -301,9 +455,6 @@ const PollEditCreateModal: React.FC<PollEditCreateModalProps> = ({
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setPollImage(undefined);
-                                                form.setFieldsValue({
-                                                    banner_image: null,
-                                                });
                                             }}
                                             style={{
                                                 position: "absolute",

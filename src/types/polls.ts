@@ -5,13 +5,26 @@ export interface Poll {
     title: string;
     description: string;
     slug: string;
-    status: PollStatus;
+    status: string;
+    schedule_at: string;
+    banner_image_id: string;
+    is_deleted: boolean;
+    is_active: string;
+    reference: string;
+    createdAt: string;
+    updatedAt: string;
+    banner_image: TFileDocument;
     options: PollOption[];
-    banner_image: TFileDocument | undefined;
 }
 
 export type PollStatus = "publish" | "draft" | "archived";
 
 export interface PollOption {
+    id: string;
+    poll_id: string;
     label: string;
+    is_deleted: boolean;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
 }

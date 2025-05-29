@@ -148,11 +148,7 @@ const UpazillaEditCreateModal: React.FC<UpazillaEditCreateModalProps> = ({
                             name="url"
                             label="URL"
                             rules={[
-                                { required: true, message: "Please enter URL" },
-                                {
-                                    type: "url",
-                                    message: "Please enter a valid URL",
-                                },
+                                { required: false, message: "Please enter URL" }
                             ]}
                         >
                             <Input placeholder="https://example.com" />

@@ -36,8 +36,7 @@ export default function CategoriesPage() {
         null
     );
 
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+    const { isDark } = useTheme();
 
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
