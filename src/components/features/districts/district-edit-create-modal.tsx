@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import { District } from "@/types";
-import { Modal, Form, Input, message, Row, Col } from "antd";
+import { District, Division } from "@/types";
+import { Modal, Form, Input, message, Row, Col, Select } from "antd";
 import {
   useCreateDistrictMutation,
   useUpdateDistrictMutation,
 } from "@/redux/features/zone/districtsApi";
-
+import { useGetAllDivisionsQuery} from "@/redux/features/zone/divisionApi";
 interface DistrictEditCreateModalProps {
   editingDistrict: District | null;
   open: boolean;
@@ -22,6 +22,8 @@ const DistrictEditCreateModal: React.FC<DistrictEditCreateModalProps> = ({
   const [createDistrict] = useCreateDistrictMutation();
   const [updateDistrict] = useUpdateDistrictMutation();
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const { data: divisions, isLoading: isDivisionsLoading } = useGetAllDivisionsQuery({})
 
   React.useEffect(() => {
     if (editingDistrict) {
@@ -73,23 +75,44 @@ const DistrictEditCreateModal: React.FC<DistrictEditCreateModalProps> = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="country_id"
-              label="Country ID"
-              rules={[{ required: true, message: "Please enter country ID" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
+  name="division_id"
+  label="Division"
+  rules={[{ required: true, message: "Please select a Division" }]}
+>
+  <Select
+    placeholder="Select a division"
+    showSearch
+    optionFilterProp="label"
+    filterOption={(input, option) =>
+      (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+    }
+    disabled={isDivisionsLoading}
+  >
+    {divisions?.data?.map((division: Division) => (
+      <Select.Option
+        key={division.id}
+        value={division.id}           // use the division's own ID
+        label={division.name}         // label used for filtering & display
+      >
+        {division.name}
+      </Select.Option>
+    ))}
+  </Select>
+</Form.Item>
+
           </Col>
           <Col span={12}>
             <Form.Item
               name="name"
-              label="District Name"
-              rules={[{ required: true, message: "Please enter district name" }]}
+              label="Name"
+              rules={[{ required: true, message: "Please enter name" }]}
             >
               <Input />
             </Form.Item>
           </Col>
         </Row>
+
+       
 
         <Row gutter={16}>
           <Col span={12}>
