@@ -1,5 +1,5 @@
 export interface Contact {
-  id?: string;
+  
   editor_name: string;
   content: string;
   address: string;

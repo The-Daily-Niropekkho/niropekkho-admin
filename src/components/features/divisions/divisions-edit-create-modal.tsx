@@ -1,10 +1,11 @@
 "use client";
+import { useGetAllCountriesQuery } from "@/redux/features/zone/countryApi";
 import {
     useCreateDivisionMutation,
     useUpdateDivisionMutation,
 } from "@/redux/features/zone/divisionApi";
-import { Division } from "@/types";
-import { Col, Form, Input, message, Modal, Row } from "antd";
+import { Country, Division } from "@/types";
+import { Col, Form, Input, message, Modal, Row, Select } from "antd";
 import React from "react";
 
 interface DivisionEditCreateModalProps {
@@ -22,6 +23,8 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
   const [createDivision] = useCreateDivisionMutation();
   const [updateDivision] = useUpdateDivisionMutation();
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const { data: countries, isLoading: isCountryLoading } = useGetAllCountriesQuery(undefined)
 
   React.useEffect(() => {
     if (editingDivision) {
@@ -53,8 +56,9 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
       }
 
       close();
-    } catch {
+    } catch (error) {
       message.error("Failed to save Division");
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -74,10 +78,29 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
           <Col span={12}>
             <Form.Item
               name="country_id"
-              label="Country ID"
-              rules={[{ required: true, message: "Please enter country ID" }]}
+              label="Country"
+              rules={[{ required: true, message: "Please select a country" }]}
             >
-              <Input type="number" />
+              <Select
+                placeholder="Select a country"
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+                disabled={isCountryLoading}
+                
+              >
+                {countries?.data?.map((country: Country) => (
+                  <Select.Option
+                    key={country.id}
+                    value={country.country_code}
+                    label={country.name}
+                  >
+                    {country.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>

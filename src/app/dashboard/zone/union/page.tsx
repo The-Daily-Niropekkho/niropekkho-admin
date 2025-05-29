@@ -104,25 +104,25 @@ export default function UnionsPage() {
     },
     {
       title: "Union ID",
-      dataIndex: "Union_id",
+      dataIndex: "upazilla_id",
       key: "Union_id",
       sorter: true,
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "ACTIVE" ? "success" : "default"}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
-      filters: [
-        { text: "Active", value: "ACTIVE" },
-        { text: "Inactive", value: "INACTIVE" },
-      ],
-      onFilter: (value: any, record: Union) => record.status === value,
-    },
+                        title: "Status",
+                        dataIndex: "status",
+                        key: "status",
+                        render: (status: string) => (
+                            <Tag color={status === "active" ? "success" : "default"}>
+                                {status.toUpperCase()}
+                            </Tag>
+                        ),
+                        filters: [
+                            { text: "Active", value: "active" },
+                            { text: "Inactive", value: "inactive" },
+                        ],
+                        onFilter: (value: any, record: Union) => record.status === value,
+                    },
     {
       title: "Created At",
       dataIndex: "createdAt",

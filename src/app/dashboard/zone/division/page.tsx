@@ -7,6 +7,7 @@ import {
   useDeleteDivisionMutation,
   useGetAllDivisionsQuery,
 } from "@/redux/features/zone/divisionApi";
+
 import { Division } from "@/types";
 import {
   DeleteOutlined,
@@ -27,6 +28,7 @@ import {
   Tooltip,
 } from "antd";
 import DivisionEditCreateModal from "@/components/features/divisions/divisions-edit-create-modal";
+import Link from "next/link";
 
 export default function DivisionsPage() {
   const [searchText, setSearchText] = useState("");
@@ -56,6 +58,8 @@ export default function DivisionsPage() {
     isLoading: isDivisionLoading,
     isFetching: isDivisionFetching,
   } = useGetAllDivisionsQuery(query);
+
+  
 
   const [deleteDivision, { isLoading: isDeleting }] =
     useDeleteDivisionMutation();
@@ -100,28 +104,63 @@ export default function DivisionsPage() {
       title: "URL",
       dataIndex: "url",
       key: "url",
-      render: (text: string) => text || "-",
+      render: (text: string) =>
+        text ? (
+          <Link
+            href={text}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: isDark ? "#40a9ff" : "#1890ff",
+              textDecoration: "none",
+              transition: "color 0.3s",
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = isDark ? "#69b1ff" : "#40a9ff")}
+            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = isDark ? "#40a9ff" : "#1890ff")}
+          >
+            {text}
+          </Link>
+        ) : (
+          <div style={{ color: isDark ? "#b3b3b3" : "#8c8c8c" }}>-</div>
+        ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "ACTIVE" ? "success" : "default"}>
-          {status.toUpperCase()}
-        </Tag>
-      ),
-      filters: [
-        { text: "Active", value: "ACTIVE", color: "green" },
-        { text: "Inactive", value: "INACTIVE" },
-      ],
-      onFilter: (value: any, record: Division) => record.status === value,
-    },
+                    title: "Status",
+                    dataIndex: "status",
+                    key: "status",
+                    render: (status: string) => (
+                        <Tag color={status === "active" ? "success" : "default"}>
+                            {status.toUpperCase()}
+                        </Tag>
+                    ),
+                    filters: [
+                        { text: "Active", value: "active" },
+                        { text: "Inactive", value: "inactive" },
+                    ],
+                    onFilter: (value: any, record: Division) => record.status === value,
+                },
     {
       title: "Country ID",
       dataIndex: "country_id",
       key: "country_id",
       sorter: true,
+      hidden: true,
+    },
+    {
+      title: "Country Name",
+      dataIndex: "country_id",
+      key: "country_id",
+      sorter: true,
+      render: (country_id: number) => {
+        const divisionMap: { [key: number]: string } = {
+          172: "বাংলাদেশ"
+        };
+        return (
+          <div style={{ color: isDark ? "#d9d9d9" : "#595959" }}>
+            {divisionMap[country_id] || "-"}
+          </div>
+        );
+      },
     },
     {
       title: "Created At",
@@ -130,6 +169,7 @@ export default function DivisionsPage() {
       sorter: true,
       render: (createdAt: string) =>
         new Date(createdAt).toLocaleDateString() || "-",
+      hidden: true,
     },
     {
       title: "Updated At",
@@ -138,6 +178,7 @@ export default function DivisionsPage() {
       sorter: true,
       render: (updatedAt: string) =>
         new Date(updatedAt).toLocaleDateString() || "-",
+      hidden: true,
     },
     {
       title: "Actions",
