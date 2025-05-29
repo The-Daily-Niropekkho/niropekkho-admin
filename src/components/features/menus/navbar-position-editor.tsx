@@ -1,9 +1,10 @@
-// components/features/menus/navbar-position-editor.tsx
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useTheme } from "@/components/theme-context";
+import { useUpdateCategoryPositionMutation } from "@/redux/features/categories/categoriesApi";
 import { Category } from "@/types";
-import { DeleteOutlined, MenuOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, MenuOutlined, SaveOutlined } from "@ant-design/icons";
 import {
   closestCenter,
   DndContext,
@@ -21,180 +22,224 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Card, Empty, message, Select } from "antd";
-import { useState } from "react";
-
+import { Button, Empty, message } from "antd";
+import { useEffect, useState } from "react";
+import "./position-editor.css";
 
 export interface Position {
-  id: string;
-  name: string;
-  position: number;
+    id: string;
+    name: string;
+    position: number;
 }
 
 interface SortableItemProps {
-  id: string;
-  name: string;
-  position: number;
-  onRemove: (id: string) => void;
+    id: string;
+    name: string;
+    position: number;
+    onRemove: (id: string) => void;
 }
 
 interface NavbarPositionEditorProps {
-  positions: Position[];
-  setPositions: (positions: Position[] | ((prev: Position[]) => Position[])) => void;
-  allCategories: Category[];
+    positions: Position[];
+    setPositions: (
+        positions: Position[] | ((prev: Position[]) => Position[])
+    ) => void;
+    allCategories: Category[];
 }
 
 const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
-  const { isDark } = useTheme();
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+    const { isDark } = useTheme();
+    const { attributes, listeners, setNodeRef, transform, transition } =
+        useSortable({ id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className={`sortable-item ${isDark ? "dark" : "light"}`}>
-      <div className="sortable-item-content">
-        <div {...attributes} {...listeners} className={`drag-handle ${isDark ? "dark" : "light"}`}>
-          <MenuOutlined style={{ fontSize: "18px" }} />
-        </div>
-        <span className="item-name">{name}</span>
-      </div>
-      <div className="sortable-item-actions">
-        <span className={`position-badge ${isDark ? "dark" : "light"}`}>Position: {position}</span>
-        <Button danger icon={<DeleteOutlined />} onClick={() => onRemove(id)} size="middle" className="remove-button">
-          Remove
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const NavbarPositionEditor = ({ positions, setPositions, allCategories }: NavbarPositionEditorProps) => {
-  const { isDark } = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      setPositions((items: Position[]) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over?.id);
-
-        const newItems = arrayMove(items, oldIndex, newIndex);
-
-        return newItems.map((item, index) => ({
-          ...item,
-          position: index + 1,
-        }));
-      });
-
-      message.success("Position updated successfully");
-    }
-  };
-
-  const handleAddCategory = () => {
-    if (!selectedCategory) {
-      message.error("Please select a category");
-      return;
-    }
-
-    const exists = positions.some((pos) => pos.id === selectedCategory);
-    if (exists) {
-      message.error("This category is already in the navbar");
-      return;
-    }
-
-    const category = allCategories.find((cat) => cat.id === selectedCategory);
-    if (!category) {
-      message.error("Category not found");
-      return;
-    }
-
-    const newPosition: Position = {
-      id: category.id,
-      name: category.title,
-      position: positions.length + 1,
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
     };
 
-    setPositions([...positions, newPosition]);
-    setSelectedCategory(null);
-    message.success("Category added to navbar");
-  };
-
-  const handleRemoveCategory = (id: string) => {
-    const updated = positions.filter((pos) => pos.id !== id).map((item, index) => ({
-      ...item,
-      position: index + 1,
-    }));
-    setPositions(updated);
-    message.success("Category removed from navbar");
-  };
-
-  const availableCategories = allCategories.filter((cat) => !positions.find((p) => p.id === cat.id));
-
-  return (
-    <div className="position-editor">
-      <Card className={`selector-card ${isDark ? "dark" : "light"}`}>
-        <div className="selector-container">
-          <Select
-            placeholder="Select category to add"
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-            style={{ width: "100%", maxWidth: "300px" }}
-            size="large"
-            options={availableCategories.map((cat) => ({ value: cat.id, label: cat.title }))}
-          />
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddCategory} size="large">
-            Add to Navbar
-          </Button>
-        </div>
-      </Card>
-
-      <div className="items-container">
-        <h3 className={`section-title ${isDark ? "dark" : "light"}`}>Navbar Categories Order</h3>
-
-        {positions.length === 0 ? (
-          <Empty description="No categories in navbar" className="empty-state" />
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={positions.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-              {positions.map((position) => (
-                <SortableItem
-                  key={position.id}
-                  id={position.id}
-                  name={position.name}
-                  position={position.position}
-                  onRemove={handleRemoveCategory}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
-        )}
-
-        <Button
-          type="default"
-          onClick={() => {
-            const payload = positions.map((item, index) => ({ id: item.id, position: index + 1 }));
-            console.log("Payload to send:", { payload });
-            message.success("Payload logged to console");
-          }}
-          style={{ marginTop: "16px" }}
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`position-editor__item ${
+                isDark ? "position-editor__item--dark" : ""
+            }`}
         >
-          Export Payload
-        </Button>
-      </div>
-    </div>
-  );
+            <div className="position-editor__item-content">
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className={`position-editor__drag-handle ${
+                        isDark ? "position-editor__drag-handle--dark" : ""
+                    }`}
+                >
+                    <MenuOutlined />
+                </div>
+                <span className="position-editor__item-name">{name}</span>
+            </div>
+            <div className="position-editor__item-actions">
+                <span
+                    className={`position-editor__position-badge ${
+                        isDark ? "position-editor__position-badge--dark" : ""
+                    }`}
+                >
+                    Position: {position}
+                </span>
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => onRemove(id)}
+                    size="middle"
+                    className="position-editor__remove-button"
+                >
+                    Remove
+                </Button>
+            </div>
+        </div>
+    );
+};
+
+const NavbarPositionEditor = ({
+    positions,
+    setPositions,
+    allCategories,
+}: NavbarPositionEditorProps) => {
+    const { isDark } = useTheme();
+    const [updatePositions, { isLoading }] =
+        useUpdateCategoryPositionMutation();
+    const [hasChanges, setHasChanges] = useState(false);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    useEffect(() => {
+        if (
+            allCategories &&
+            allCategories.length > 0 &&
+            positions.length === 0
+        ) {
+            const initialized = allCategories.map((cat, idx) => ({
+                id: cat.id,
+                name: cat.title,
+                position: idx + 1,
+            }));
+            setPositions(initialized);
+        }
+    }, [allCategories]);
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (active.id !== over?.id) {
+            setPositions((items: Position[]) => {
+                const oldIndex = items.findIndex(
+                    (item) => item.id === active.id
+                );
+                const newIndex = items.findIndex(
+                    (item) => item.id === over?.id
+                );
+                const moved = arrayMove(items, oldIndex, newIndex);
+
+                setHasChanges(true);
+                return moved.map((item, index) => ({
+                    ...item,
+                    position: index + 1,
+                }));
+            });
+
+            message.success("Position changed");
+        }
+    };
+
+    const handleRemove = (id: string) => {
+        const updated = positions
+            .filter((pos) => pos.id !== id)
+            .map((item, index) => ({
+                ...item,
+                position: index + 1,
+            }));
+
+        setPositions(updated);
+        setHasChanges(true);
+        message.success("Category removed");
+    };
+
+    const handleSave = async () => {
+        const payload = positions.map((p, i) => ({
+            id: p.id,
+            position: i + 1,
+        }));
+        try {
+            console.log(payload);
+
+            await updatePositions({ payload: payload }).unwrap();
+            message.success("Positions saved");
+            setHasChanges(false);
+        } catch (err) {
+            console.error(err);
+            message.error("Failed to save");
+        }
+    };
+
+    return (
+        <div className="position-editor">
+            <div className="position-editor__items">
+                <div
+                    className="flex justify-between items-center"
+                    style={{ margin: "10px 0px" }}
+                >
+                    <h3
+                        className={`position-editor__title ${
+                            isDark ? "position-editor__title--dark" : ""
+                        }`}
+                    >
+                        Navbar Categories Order
+                    </h3>
+                    {hasChanges && (
+                        <Button
+                            type="primary"
+                            icon={<SaveOutlined />}
+                            onClick={handleSave}
+                            loading={isLoading}
+                        >
+                            Update Positions
+                        </Button>
+                    )}
+                </div>
+                {positions.length === 0 ? (
+                    <Empty
+                        description="No categories"
+                        className="position-editor__empty"
+                    />
+                ) : (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={positions.map((p) => p.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {positions.map((p) => (
+                                <SortableItem
+                                    key={p.id}
+                                    id={p.id}
+                                    name={p.name}
+                                    position={p.position}
+                                    onRemove={handleRemove}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
+                )}
+            </div>
+        </div>
+    );
 };
 
 export default NavbarPositionEditor;

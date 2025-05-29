@@ -1,7 +1,10 @@
-"use client"
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client";
 
-import { useTheme } from "@/components/theme-context"
-import { DeleteOutlined, MenuOutlined, PlusOutlined } from "@ant-design/icons"
+import { useTheme } from "@/components/theme-context";
+import { useUpdateCategoryPositionMutation } from "@/redux/features/categories/categoriesApi";
+import { Category } from "@/types";
+import { DeleteOutlined, MenuOutlined, SaveOutlined } from "@ant-design/icons";
 import {
   closestCenter,
   DndContext,
@@ -10,191 +13,241 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from "@dnd-kit/core"
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-import { Button, Card, Empty, message, Select } from "antd"
-import { useState } from "react"
-import "./position-editor.css"
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Button, Empty, message } from "antd";
+import { useEffect, useState } from "react";
+import "./position-editor.css";
 
 interface Position {
-  id: string
-  name: string
-  position: number
-}
-
-interface Category {
-  id: string
-  name: string
-  slug: string
-  description: string
-  status: string
-  postCount: number
+    id: string;
+    name: string;
+    position: number;
 }
 
 interface SortableItemProps {
-  id: string
-  name: string
-  position: number
-  onRemove: (id: string) => void
+    id: string;
+    name: string;
+    position: number;
+    onRemove: (id: string) => void;
 }
 
 interface SidebarPositionEditorProps {
-  positions: Position[]
-  setPositions: (positions: Position[] | ((positions: Position[]) => Position[])) => void
-  allCategories: Category[]
+    positions: Position[];
+    setPositions: (
+        positions: Position[] | ((positions: Position[]) => Position[])
+    ) => void;
+    allCategories: Category[];
 }
 
 const SortableItem = ({ id, name, position, onRemove }: SortableItemProps) => {
-  const { isDark } = useTheme()
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+    const { isDark } = useTheme();
+    const { attributes, listeners, setNodeRef, transform, transition } =
+        useSortable({ id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
 
-  return (
-    <div ref={setNodeRef} style={style} className={`sortable-item ${isDark ? "dark" : "light"}`}>
-      <div className="sortable-item-content">
-        <div {...attributes} {...listeners} className={`drag-handle ${isDark ? "dark" : "light"}`}>
-          <MenuOutlined style={{ fontSize: "18px" }} />
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`position-editor__item ${
+                isDark ? "position-editor__item--dark" : ""
+            }`}
+        >
+            <div className="position-editor__item-content">
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className={`position-editor__drag-handle ${
+                        isDark ? "position-editor__drag-handle--dark" : ""
+                    }`}
+                >
+                    <MenuOutlined style={{ fontSize: "18px" }} />
+                </div>
+                <span className="position-editor__item-name">{name}</span>
+            </div>
+            <div className="position-editor__item-actions">
+                <span
+                    className={`position-editor__position-badge ${
+                        isDark ? "position-editor__position-badge--dark" : ""
+                    }`}
+                >
+                    Position: {position}
+                </span>
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => onRemove(id)}
+                    size="middle"
+                    className="position-editor__remove-button"
+                >
+                    Remove
+                </Button>
+            </div>
         </div>
-        <span className="item-name">{name}</span>
-      </div>
-      <div className="sortable-item-actions">
-        <span className={`position-badge ${isDark ? "dark" : "light"}`}>Position: {position}</span>
-        <Button danger icon={<DeleteOutlined />} onClick={() => onRemove(id)} size="middle" className="remove-button">
-          Remove
-        </Button>
-      </div>
-    </div>
-  )
-}
+    );
+};
 
-const SidebarPositionEditor = ({ positions, setPositions, allCategories }: SidebarPositionEditorProps) => {
-  const { isDark } = useTheme()
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+const SidebarPositionEditor = ({
+    positions,
+    setPositions,
+    allCategories,
+}: SidebarPositionEditorProps) => {
+    const { isDark } = useTheme();
+    const [updatePositions, { isLoading }] =
+        useUpdateCategoryPositionMutation();
+    const [hasChanges, setHasChanges] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
+    // auto load all categories once
+    useEffect(() => {
+        if (allCategories.length > 0 && positions.length === 0) {
+            const initial = allCategories.map((cat, index) => ({
+                id: cat.id,
+                name: cat.title,
+                position: index + 1,
+            }));
+            setPositions(initial);
+        }
+    }, [allCategories]);
 
-    if (active.id !== over?.id) {
-      setPositions((items: Position[]) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id)
-        const newIndex = items.findIndex((item) => item.id === over?.id)
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
 
-        const newItems = arrayMove(items, oldIndex, newIndex)
+        if (active.id !== over?.id) {
+            setPositions((items: Position[]) => {
+                const oldIndex = items.findIndex(
+                    (item) => item.id === active.id
+                );
+                const newIndex = items.findIndex(
+                    (item) => item.id === over?.id
+                );
+                const newItems = arrayMove(items, oldIndex, newIndex);
 
-        // Update positions
-        return newItems.map((item, index) => ({
-          ...item,
-          position: index + 1,
-        }))
-      })
+                setHasChanges(true);
 
-      message.success("Position updated successfully")
-    }
-  }
+                return newItems.map((item, index) => ({
+                    ...item,
+                    position: index + 1,
+                }));
+            });
 
-  const handleAddCategory = () => {
-    if (!selectedCategory) {
-      message.error("Please select a category")
-      return
-    }
+            message.success("Position updated");
+        }
+    };
 
-    const categoryExists = positions.some((pos) => pos.id === selectedCategory)
-    if (categoryExists) {
-      message.error("This category is already in the sidebar")
-      return
-    }
+    const handleRemove = (id: string) => {
+        const updated = positions
+            .filter((pos) => pos.id !== id)
+            .map((item, index) => ({
+                ...item,
+                position: index + 1,
+            }));
+        setPositions(updated);
+        setHasChanges(true);
+        message.success("Removed from sidebar");
+    };
 
-    const category = allCategories.find((cat) => cat.id === selectedCategory)
-    if (!category) {
-      message.error("Category not found")
-      return
-    }
+    const handleSave = async () => {
+        const payload = positions.map((p, i) => ({
+            id: p.id,
+            position: i + 1,
+        }));
+        try {
+            await updatePositions({ positions: payload }).unwrap();
+            message.success("Sidebar positions updated");
+            setHasChanges(false);
+        } catch (err) {
+            console.error(err);
+            message.error("Failed to save");
+        }
+    };
 
-    const newPosition: Position = {
-      id: category.id,
-      name: category.name,
-      position: positions.length + 1,
-    }
+    return (
+        <div className="position-editor">
+            <div className="position-editor__items">
+                <div
+                    className="flex justify-between items-center"
+                    style={{ margin: "10px 0px" }}
+                >
+                    <h3
+                        className={`position-editor__title ${
+                            isDark ? "position-editor__title--dark" : ""
+                        }`}
+                    >
+                        Navbar Categories Order
+                    </h3>
+                    {hasChanges && (
+                        <Button
+                            type="primary"
+                            icon={<SaveOutlined />}
+                            onClick={handleSave}
+                            loading={isLoading}
+                        >
+                            Update Positions
+                        </Button>
+                    )}
+                </div>
+                {positions.length === 0 ? (
+                    <Empty
+                        description="No categories"
+                        className="position-editor__empty"
+                    />
+                ) : (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={positions.map((pos) => pos.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {positions.map((pos) => (
+                                <SortableItem
+                                    key={pos.id}
+                                    id={pos.id}
+                                    name={pos.name}
+                                    position={pos.position}
+                                    onRemove={handleRemove}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
+                )}
 
-    setPositions([...positions, newPosition])
-    setSelectedCategory(null)
-    message.success("Category added to sidebar")
-  }
-
-  const handleRemoveCategory = (id: string) => {
-    const newPositions = positions.filter((pos) => pos.id !== id)
-
-    // Update positions
-    const updatedPositions = newPositions.map((item, index) => ({
-      ...item,
-      position: index + 1,
-    }))
-
-    setPositions(updatedPositions)
-    message.success("Category removed from sidebar")
-  }
-
-  const availableCategories = allCategories.filter((category) => !positions.some((pos) => pos.id === category.id))
-
-  return (
-    <div className="position-editor">
-      <Card className={`selector-card ${isDark ? "dark" : "light"}`}>
-        <div className="selector-container">
-          <Select
-            placeholder="Select category to add"
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-            style={{ width: "100%", maxWidth: "300px" }}
-            size="large"
-            options={availableCategories.map((cat) => ({ value: cat.id, label: cat.name }))}
-          />
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddCategory} size="large">
-            Add to Sidebar
-          </Button>
+                {hasChanges && (
+                    <div style={{ marginTop: 16 }}>
+                        <Button
+                            type="primary"
+                            icon={<SaveOutlined />}
+                            onClick={handleSave}
+                            loading={isLoading}
+                        >
+                            Update Sidebar Positions
+                        </Button>
+                    </div>
+                )}
+            </div>
         </div>
-      </Card>
+    );
+};
 
-      <div className="items-container">
-        <h3 className={`section-title ${isDark ? "dark" : "light"}`}>Sidebar Categories Order</h3>
-
-        {positions.length === 0 ? (
-          <Empty description="No categories in sidebar" className="empty-state" />
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={positions.map((pos) => pos.id)} strategy={verticalListSortingStrategy}>
-              {positions.map((position) => (
-                <SortableItem
-                  key={position.id}
-                  id={position.id}
-                  name={position.name}
-                  position={position.position}
-                  onRemove={handleRemoveCategory}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
-        )}
-      </div>
-    </div>
-  )
-}
-
-export default SidebarPositionEditor
+export default SidebarPositionEditor;

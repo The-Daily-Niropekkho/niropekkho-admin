@@ -1,5 +1,5 @@
 
-import { categoryTag } from "@/constants";
+import { categoryPosistionTag, categoryTag } from "@/constants";
 import { Category, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -80,6 +80,21 @@ const categoryApi = baseApi.injectEndpoints({
             },
             invalidatesTags: [categoryTag],
         }),
+        updateCategoryPosition: builder.mutation({
+            query: (data) => {
+                return {
+                    url: `${url}/position-update`,
+                    method: "PATCH",
+                    body: data,
+                };
+            },
+            transformResponse: (response: TResponseRedux<Category>) => {
+                return {
+                    data: response.data,
+                };
+            },
+            invalidatesTags: [categoryPosistionTag, categoryTag],
+        }),
         deleteCategory: builder.mutation({
             query: (id) => {
                 return {
@@ -97,5 +112,6 @@ export const {
     useGetCategoryDetailsQuery,
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
+    useUpdateCategoryPositionMutation,
     useDeleteCategoryMutation
 } = categoryApi;

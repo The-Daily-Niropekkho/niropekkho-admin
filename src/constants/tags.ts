@@ -10,3 +10,4 @@ export const unionTag = "unions" as const;
 export const newsTag = "news" as const;
 export const breakingNewsTag = "breakingNews" as const;
 export const reporterTag = "reporters" as const;
+export const categoryPosistionTag = "categoryPosistion" as const;
