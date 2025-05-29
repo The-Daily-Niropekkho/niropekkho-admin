@@ -15,6 +15,7 @@ import {
     upazillaTag,
     userTag,
     userTags,
+    pollTag
 } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -47,6 +48,8 @@ export const baseApi = createApi({
         unionTag,
         contactTag,
         newsTag,
+        reporterTag,
+        pollTag,
         breakingNewsTag,
         reporterTag,
         categoryPosistionTag

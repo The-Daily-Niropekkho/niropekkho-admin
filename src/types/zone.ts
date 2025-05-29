@@ -25,6 +25,8 @@ export interface Division {
 export interface District {
   id: number
   country_id: number
+  division_id: number
+  division_name: string,
   name: string
   bn_name: string
   url: string

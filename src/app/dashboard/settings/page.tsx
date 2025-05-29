@@ -2,15 +2,12 @@
 "use client"
 import { useTheme } from "@/components/theme-context"
 import {
-  ApiOutlined,
-  CloudOutlined,
   GlobalOutlined,
-  MailOutlined,
   NotificationOutlined,
   SaveOutlined,
   SecurityScanOutlined,
-  TeamOutlined,
   UploadOutlined,
+  ContactsOutlined
 } from "@ant-design/icons"
 import {
   Button,
@@ -24,12 +21,13 @@ import {
   Radio,
   Row,
   Select,
-  Space,
   Switch,
   Tabs,
-  Upload,
+  Upload
 } from "antd"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useGetContactDetailsQuery, useUpdateContactMutation } from "@/redux/features/contact/contactApi"
+import { Contact } from "@/types"
 
 const { Option } = Select
 const { TabPane } = Tabs
@@ -41,15 +39,76 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
   const isDark = theme === "dark"
 
-  const onFinish = (values: any) => {
-    setLoading(true)
-    console.log("Form values:", values)
+ 
+  const contactId = "cmb61l6gy000emhf8iog51m9q"
+  const { 
+    data: contactData, 
+    isLoading: isContactLoading, 
+    isFetching: isContactFetching,
+    isError: isContactError,
+    error,
+    //refetch
+  } = useGetContactDetailsQuery(contactId)
+  const [updateContact] = useUpdateContactMutation()
 
-    // Simulate API call
-    setTimeout(() => {
+  useEffect(() => {
+    console.log("API Response:", {
+      data: contactData,
+      isLoading: isContactLoading,
+      isFetching: isContactFetching,
+      isError: isContactError,
+      error,
+    })
+  }, [contactData, isContactLoading, isContactFetching, isContactError, error])
+
+  // Populate form with fetched contact data
+  useEffect(() => {
+    if (contactData?.data) {
+      form.setFieldsValue({
+        editorName: contactData.data[0]?.editor_name || "Daily Niropekkho",
+        content: contactData.data[0]?.content || "The Daily Niropekkho",
+        address: contactData.data[0]?.address || "",
+        phone: contactData.data[0]?.phone || "",
+        phoneTwo: contactData.data[0]?.phoneTwo || "",
+        email: contactData.data[0]?.email || "",
+        website: contactData.data[0]?.website || "",
+        latitude: contactData.data[0]?.latitude || undefined,
+        longitude: contactData.data[0]?.longitude || undefined,
+        map: contactData.data[0]?.map || "",
+        rights: contactData.data[0]?.rights || "",
+      })
+    } else if (!isContactLoading && !isContactFetching && (!contactData?.data || contactData.data.length === 0)) {
+      console.warn("No contact data received for ID:", contactId)
+    }
+  }, [contactData, isContactLoading, isContactFetching, form])
+
+  const onFinish = async (values: any) => {
+    setLoading(true)
+    try {
+      // Prepare contact data for update
+      const contactUpdateData: Partial<Contact> = {
+        editor_name: values.editorName,
+        content: values.content,
+        address: values.address,
+        phone: values.phone,
+        phoneTwo: values.phoneTwo,
+        email: values.email,
+        website: values.website,
+        latitude: values.latitude,
+        longitude: values.longitude,
+        map: values.map,
+        rights: values.rights,
+      }
+
+      // Call the update mutation
+      await updateContact({ id: contactId, data: contactUpdateData }).unwrap()
+      message.success("Contact settings updated successfully!")
+    } catch (error) {
+      message.error("Failed to update contact settings. Please try again.")
+      console.error("Update error:", error)
+    } finally {
       setLoading(false)
-      message.success("Settings updated successfully!")
-    }, 1500)
+    }
   }
 
   const normFile = (e: any) => {
@@ -108,15 +167,105 @@ export default function SettingsPage() {
             enableCache: true,
             maintenanceMode: false,
           }}
+          disabled={isContactLoading || isContactFetching}
         >
           <Tabs defaultActiveKey="1">
+            <TabPane
+              tab={
+                <span>
+                  <ContactsOutlined /> Contact Settings
+                </span>
+              }
+              key="1"
+            >
+              {isContactError && (
+                <p style={{ color: "red" }}>Error loading contact details. Please try again.</p>
+              )}
+              <Form.Item
+                name="editorName"
+                label="Editor Name"
+                rules={[{ required: true, message: "Please enter the editor name" }]}
+              >
+                <Input placeholder="The Daily Niropekkho"></Input>
+              </Form.Item>
+              <Form.Item
+                name="content"
+                label="Content"
+                rules={[{ required: true, message: "Please enter the content" }]}
+              >
+                <Input.TextArea placeholder="Enter the content" rows={3} />
+              </Form.Item>
+              <Form.Item
+                name="address"
+                label="Address"
+                rules={[{ required: true, message: "Please enter the address" }]}
+              >
+                <Input.TextArea placeholder="Enter the address" rows={3} />
+              </Form.Item>
+              <Form.Item
+                name="phone"
+                label="Phone"
+                rules={[{ required: true, message: "Please enter the phone number" }]}
+              >
+                <Input placeholder="Enter the phone number" />
+              </Form.Item>
+              <Form.Item name="phoneTwo" label="Phone Two">
+                <Input placeholder="Enter the second phone number" />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter the email" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input placeholder="Enter the email" />
+              </Form.Item>
+              <Form.Item
+                name="website"
+                label="Website"
+                rules={[
+                  { required: true, message: "Please enter the website" },
+                  { type: "url", message: "Please enter a valid URL" },
+                ]}
+              >
+                <Input placeholder="Enter the website" />
+              </Form.Item>
+              <div className="flex gap-4">
+                <Form.Item
+                  name="latitude"
+                  label="Latitude"
+                  className="flex-1"
+                  rules={[{ pattern: /^-?\d*\.?\d+$/, message: "Please enter a valid latitude" }]}
+                >
+                  <Input placeholder="Enter the latitude" />
+                </Form.Item>
+                <Form.Item
+                  name="longitude"
+                  label="Longitude"
+                  className="flex-1"
+                  rules={[{ pattern: /^-?\d*\.?\d+$/, message: "Please enter a valid longitude" }]}
+                >
+                  <Input placeholder="Enter the longitude" />
+                </Form.Item>
+              </div>
+              <Form.Item
+                name="map"
+                label="Map"
+                rules={[{ type: "url", message: "Please enter a valid map URL" }]}
+              >
+                <Input placeholder="Embed a map src URL" />
+              </Form.Item>
+            </TabPane>
+
             <TabPane
               tab={
                 <span>
                   <GlobalOutlined /> General
                 </span>
               }
-              key="1"
+              key="2"
             >
               <Row gutter={16}>
                 <Col xs={24} md={12}>
@@ -240,71 +389,6 @@ export default function SettingsPage() {
             <TabPane
               tab={
                 <span>
-                  <MailOutlined /> Email
-                </span>
-              }
-              key="2"
-            >
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="emailFrom"
-                    label="From Email"
-                    rules={[{ required: true, message: "Please enter from email", type: "email" }]}
-                  >
-                    <Input placeholder="noreply@example.com" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="emailName"
-                    label="From Name"
-                    rules={[{ required: true, message: "Please enter from name" }]}
-                  >
-                    <Input placeholder="Newspaper Name" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="smtpHost" label="SMTP Host">
-                    <Input placeholder="smtp.example.com" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item name="smtpPort" label="SMTP Port">
-                    <InputNumber min={1} max={65535} style={{ width: "100%" }} placeholder="587" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={6}>
-                  <Form.Item name="smtpSecure" label="SMTP Secure" valuePropName="checked">
-                    <Switch checkedChildren="SSL/TLS" unCheckedChildren="None" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="smtpUsername" label="SMTP Username">
-                    <Input placeholder="username" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="smtpPassword" label="SMTP Password">
-                    <Input.Password placeholder="password" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item>
-                <Button type="default">Test Email Configuration</Button>
-              </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
                   <NotificationOutlined /> Notifications
                 </span>
               }
@@ -405,171 +489,18 @@ export default function SettingsPage() {
                 </Col>
               </Row>
             </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <TeamOutlined /> Comments
-                </span>
-              }
-              key="5"
-            >
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableComments" label="Enable Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="moderateComments" label="Moderate Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="allowGuestComments" label="Allow Guest Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="nestedComments" label="Allow Nested Comments" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item name="commentMaxLength" label="Maximum Comment Length">
-                <InputNumber min={100} max={10000} style={{ width: "100%" }} />
-              </Form.Item>
-
-              <Form.Item name="bannedWords" label="Banned Words (comma separated)">
-                <TextArea rows={3} placeholder="Enter banned words" />
-              </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <CloudOutlined /> Performance
-                </span>
-              }
-              key="6"
-            >
-              <Row gutter={16}>
-                <Col xs={24} md={8}>
-                  <Form.Item name="enableCache" label="Enable Caching" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="enableImageOptimization" label="Image Optimization" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="enableMinification" label="CSS/JS Minification" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="cacheLifetime" label="Cache Lifetime (minutes)">
-                    <InputNumber min={1} max={1440} style={{ width: "100%" }} />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="maxImageSize" label="Maximum Image Size (KB)">
-                    <InputNumber min={100} max={10000} style={{ width: "100%" }} />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item>
-                <Space>
-                  <Button type="default">Clear Cache</Button>
-                  <Button type="default">Optimize Images</Button>
-                </Space>
-              </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <ApiOutlined /> Integrations
-                </span>
-              }
-              key="7"
-            >
-              <Divider orientation="left">Analytics</Divider>
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableAnalytics" label="Enable Analytics" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="analyticsProvider" label="Analytics Provider">
-                    <Select placeholder="Select provider">
-                      <Option value="google">Google Analytics</Option>
-                      <Option value="matomo">Matomo</Option>
-                      <Option value="plausible">Plausible</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Form.Item name="analyticsId" label="Analytics ID/Tracking Code">
-                <Input placeholder="Enter tracking ID" />
-              </Form.Item>
-
-              <Divider orientation="left">Social Media</Divider>
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableSocialSharing" label="Enable Social Sharing" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item name="enableSocialLogin" label="Enable Social Login" valuePropName="checked">
-                    <Switch checkedChildren="On" unCheckedChildren="Off" />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col xs={24} md={8}>
-                  <Form.Item name="facebookAppId" label="Facebook App ID">
-                    <Input placeholder="Enter Facebook App ID" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="twitterHandle" label="Twitter Handle">
-                    <Input placeholder="@yourhandle" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={8}>
-                  <Form.Item name="googleClientId" label="Google Client ID">
-                    <Input placeholder="Enter Google Client ID" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Divider orientation="left">Advertising</Divider>
-              <Form.Item name="enableAds" label="Enable Advertisements" valuePropName="checked">
-                <Switch checkedChildren="On" unCheckedChildren="Off" />
-              </Form.Item>
-              <Form.Item name="adCode" label="Ad Code (header)">
-                <TextArea rows={3} placeholder="Enter ad code for header" />
-              </Form.Item>
-            </TabPane>
           </Tabs>
 
           <Divider style={{ borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.06)" }} />
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={loading}>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              icon={<SaveOutlined />} 
+              loading={loading || isContactLoading || isContactFetching}
+              disabled={isContactLoading || isContactFetching}
+            >
               Save Settings
             </Button>
           </Form.Item>
