@@ -1,8 +1,8 @@
 "use client";
 import { useGetAllCountriesQuery } from "@/redux/features/zone/countryApi";
 import {
-    useCreateDivisionMutation,
-    useUpdateDivisionMutation,
+  useCreateDivisionMutation,
+  useUpdateDivisionMutation,
 } from "@/redux/features/zone/divisionApi";
 import { Country, Division } from "@/types";
 import { Col, Form, Input, message, Modal, Row, Select } from "antd";
@@ -24,12 +24,12 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
   const [updateDivision] = useUpdateDivisionMutation();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const { data: countries, isLoading: isCountryLoading } = useGetAllCountriesQuery({})
+  const { data: countries, isLoading: isCountryLoading } = useGetAllCountriesQuery({});
 
   React.useEffect(() => {
     if (editingDivision) {
       form.setFieldsValue({
-        country_id: editingDivision.country_id,
+        country_id: editingDivision.country_id, // Ensure this matches the server's expected field
         name: editingDivision.name,
         bn_name: editingDivision.bn_name,
         url: editingDivision.url,
@@ -44,20 +44,40 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
       setIsLoading(true);
       const values = await form.validateFields();
 
+      // Ensure country_id is sent as the correct type (e.g., numeric ID or code)
+      const payload = {
+        ...values,
+        country_id: values.country_id, // Adjust if server expects a different field name (e.g., country_code)
+      };
+
       if (editingDivision) {
         await updateDivision({
           id: editingDivision.id,
-          data: values,
+          data: payload,
         }).unwrap();
         message.success("Division updated successfully");
       } else {
-        await createDivision(values).unwrap();
+        await createDivision(payload).unwrap();
         message.success("Division created successfully");
       }
 
       close();
-    } catch (error) {
-      message.error("Failed to save Division");
+    } catch (error: unknown) {
+      // Enhanced error handling to log server response
+      let errorMessage = "Failed to save Division";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: { message?: string } }).data === "object" &&
+        (error as { data?: { message?: string } }).data !== null &&
+        "message" in (error as { data?: { message?: string } }).data!
+      ) {
+        errorMessage =
+          ((error as { data?: { message?: string } }).data as { message?: string }).message ||
+          "Failed to save Division";
+      }
+      message.error(errorMessage);
       console.error("Error:", error);
     } finally {
       setIsLoading(false);
@@ -86,15 +106,16 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
                 showSearch
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                  String(option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 disabled={isCountryLoading}
-                
               >
                 {countries?.data?.map((country: Country) => (
                   <Select.Option
                     key={country.id}
-                    value={country.country_code}
+                    value={country.id}
                     label={country.name}
                   >
                     {country.name}
