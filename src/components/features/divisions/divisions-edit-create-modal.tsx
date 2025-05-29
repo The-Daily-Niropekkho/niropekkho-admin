@@ -24,7 +24,7 @@ const DivisionEditCreateModal: React.FC<DivisionEditCreateModalProps> = ({
   const [updateDivision] = useUpdateDivisionMutation();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const { data: countries, isLoading: isCountryLoading } = useGetAllCountriesQuery(undefined)
+  const { data: countries, isLoading: isCountryLoading } = useGetAllCountriesQuery({})
 
   React.useEffect(() => {
     if (editingDivision) {

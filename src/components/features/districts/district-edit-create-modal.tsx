@@ -84,7 +84,7 @@ const DistrictEditCreateModal: React.FC<DistrictEditCreateModalProps> = ({
     showSearch
     optionFilterProp="label"
     filterOption={(input, option) =>
-      (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+      String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
     }
     disabled={isDivisionsLoading}
   >
