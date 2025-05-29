@@ -20,21 +20,8 @@ const contactApi = baseApi.injectEndpoints({
             },
             providesTags: [contactTag],
         }),
-        createContact: builder.mutation({
-            query: (data) => {
-                return {
-                    url: url,
-                    method: "POST",
-                    body: data,
-                };
-            },
-            transformResponse: (response: TResponseRedux<Contact>) => {
-                return {
-                    data: response.data,
-                };
-            },
-            invalidatesTags: [contactTag],
-        }),
+
+        
         updateContact: builder.mutation({
             query: (data) => {
                 return {
@@ -50,21 +37,11 @@ const contactApi = baseApi.injectEndpoints({
             },
             invalidatesTags: [contactTag],
         }),
-        deleteContact: builder.mutation({
-            query: (id) => {
-                return {
-                    url: `${url}/${id}`,
-                    method: "DELETE",
-                };
-            },
-            invalidatesTags: [contactTag],
-        }),
+        
     }),
 });
 
 export const {
     useGetContactDetailsQuery,
-    useCreateContactMutation,
-    useUpdateContactMutation,
-    useDeleteContactMutation
+    useUpdateContactMutation
 } = contactApi;
