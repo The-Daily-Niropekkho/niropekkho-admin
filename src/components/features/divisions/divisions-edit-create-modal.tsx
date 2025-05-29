@@ -1,11 +1,11 @@
 "use client";
-import React from "react";
-import { Division } from "@/types";
-import { Modal, Form, Input, message, Row, Col } from "antd";
 import {
-  useCreateDivisionMutation,
-  useUpdateDivisionMutation,
+    useCreateDivisionMutation,
+    useUpdateDivisionMutation,
 } from "@/redux/features/zone/divisionApi";
+import { Division } from "@/types";
+import { Col, Form, Input, message, Modal, Row } from "antd";
+import React from "react";
 
 interface DivisionEditCreateModalProps {
   editingDivision: Division | null;
