@@ -6,7 +6,6 @@ import { useMobile } from "@/hooks/use-mobile";
 import {
     BarsOutlined,
     DashboardOutlined,
-    FileOutlined,
     FileTextOutlined,
     GlobalOutlined,
     IdcardOutlined,
@@ -15,8 +14,7 @@ import {
     PictureOutlined,
     ScheduleOutlined,
     SettingOutlined,
-    TagsOutlined,
-    UserOutlined,
+    TagsOutlined
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
@@ -99,32 +97,27 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             icon: <ScheduleOutlined />,
             label: <Link href="/dashboard/polls">Polls</Link>,
         },
-        {
-            key: "/dashboard/pages",
-            icon: <FileOutlined />,
-            label: "Pages",
-            children: [
-                {
-                    key: "/dashboard/pages/all",
-                    label: <Link href="/dashboard/pages/all">All Pages</Link>,
-                },
-                {
-                    key: "/dashboard/pages/create",
-                    label: (
-                        <Link href="/dashboard/pages/create">Create Page</Link>
-                    ),
-                },
-            ],
-        },
+        // {
+        //     key: "/dashboard/pages",
+        //     icon: <FileOutlined />,
+        //     label: "Pages",
+        //     children: [
+        //         {
+        //             key: "/dashboard/pages/all",
+        //             label: <Link href="/dashboard/pages/all">All Pages</Link>,
+        //         },
+        //         {
+        //             key: "/dashboard/pages/create",
+        //             label: (
+        //                 <Link href="/dashboard/pages/create">Create Page</Link>
+        //             ),
+        //         },
+        //     ],
+        // },
         {
             key: "/dashboard/reporters",
             icon: <IdcardOutlined />,
             label: <Link href="/dashboard/reporters">Reporters</Link>,
-        },
-        {
-            key: "/dashboard/profile",
-            icon: <UserOutlined />,
-            label: <Link href="/dashboard/profile">Profile</Link>,
         },
         {
             key: "users",
