@@ -44,7 +44,7 @@ export default function AllNewsPage() {
     query["page"] = page;
     query["limit"] = limit;
     query["fields"] =
-        "id,news(headline,category_id,slug,banner_image,media_type,category(title,)),is_top_breaking_news,status,createdAt,updatedAt";
+        "id,news(headline,category_id,slug,banner_image,media_type,category(title,slug)),is_top_breaking_news,status,createdAt,updatedAt";
     query["sortBy"] = sortBy;
     query["sortOrder"] = sortOrder;
 
@@ -129,7 +129,7 @@ export default function AllNewsPage() {
             key: "headline",
             render: (_text, record) => (
                 <Link
-                    href={`${config?.host_front}/${record?.news?.category?.slug}/${record?.id}/${record?.news?.slug}`}
+                    href={`${config?.host_front}/${record?.news?.category?.slug}/${record?.news?.id}/${record?.news?.slug}`}
                     target="_blank"
                     style={{ maxWidth: "300px", display: "block" }}
                 >

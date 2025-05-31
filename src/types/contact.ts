@@ -1,14 +1,14 @@
 export interface Contact {
-  
-  editor_name: string;
-  content: string;
-  address: string;
-  phone: string;
-  phoneTwo: string;
-  email: string;
-  website: string;
-  latitude?: number;
-  longitude?: number;
-  map?: string;
-  rights?: string;
+    id: string;
+    editor_name: string;
+    chairperson: string;
+    executive_editor: string;
+    address: string;
+    phone: string;
+    phoneTwo: string;
+    email: string;
+    website: string;
+    map: string;
+    latitude?: number;
+    longitude?: number;
 }
