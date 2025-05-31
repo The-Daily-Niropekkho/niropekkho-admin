@@ -168,7 +168,6 @@ const NavbarPositionEditor = ({
             position: i + 1,
         }));
         try {
-            console.log(payload);
 
             await updatePositions({ payload: payload }).unwrap();
             message.success("Positions saved");

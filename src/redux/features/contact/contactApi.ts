@@ -8,20 +8,16 @@ const url = `/contact-settings`;
 const contactApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getContactDetails: builder.query({
-            query: (id) => {
+            query: () => {
                 return {
-                    url: `${url}/${id}`,
+                    url: url,
                 };
             },
             transformResponse: (response: TResponseRedux<Contact[]>) => {
-                return {
-                    data: response.data,
-                };
+                return response.data
             },
             providesTags: [contactTag],
         }),
-
-        
         updateContact: builder.mutation({
             query: (data) => {
                 return {
