@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { tags } from "@/constants";
 import { baseApi } from "@/redux/api/baseApi";
 import { TArgsParam, TFileDocument, TResponseRedux } from "@/types";
 
@@ -34,7 +35,7 @@ export const mediaApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [{ type: "Media", id: "LIST" }],
+            providesTags: [tags.mediaTag], 
         }),
     }),
 });

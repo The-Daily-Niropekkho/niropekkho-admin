@@ -1,4 +1,4 @@
-import { divisionTag } from "@/constants";
+import { tags } from "@/constants";
 import { Division, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -34,7 +34,7 @@ const divisionApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [divisionTag],
+            providesTags: [tags.divisionTag],
         }),
         getDivisionDetails: builder.query({
             query: (id) => {
@@ -47,7 +47,7 @@ const divisionApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [divisionTag],
+            providesTags: [tags.divisionTag],
         }),
         createDivision: builder.mutation({
             query: (data) => {
@@ -62,7 +62,7 @@ const divisionApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [divisionTag],
+            invalidatesTags: [tags.divisionTag],
         }),
         updateDivision: builder.mutation({
             query: (data) => {
@@ -77,7 +77,7 @@ const divisionApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [divisionTag],
+            invalidatesTags: [tags.divisionTag],
         }),
         deleteDivision: builder.mutation({
             query: (id) => {
@@ -86,7 +86,7 @@ const divisionApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [divisionTag],
+            invalidatesTags: [tags.divisionTag],
         }),
     }),
 });

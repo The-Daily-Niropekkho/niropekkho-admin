@@ -1,4 +1,4 @@
-import { countryTag } from "@/constants";
+import { tags } from "@/constants";
 import { Country, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -34,7 +34,7 @@ const countryApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [countryTag],
+            providesTags: [tags.countryTag],
         }),
         getCountryDetails: builder.query({
             query: (id) => {
@@ -47,7 +47,7 @@ const countryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [countryTag],
+            providesTags: [tags.countryTag],
         }),
         createCountry: builder.mutation({
             query: (data) => {
@@ -62,7 +62,7 @@ const countryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [countryTag],
+            invalidatesTags: [tags.countryTag],
         }),
         updateCountry: builder.mutation({
             query: (data) => {
@@ -77,7 +77,7 @@ const countryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [countryTag],
+            invalidatesTags: [tags.countryTag],
         }),
         deleteCountry: builder.mutation({
             query: (id) => {
@@ -86,7 +86,7 @@ const countryApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [countryTag],
+            invalidatesTags: [tags.countryTag],
         }),
     }),
 });

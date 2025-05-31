@@ -1,3 +1,4 @@
+import { tags } from "@/constants";
 import { TResponseRedux, User } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -62,7 +63,7 @@ const authApi = baseApi.injectEndpoints({
                 url: "/auth/profile",
                 method: "GET",
             }),
-            providesTags: ["user"],
+            providesTags: [tags.userTag],
             transformResponse: (response: TResponseRedux<User>) => {
                 return response.data;
             },

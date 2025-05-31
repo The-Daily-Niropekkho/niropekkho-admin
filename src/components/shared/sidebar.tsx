@@ -6,6 +6,7 @@ import { useMobile } from "@/hooks/use-mobile";
 import {
     BarsOutlined,
     DashboardOutlined,
+    DiffOutlined,
     FileTextOutlined,
     GlobalOutlined,
     IdcardOutlined,
@@ -14,7 +15,7 @@ import {
     PictureOutlined,
     ScheduleOutlined,
     SettingOutlined,
-    TagsOutlined
+    TagsOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 import Link from "next/link";
@@ -114,6 +115,25 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         //         },
         //     ],
         // },
+        {
+            key: "epaper",
+            icon: <DiffOutlined />,
+            label: "EPaper",
+            children: [
+                {
+                    key: "/dashboard/epaper/categories",
+                    label: <Link href="/dashboard/epaper/categories">Manage Categories</Link>,
+                },
+                {
+                    key: "/dashboard/epaper/pages",
+                    label: <Link href="/dashboard/epaper/pages">Manage Page</Link>,
+                },
+                {
+                    key: "/dashboard/epaper/add",
+                    label: <Link href="/dashboard/epaper/add">Create User</Link>,
+                },
+            ],
+        },
         {
             key: "/dashboard/reporters",
             icon: <IdcardOutlined />,

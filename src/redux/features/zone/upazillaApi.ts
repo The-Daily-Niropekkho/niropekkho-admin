@@ -1,4 +1,4 @@
-import { upazillaTag } from "@/constants";
+import { tags } from "@/constants";
 import { TArgsParam, TResponseRedux, Upazilla } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -34,7 +34,7 @@ const upazillaApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [upazillaTag],
+            providesTags: [tags.upazillaTag],
         }),
         getUpazillaDetails: builder.query({
             query: (id) => {
@@ -47,7 +47,7 @@ const upazillaApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [upazillaTag],
+            providesTags: [tags.upazillaTag],
         }),
         createUpazilla: builder.mutation({
             query: (data) => {
@@ -62,7 +62,7 @@ const upazillaApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [upazillaTag],
+            invalidatesTags: [tags.upazillaTag],
         }),
         updateUpazilla: builder.mutation({
             query: (data) => {
@@ -77,7 +77,7 @@ const upazillaApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [upazillaTag],
+            invalidatesTags: [tags.upazillaTag],
         }),
         deleteUpazilla: builder.mutation({
             query: (id) => {
@@ -86,7 +86,7 @@ const upazillaApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [upazillaTag],
+            invalidatesTags: [tags.upazillaTag],
         }),
     }),
 });

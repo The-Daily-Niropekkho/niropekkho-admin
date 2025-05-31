@@ -31,7 +31,7 @@ import TopicEditCreateModal from "../topic/create-edit-modal";
 
 interface GeneralSectionProps {
     form: FormInstance<any>;
-    selectedCategory: string| undefined;
+    selectedCategory: string | undefined;
     setSelectedCategory: Dispatch<SetStateAction<string | undefined>>;
     selectedDivision: number | string | undefined;
     setSelectedDivision: Dispatch<SetStateAction<number | undefined>>;
@@ -150,8 +150,15 @@ export const GeneralSection = ({
                     showSearch
                     onChange={(value) => setSelectedCategory(value)}
                     options={categories?.map((category: Category) => ({
-                         value: category.id, label: category.title, disabled: category.status !== "active" 
+                        value: category.id,
+                        label: category.title,
+                        disabled: category.status !== "active",
                     }))}
+                    filterOption={(input, option) =>
+                        (option?.label as string)
+                            ?.toLowerCase()
+                            .includes(input.toLowerCase())
+                    }
                     popupRender={(menu) => (
                         <>
                             <div style={{ padding: "4px" }}>
@@ -171,7 +178,6 @@ export const GeneralSection = ({
                         </>
                     )}
                 />
-                
             </Form.Item>
             {selectedCategory == EnumIds.across_the_country && (
                 <div className="grid grid-cols-2 gap-x-5">
@@ -180,10 +186,18 @@ export const GeneralSection = ({
                             placeholder="Select a division"
                             disabled={isDivisionsLoading || !selectedCategory}
                             showSearch
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                             onChange={(value) => setSelectedDivision(value)}
                         >
                             {divisions?.map((division: Division) => (
-                                <Select.Option key={division.id} value={division.id}>
+                                <Select.Option
+                                    key={division.id}
+                                    value={division.id}
+                                >
                                     {division.bn_name}
                                 </Select.Option>
                             ))}
@@ -195,10 +209,18 @@ export const GeneralSection = ({
                             placeholder="Select a district"
                             disabled={isDistrictsLoading || !selectedDivision}
                             showSearch
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                             onChange={(value) => setSelectedDistrict(value)}
                         >
                             {districts?.map((district: District) => (
-                                <Select.Option key={district.id} value={district.id}>
+                                <Select.Option
+                                    key={district.id}
+                                    value={district.id}
+                                >
                                     {district.bn_name}
                                 </Select.Option>
                             ))}
@@ -210,10 +232,18 @@ export const GeneralSection = ({
                             placeholder="Select an upazilla"
                             disabled={isUpazillaLoading || !selectedDistrict}
                             showSearch
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                             onChange={(value) => setSelectedUpazilla(value)}
                         >
                             {upazillas?.map((upazilla: Upazilla) => (
-                                <Select.Option key={upazilla.id} value={upazilla.id}>
+                                <Select.Option
+                                    key={upazilla.id}
+                                    value={upazilla.id}
+                                >
                                     {upazilla.bn_name}
                                 </Select.Option>
                             ))}
@@ -225,6 +255,11 @@ export const GeneralSection = ({
                             placeholder="Select a union"
                             disabled={isUnionLoading || !selectedUpazilla}
                             showSearch
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                         >
                             {unions?.map((union: Union) => (
                                 <Select.Option key={union.id} value={union.id}>
@@ -241,10 +276,18 @@ export const GeneralSection = ({
                         <Select
                             placeholder="Select a category position"
                             allowClear
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                         >
-                            {Array.from({ length: 20 }, (_, i) => i+1).map(
+                            {Array.from({ length: 20 }, (_, i) => i + 1).map(
                                 (position) => (
-                                    <Select.Option key={position} value={position}>
+                                    <Select.Option
+                                        key={position}
+                                        value={position}
+                                    >
                                         {position}
                                     </Select.Option>
                                 )
@@ -254,10 +297,21 @@ export const GeneralSection = ({
                 </Col>
                 <Col span={12}>
                     <Form.Item name="home_serial" label="Home Position">
-                        <Select placeholder="Select a home position" allowClear>
-                            {Array.from({ length: 20 }, (_, i) => i+1).map(
+                        <Select
+                            placeholder="Select a home position"
+                            allowClear
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
+                        >
+                            {Array.from({ length: 20 }, (_, i) => i + 1).map(
                                 (position) => (
-                                    <Select.Option key={position} value={position}>
+                                    <Select.Option
+                                        key={position}
+                                        value={position}
+                                    >
                                         {position}
                                     </Select.Option>
                                 )
@@ -290,6 +344,11 @@ export const GeneralSection = ({
                         </>
                     )}
                     maxCount={5}
+                    filterOption={(input, option) =>
+                        (option?.children as unknown as string)
+                            ?.toLowerCase()
+                            .includes(input.toLowerCase())
+                    }
                 >
                     {topics?.map((topic: Topic) => (
                         <Select.Option key={topic.id} value={topic.id}>
@@ -342,9 +401,17 @@ export const GeneralSection = ({
                                 </>
                             )}
                             allowClear
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                         >
                             {genericReporter?.data?.map((reporter: any) => (
-                                <Select.Option key={reporter.id} value={reporter.id}>
+                                <Select.Option
+                                    key={reporter.id}
+                                    value={reporter.id}
+                                >
                                     {reporter?.name}
                                 </Select.Option>
                             ))}
@@ -362,9 +429,17 @@ export const GeneralSection = ({
                             showSearch
                             disabled={isWriterLoading || !!genericReporterId}
                             allowClear
+                            filterOption={(input, option) =>
+                                (option?.children as unknown as string)
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
                         >
                             {writers?.data?.map((reporter: User) => (
-                                <Select.Option key={reporter.id} value={reporter.id}>
+                                <Select.Option
+                                    key={reporter.id}
+                                    value={reporter.id}
+                                >
                                     {`${reporter?.writer?.first_name} ${reporter?.writer?.last_name}`}
                                 </Select.Option>
                             ))}

@@ -1,21 +1,7 @@
 import config from "@/config";
 import {
-    breakingNewsTag,
-    categoryPosistionTag,
-    categoryTag,
-    contactTag,
-    countryTag,
-    districtTag,
-    divisionTag,
-    mediaTag,
-    newsTag,
-    reporterTag,
-    topicTag,
-    unionTag,
-    upazillaTag,
-    userTag,
-    userTags,
-    pollTag
+    tags,
+    userTags
 } from "@/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -36,22 +22,7 @@ export const baseApi = createApi({
     baseQuery: baseQuery,
     endpoints: () => ({}),
     tagTypes: [
-        ...Object.values(userTags),
-        categoryTag,
-        userTag,
-        mediaTag,
-        topicTag,
-        countryTag,
-        divisionTag,
-        districtTag,
-        upazillaTag,
-        unionTag,
-        contactTag,
-        newsTag,
-        reporterTag,
-        pollTag,
-        breakingNewsTag,
-        reporterTag,
-        categoryPosistionTag
+        ...Object.values(tags),
+        ...Object.values(userTags)
     ],
 });

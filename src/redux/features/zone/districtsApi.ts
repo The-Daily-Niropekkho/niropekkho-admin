@@ -1,4 +1,4 @@
-import { districtTag } from "@/constants";
+import { tags } from "@/constants";
 import { District, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -34,7 +34,7 @@ const districtApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [districtTag],
+            providesTags: [tags.districtTag],
         }),
         getDistrictDetails: builder.query({
             query: (id) => {
@@ -47,7 +47,7 @@ const districtApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [districtTag],
+            providesTags: [tags.districtTag],
         }),
         createDistrict: builder.mutation({
             query: (data) => {
@@ -62,7 +62,7 @@ const districtApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [districtTag],
+            invalidatesTags: [tags.districtTag],
         }),
         updateDistrict: builder.mutation({
             query: (data) => {
@@ -77,7 +77,7 @@ const districtApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [districtTag],
+            invalidatesTags: [tags.districtTag],
         }),
         deleteDistrict: builder.mutation({
             query: (id) => {
@@ -86,7 +86,7 @@ const districtApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [districtTag],
+            invalidatesTags: [tags.districtTag],
         }),
     }),
 });

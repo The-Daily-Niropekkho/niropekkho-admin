@@ -1,4 +1,4 @@
-import { topicTag } from "@/constants";
+import { tags } from "@/constants";
 import { TArgsParam, Topic, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -34,7 +34,7 @@ const topicApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [topicTag],
+            providesTags: [tags.topicTag],
         }),
         getTopicDetails: builder.query({
             query: (id) => {
@@ -47,7 +47,7 @@ const topicApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [topicTag],
+            providesTags: [tags.topicTag],
         }),
         createTopic: builder.mutation({
             query: (data) => {
@@ -62,7 +62,7 @@ const topicApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [topicTag],
+            invalidatesTags: [tags.topicTag],
         }),
         updateTopic: builder.mutation({
             query: (data) => {
@@ -77,7 +77,7 @@ const topicApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [topicTag],
+            invalidatesTags: [tags.topicTag],
         }),
         deleteTopic: builder.mutation({
             query: (id) => {
@@ -86,7 +86,7 @@ const topicApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [topicTag],
+            invalidatesTags: [tags.topicTag],
         }),
     }),
 });

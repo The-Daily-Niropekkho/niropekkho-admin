@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { breakingNewsTag } from "@/constants";
+import { tags } from "@/constants";
 import { BreakingNews, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -35,7 +35,7 @@ const breakingNewsApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [breakingNewsTag],
+            providesTags: [tags.breakingNewsTag],
         }),
         updateBreakingNews: builder.mutation({
             query: (data) => {
@@ -50,7 +50,7 @@ const breakingNewsApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [breakingNewsTag],
+            invalidatesTags: [tags.breakingNewsTag],
         }),
         deleteBreakingNews: builder.mutation({
             query: (id) => {
@@ -59,7 +59,7 @@ const breakingNewsApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [breakingNewsTag],
+            invalidatesTags: [tags.breakingNewsTag],
         }),
     }),
 });

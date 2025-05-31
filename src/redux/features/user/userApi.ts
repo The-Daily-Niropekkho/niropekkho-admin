@@ -1,4 +1,4 @@
-import { userTag, userTags } from "@/constants";
+import { tags, userTags } from "@/constants";
 import { TArgsParam, TResponseRedux, User } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -110,7 +110,7 @@ const userApi = baseApi.injectEndpoints({
                     body: data?.data,
                 };
             },
-            invalidatesTags: [userTag],
+            invalidatesTags: [tags.userTag],
         }),
         updateUser: builder.mutation({
             query: (data) => {
@@ -120,7 +120,7 @@ const userApi = baseApi.injectEndpoints({
                     body: data?.data,
                 };
             },
-            invalidatesTags: [userTag],
+            invalidatesTags: [tags.userTag],
         }),
         deleteUser: builder.mutation({
             query: (id) => {

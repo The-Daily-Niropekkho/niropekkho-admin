@@ -1,16 +1,18 @@
-export const topicTag = "topic" as const;
-export const categoryTag = "categories" as const;
-export const userTag = "user" as const;
-export const mediaTag = "Media" as const;
-export const countryTag = "countries" as const;
-export const divisionTag = "divisions" as const;
-export const districtTag = "districts" as const;
-export const upazillaTag = "upazillas" as const;
-export const unionTag = "unions" as const;
-export const contactTag = "contact" as const;
-export const newsTag = "news" as const;
-export const breakingNewsTag = "breakingNews" as const;
-export const reporterTag = "reporters" as const;
-export const pollTag = "polls" as const;
-
-export const categoryPosistionTag = "categoryPosistion" as const;
+export const tags = {
+    topicTag: "topicTag" as const,
+    categoryTag: "categoryTag" as const,
+    userTag: "userTag" as const,
+    mediaTag: "mediaTag" as const,
+    countryTag: "countryTag" as const,
+    divisionTag: "divisionTag" as const,
+    districtTag: "districtTag" as const,
+    upazillaTag: "upazillaTag" as const,
+    unionTag: "unionTag" as const,
+    contactTag: "contactTag" as const,
+    newsTag: "newsTag" as const,
+    breakingNewsTag: "breakingNewsTag" as const,
+    reporterTag: "reporterTag" as const,
+    pollTag: "pollTag" as const,
+    categoryPosistionTag: "categoryPosistionTag" as const,
+    epaperCategoryTag: "epapercategoryPosistion" as const,
+};

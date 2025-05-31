@@ -1,9 +1,8 @@
-
-import { categoryPosistionTag, categoryTag } from "@/constants";
+import { tags } from "@/constants";
 import { Category, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = `/category`
+const url = `/category`;
 
 const categoryApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -25,7 +24,7 @@ const categoryApi = baseApi.injectEndpoints({
                 );
 
                 return {
-                      url: url,
+                    url: url,
                     params: cleanedParams,
                 };
             },
@@ -35,7 +34,7 @@ const categoryApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [tags.categoryTag],
         }),
         getCategoryDetails: builder.query({
             query: (id) => {
@@ -48,7 +47,7 @@ const categoryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [categoryTag],
+            providesTags: [tags.categoryTag],
         }),
         createCategory: builder.mutation({
             query: (data) => {
@@ -63,7 +62,7 @@ const categoryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [tags.categoryTag],
         }),
         updateCategory: builder.mutation({
             query: (data) => {
@@ -78,7 +77,7 @@ const categoryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [tags.categoryTag],
         }),
         updateCategoryPosition: builder.mutation({
             query: (data) => {
@@ -93,7 +92,7 @@ const categoryApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [categoryPosistionTag, categoryTag],
+            invalidatesTags: [tags.categoryPosistionTag, tags.categoryTag],
         }),
         deleteCategory: builder.mutation({
             query: (id) => {
@@ -102,7 +101,7 @@ const categoryApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [categoryTag],
+            invalidatesTags: [tags.categoryTag],
         }),
     }),
 });
@@ -113,5 +112,5 @@ export const {
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
     useUpdateCategoryPositionMutation,
-    useDeleteCategoryMutation
+    useDeleteCategoryMutation,
 } = categoryApi;

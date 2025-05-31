@@ -1,4 +1,4 @@
-import { pollTag } from "@/constants";
+import { tags } from "@/constants";
 import { Poll, PollOption, TQueryParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -27,7 +27,7 @@ const pollApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [pollTag],
+            providesTags: [tags.pollTag],
         }),
         getPollDetails: builder.query({
             query: (id) => {
@@ -40,7 +40,7 @@ const pollApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [pollTag],
+            providesTags: [tags.pollTag],
         }),
         createPoll: builder.mutation({
             query: (data) => {
@@ -55,7 +55,7 @@ const pollApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [pollTag],
+            invalidatesTags: [tags.pollTag],
         }),
         updatePoll: builder.mutation({
             query: ({ id, data }: { id: string; data: Partial<Poll> }) => {
@@ -70,7 +70,7 @@ const pollApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [pollTag],
+            invalidatesTags: [tags.pollTag],
         }),
         deletePoll: builder.mutation({
             query: (id) => {
@@ -79,7 +79,7 @@ const pollApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [pollTag],
+            invalidatesTags: [tags.pollTag],
         }),
         voteOnPoll: builder.mutation({
             query: ({ pollId, option }: { pollId: string; option: string }) => {
@@ -94,7 +94,7 @@ const pollApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [pollTag],
+            invalidatesTags: [tags.pollTag],
         }),
         getPollResults: builder.query({
             query: (pollId) => {
@@ -110,7 +110,7 @@ const pollApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [pollTag],
+            providesTags: [tags.pollTag],
         }),
     }),
 });

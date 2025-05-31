@@ -1,5 +1,5 @@
 
-import { contactTag } from "@/constants";
+import { tags } from "@/constants";
 import { Contact, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -16,7 +16,7 @@ const contactApi = baseApi.injectEndpoints({
             transformResponse: (response: TResponseRedux<Contact[]>) => {
                 return response.data
             },
-            providesTags: [contactTag],
+            providesTags: [tags.contactTag],
         }),
         updateContact: builder.mutation({
             query: (data) => {
@@ -31,7 +31,7 @@ const contactApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [contactTag],
+            invalidatesTags: [tags.contactTag],
         }),
         
     }),

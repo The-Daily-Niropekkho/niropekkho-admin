@@ -1,4 +1,4 @@
-import { reporterTag } from "@/constants";
+import { tags } from "@/constants";
 import { GenericReporter, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
@@ -36,7 +36,7 @@ const reporterApi = baseApi.injectEndpoints({
                     meta: response.meta,
                 };
             },
-            providesTags: [reporterTag],
+            providesTags: [tags.reporterTag],
         }),
         getGenericReporterDetails: builder.query({
             query: (id) => {
@@ -49,7 +49,7 @@ const reporterApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            providesTags: [reporterTag],
+            providesTags: [tags.reporterTag],
         }),
         createGenericReporter: builder.mutation({
             query: (data) => {
@@ -64,7 +64,7 @@ const reporterApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [reporterTag],
+            invalidatesTags: [tags.reporterTag],
         }),
         updateGenericReporter: builder.mutation({
             query: (data) => {
@@ -79,7 +79,7 @@ const reporterApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [reporterTag],
+            invalidatesTags: [tags.reporterTag],
         }),
         deleteGenericReporter: builder.mutation({
             query: (id) => {
@@ -88,7 +88,7 @@ const reporterApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [reporterTag],
+            invalidatesTags: [tags.reporterTag],
         }),
     }),
 });

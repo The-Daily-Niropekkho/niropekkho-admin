@@ -1,12 +1,13 @@
+
 import { tags } from "@/constants";
-import { TArgsParam, TResponseRedux, Union } from "@/types";
+import { EpaperCategory, TArgsParam, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
-const url = "/unions";
+const url = `/epaper/category`;
 
-const unionApi = baseApi.injectEndpoints({
+const epaperCategoryApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getAllUnions: builder.query({
+        getAllEpaperCategories: builder.query({
             query: (args: TArgsParam) => {
                 const cleanedParams = Object.entries(args || {}).reduce(
                     (acc, [key, value]) => {
@@ -24,32 +25,32 @@ const unionApi = baseApi.injectEndpoints({
                 );
 
                 return {
-                      url: url,
+                    url: url,
                     params: cleanedParams,
                 };
             },
-            transformResponse: (response: TResponseRedux<Union[]>) => {
+            transformResponse: (response: TResponseRedux<EpaperCategory[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
                 };
             },
-            providesTags: [tags.unionTag],
+            providesTags: [tags.categoryTag],
         }),
-        getUnionDetails: builder.query({
+        getEpaperCategoryDetails: builder.query({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                 };
             },
-            transformResponse: (response: TResponseRedux<Union>) => {
+            transformResponse: (response: TResponseRedux<EpaperCategory>) => {
                 return {
                     data: response.data,
                 };
             },
-            providesTags: [tags.unionTag],
+            providesTags: [tags.categoryTag],
         }),
-        createUnion: builder.mutation({
+        createEpaperCategory: builder.mutation({
             query: (data) => {
                 return {
                     url: url,
@@ -57,14 +58,14 @@ const unionApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Union>) => {
+            transformResponse: (response: TResponseRedux<EpaperCategory>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [tags.unionTag],
+            invalidatesTags: [tags.categoryTag],
         }),
-        updateUnion: builder.mutation({
+        updateEpaperCategory: builder.mutation({
             query: (data) => {
                 return {
                     url: `${url}/${data.id}`,
@@ -72,29 +73,28 @@ const unionApi = baseApi.injectEndpoints({
                     body: data.data,
                 };
             },
-            transformResponse: (response: TResponseRedux<Union>) => {
+            transformResponse: (response: TResponseRedux<EpaperCategory>) => {
                 return {
                     data: response.data,
                 };
             },
-            invalidatesTags: [tags.unionTag],
+            invalidatesTags: [tags.categoryTag],
         }),
-        deleteUnion: builder.mutation({
+        deleteEpaperCategory: builder.mutation({
             query: (id) => {
                 return {
                     url: `${url}/${id}`,
                     method: "DELETE",
                 };
             },
-            invalidatesTags: [tags.unionTag],
+            invalidatesTags: [tags.categoryTag],
         }),
     }),
 });
 
 export const {
-    useGetAllUnionsQuery,
-    useGetUnionDetailsQuery,
-    useCreateUnionMutation,
-    useUpdateUnionMutation,
-    useDeleteUnionMutation,
-} = unionApi;
+    useGetAllEpaperCategoriesQuery,
+    useCreateEpaperCategoryMutation,
+    useUpdateEpaperCategoryMutation,
+    useDeleteEpaperCategoryMutation,
+} = epaperCategoryApi;
