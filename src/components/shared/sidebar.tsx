@@ -20,10 +20,10 @@ import {
     TagsOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import CustomImage from "../ui/image";
 
 const { Sider } = Layout;
 
@@ -336,7 +336,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 }}
             >
                 {collapsed && (
-                    <Image
+                    <CustomImage
                         width={50}
                         height={50}
                         src={
@@ -350,7 +350,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 )}
                 {!collapsed && (
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                        <Image
+                        <CustomImage
                             width={180}
                             height={50}
                             src={isDark ? "/logo-dark.png" : "/logo.png"}
