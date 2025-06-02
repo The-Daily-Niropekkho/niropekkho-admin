@@ -1,0 +1,38 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: ADMIN_DASHBOARD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    # needs: build
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23.x
+          cache: "yarn"
+      - name: Change Directory
+        run: cd /home/front/actions-dashboard/_work/niropekkho-admin/niropekkho-admin
+      - name: Install Dependencies
+        run: yarn install
+      # - name: Unzip environment
+      #   run: 7z x .env.local.zip -p"${{ secrets.ZIP_PASS }}" -o./ -y
+      - name: Build the Project
+        run: yarn build
+      - name: Check if dashboard is running and restart or start accordingly
+        run: |
+          # Check if the process is running
+          if pm2 list | grep -q "dashboard"; then
+            echo "dashboard is already running, restarting it..."
+            pm2 restart dashboard
+          else
+            echo "dashboard is not running, starting it..."
+            pm2 start ecosystem.config.js --env production
+          fi
