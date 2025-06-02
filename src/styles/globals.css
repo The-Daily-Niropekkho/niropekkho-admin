@@ -1,0 +1,1039 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+@font-face {
+    font-family: "SolaimanLipi";
+    src: url("/fonts/SolaimanLipi.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Nikosh";
+    src: url("/fonts/Nikosh.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Siyam Rupali";
+    src: url("/fonts/SiyamRupali.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Kalpurush";
+    src: url("/fonts/Kalpurush.ttf") format("truetype");
+}
+
+@layer theme, base, antd, components, utilities;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "antd/dist/reset.css";
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+/* Base theme variables that will be set by the ThemeProvider */
+:root {
+    /* These will be dynamically set by the ThemeProvider */
+    --color-primary: #10b981;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --color-info: #3b82f6;
+    --color-text-base: #374151;
+    --color-text-secondary: #6b7280;
+    --color-bg-container: #ffffff;
+    --color-bg-elevated: #ffffff;
+    --color-bg-layout: #f9fafb;
+    --color-border: #e5e7eb;
+
+    --font-size-base: 14px;
+    --font-size-sm: 12px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+
+    --padding-xs: 8px;
+    --padding-sm: 12px;
+    --padding: 16px;
+    --padding-md: 20px;
+    --padding-lg: 24px;
+    --padding-xl: 32px;
+
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --border-radius-lg: 12px;
+    --border-width: 1px;
+
+    --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --box-shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    --motion-duration-slow: 0.3s;
+    --motion-duration-mid: 0.2s;
+    --motion-duration-fast: 0.1s;
+}
+
+.ant-layout {
+    min-height: 100vh;
+    background: var(--color-bg-layout);
+}
+
+.ant-layout-content {
+    transition: all var(--motion-duration-mid) ease;
+}
+
+.ant-menu-inline .ant-menu-item::after {
+    display: none !important;
+}
+
+.ant-menu-light .ant-menu-item-selected {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: var(--color-primary) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: var(--color-primary) !important;
+}
+
+.ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title {
+    color: var(--color-primary) !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-selected > .ant-menu-submenu-title {
+    color: var(--color-primary) !important;
+}
+
+.ant-btn-primary {
+    background-color: var(--color-primary) !important;
+}
+
+.ant-btn-primary:hover {
+    background-color: color-mix(
+        in srgb,
+        var(--color-primary),
+        #000 10%
+    ) !important;
+}
+
+.ant-btn-text:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .ant-btn-text:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.ant-card {
+    border-radius: var(--border-radius-lg) !important;
+    overflow: hidden;
+    transition: all var(--motion-duration-mid) ease;
+    border: var(--border-width) solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .ant-card {
+    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+}
+
+.ant-card-hoverable:hover {
+    box-shadow: var(--box-shadow-secondary) !important;
+    transform: translateY(-2px);
+}
+
+.dark .ant-card-hoverable:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
+        0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dashboard-card {
+    cursor: pointer;
+    transition: all var(--motion-duration-mid);
+    border-radius: var(--border-radius-lg) !important;
+    overflow: hidden;
+    border: none !important;
+    box-shadow: var(--box-shadow) !important;
+}
+
+.dashboard-card:hover {
+    box-shadow: var(--box-shadow-secondary) !important;
+    transform: translateY(-2px);
+}
+
+.dark .dashboard-card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .dashboard-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
+        0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.ant-table {
+    border-radius: var(--border-radius-lg) !important;
+    overflow: hidden;
+}
+
+.ant-table-wrapper {
+    border-radius: var(--border-radius-lg) !important;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+}
+
+.dark .ant-table-wrapper {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.ant-table-thead > tr > th {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+    font-weight: 600 !important;
+}
+
+.dark .ant-table-thead > tr > th {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.ant-pagination-item-active {
+    border-color: var(--color-primary) !important;
+}
+
+.ant-pagination-item-active a {
+    color: var(--color-primary) !important;
+}
+
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+    border-color: var(--color-primary) !important;
+}
+
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(
+        .ant-select-customize-input
+    )
+    .ant-select-selector {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+.ant-input:hover {
+    border-color: var(--color-primary) !important;
+}
+
+.ant-input:focus,
+.ant-input-focused {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+.ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
+    border-color: var(--color-primary) !important;
+}
+
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Dark mode styles for form elements */
+.dark .ant-input,
+.dark .ant-input-number,
+.dark .ant-input-affix-wrapper,
+.dark .ant-select-selector,
+.dark .ant-picker,
+.dark .ant-input-search,
+.dark .ant-input-group-addon,
+.dark .ant-input-textarea,
+.dark .ant-select-dropdown,
+.dark .ant-cascader-dropdown,
+.dark .ant-picker-dropdown,
+.dark .ant-select-item {
+    /* background-color: rgba(255, 255, 255, 0.05) !important; */
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .ant-select-selection-placeholder,
+.dark .ant-select-selection-item,
+.dark .ant-input::placeholder,
+.dark .ant-input-number-input::placeholder,
+.dark .ant-picker-input > input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark .ant-select-arrow,
+.dark .ant-picker-suffix,
+.dark .ant-input-clear-icon,
+.dark .ant-input-number-handler-wrap {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark .ant-input-number-handler:hover .ant-input-number-handler-up-inner,
+.dark .ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+    color: var(--color-primary) !important;
+}
+
+.dark .ant-form-item-label > label {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .ant-form-item-explain,
+.dark .ant-form-item-extra {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark .ant-checkbox-wrapper,
+.dark .ant-radio-wrapper {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .ant-select-dropdown,
+.dark .ant-cascader-dropdown,
+.dark .ant-picker-dropdown,
+.dark .ant-picker-panel-container {
+    background-color: var(--color-bg-elevated) !important;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+        0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .ant-select-item-option-content,
+.dark .ant-cascader-menu-item-content,
+.dark .ant-picker-cell {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.dark .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: var(--color-primary) !important;
+}
+
+.dark .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+    background: var(--color-primary) !important;
+}
+
+.dark
+    .ant-picker-cell-in-view.ant-picker-cell-today
+    .ant-picker-cell-inner::before {
+    border-color: var(--color-primary) !important;
+}
+
+.dark .ant-picker-header,
+.dark .ant-picker-header button {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .ant-picker-header button:hover {
+    color: var(--color-primary) !important;
+}
+
+.dark
+    .ant-picker-time-panel-column
+    > li.ant-picker-time-panel-cell
+    .ant-picker-time-panel-cell-inner {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark
+    .ant-picker-time-panel-column
+    > li.ant-picker-time-panel-cell
+    .ant-picker-time-panel-cell-inner:hover {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.dark .ant-picker-ok button {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.dark .ant-picker-today-btn {
+    color: var(--color-primary) !important;
+}
+
+.dark .ant-picker-ranges .ant-picker-preset > .ant-tag-blue {
+    color: var(--color-primary) !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.dark
+    .ant-picker-cell:hover:not(.ant-picker-cell-in-view)
+    .ant-picker-cell-inner,
+.dark
+    .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(
+        .ant-picker-cell-range-start
+    ):not(.ant-picker-cell-range-end):not(
+        .ant-picker-cell-range-hover-start
+    ):not(.ant-picker-cell-range-hover-end)
+    .ant-picker-cell-inner {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.dark .ant-input-disabled,
+.dark .ant-select-disabled .ant-select-selector,
+.dark .ant-picker-disabled,
+.dark .ant-input-number-disabled,
+.dark .ant-cascader-picker-disabled {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Fix for TextArea in dark mode */
+.dark .ant-input-textarea-show-count::after {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* Fix for Switch in dark mode */
+.dark .ant-switch-checked {
+    background-color: var(--color-primary) !important;
+}
+
+.dark .ant-switch {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Fix for Upload in dark mode */
+.dark .ant-upload.ant-upload-select-picture-card,
+.dark .ant-upload-list-picture-card-container {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .ant-upload.ant-upload-select-picture-card:hover {
+    border-color: var(--color-primary) !important;
+}
+
+/* Fix for Slider in dark mode */
+.dark .ant-slider-rail {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .ant-slider-track {
+    background-color: var(--color-primary) !important;
+}
+
+.dark .ant-slider-handle {
+    border-color: var(--color-primary) !important;
+    background-color: var(--color-bg-container) !important;
+}
+
+.dark .ant-slider-handle:focus {
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Fix for Tabs in dark mode */
+.dark .ant-tabs-tab {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark .ant-tabs-tab:hover {
+    color: var(--color-primary) !important;
+}
+
+.dark .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--color-primary) !important;
+}
+
+.dark .ant-tabs-ink-bar {
+    background: var(--color-primary) !important;
+}
+
+/* Fix for Modal in dark mode */
+.dark .ant-modal-content,
+.dark .ant-modal-header {
+    background-color: var(--color-bg-container) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .ant-modal-title,
+.dark .ant-modal-close {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .ant-modal-close:hover {
+    color: var(--color-primary) !important;
+}
+
+/* Fix for Dropdown in dark mode */
+.dark .ant-dropdown-menu {
+    background-color: var(--color-bg-elevated) !important;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+        0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .ant-dropdown-menu-item,
+.dark .ant-dropdown-menu-submenu-title {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .ant-dropdown-menu-item:hover,
+.dark .ant-dropdown-menu-submenu-title:hover {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.dark .ant-dropdown-menu-item-selected {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: var(--color-primary) !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.ant-radio-checked .ant-radio-inner {
+    border-color: var(--color-primary) !important;
+}
+
+.ant-radio-inner::after {
+    background-color: var(--color-primary) !important;
+}
+
+.ant-switch.ant-switch-checked {
+    background-color: var(--color-primary) !important;
+}
+
+.ant-slider-track {
+    background-color: var(--color-primary) !important;
+}
+
+.ant-slider-handle::after {
+    box-shadow: 0 0 0 2px var(--color-primary) !important;
+}
+
+.ant-progress-bg {
+    background-color: var(--color-primary) !important;
+}
+
+.ant-badge-status-processing {
+    background-color: var(--color-primary) !important;
+}
+
+.ant-badge-status-processing::after {
+    border: 1px solid var(--color-primary) !important;
+}
+
+.ant-tag-green {
+    color: var(--color-success) !important;
+    background: rgba(34, 197, 94, 0.1) !important;
+    border-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.ant-tag-purple {
+    color: #8b5cf6 !important;
+    background: rgba(139, 92, 246, 0.1) !important;
+    border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+.ant-tag-blue {
+    color: var(--color-info) !important;
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.ant-tag-orange {
+    color: var(--color-warning) !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+.ant-tag-red {
+    color: var(--color-error) !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+@media (max-width: 768px) {
+    .ant-layout-sider {
+        position: absolute !important;
+        z-index: 100 !important;
+        height: 100% !important;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .ant-layout-sider-collapsed {
+        transform: translateX(-100%) !important;
+    }
+
+    .ant-layout-content {
+        margin: 16px !important;
+    }
+}
+
+/* Add these styles to the end of the file */
+.ant-layout-sider {
+    overflow: hidden !important;
+}
+
+.ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Custom scrollbar for sidebar menu */
+.custom-sidebar-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-sidebar-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-sidebar-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.dark .custom-sidebar-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Fix for mobile view */
+@media (max-width: 768px) {
+    .ant-layout {
+        margin-left: 0 !important;
+    }
+
+    .ant-layout-sider-collapsed {
+        transform: translateX(-100%) !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* Fancy Scrollbar Styling */
+/* For Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode scrollbar */
+.dark::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark * {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Smooth scrolling for the entire page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom animation for the scrollbar thumb */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+::-webkit-scrollbar-thumb {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Make scrollbar more visible on hover but still subtle */
+:hover::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.4);
+}
+
+.dark :hover::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.4);
+}
+
+/* .ck-powered-by { display: none !important; } */
+/* Base editor styles */
+.main-container {
+    font-family: "Lato";
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Editor content styles */
+.ck-content {
+    font-family: "Lato";
+    line-height: 1.6;
+    word-break: break-word;
+    min-height: 300px;
+}
+
+/* Match dashboard primary color */
+:root {
+    --editor-primary: #10b981;
+    --editor-primary-hover: #0ea271;
+    --editor-primary-light: rgba(16, 185, 129, 0.1);
+    --editor-primary-focus: rgba(16, 185, 129, 0.2);
+}
+
+/* Focus states to match dashboard */
+.ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+    border-color: var(--editor-primary) !important;
+    box-shadow: 0 0 0 2px var(--editor-primary-focus) !important;
+}
+
+/* Button states to match dashboard */
+.ck.ck-button.ck-on {
+    background-color: var(--editor-primary-light) !important;
+    color: var(--editor-primary) !important;
+}
+
+.ck.ck-button.ck-on .ck-icon * {
+    stroke: var(--editor-primary) !important;
+}
+
+.ck.ck-button.ck-on:hover {
+    background-color: var(--editor-primary-focus) !important;
+}
+
+/* Dropdown active items */
+.ck.ck-list__item .ck-button.ck-on {
+    background-color: var(--editor-primary-light) !important;
+    color: var(--editor-primary) !important;
+}
+
+/* Toolbar separator */
+.ck.ck-toolbar .ck.ck-toolbar__separator {
+    margin: 0 8px;
+}
+
+/* Rounded corners to match dashboard */
+.ck.ck-editor__main > .ck-editor__editable {
+    border-bottom-left-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+}
+
+.ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
+    border-top-left-radius: 6px !important;
+    border-top-right-radius: 6px !important;
+    border-bottom: none !important;
+}
+
+/* Word count styling */
+.ck-word-count {
+    color: #6b7280;
+    display: flex;
+    height: 20px;
+    gap: 10px;
+    justify-content: flex-end;
+    font-size: 12px;
+    padding: 5px 10px;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+/* Custom content styles */
+.ck-content h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 1em 0 0.5em;
+}
+
+.ck-content h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 1em 0 0.5em;
+}
+
+.ck-content h3 {
+    font-size: 1.17em;
+    font-weight: bold;
+    margin: 0.75em 0 0.4em;
+}
+
+.ck-content h4 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0.75em 0 0.4em;
+}
+
+.ck-content h5 {
+    font-size: 0.83em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.ck-content h6 {
+    font-size: 0.67em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+.ck-content h1,
+.ck-content h2,
+.ck-content h3,
+.ck-content h4,
+.ck-content h5,
+.ck-content h6 {
+    color: #111;
+    line-height: 1.3;
+}
+.ck-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0.5em 0;
+    color: #374151;
+}
+.ck-content ul {
+    list-style-type: disc;
+    padding-left: 2em;
+}
+.ck-content ol {
+    list-style-type: decimal;
+    padding-left: 2em;
+}
+.ck-content li {
+    margin: 0.5em 0;
+}
+.ck-content p.info-box {
+    --background-size: 30px;
+    --background-color: var(--editor-primary);
+    padding: 1.2em 2em;
+    border: 1px solid var(--background-color);
+    background: linear-gradient(
+            135deg,
+            var(--background-color) 0%,
+            var(--background-color) var(--background-size),
+            transparent var(--background-size)
+        ),
+        linear-gradient(
+            135deg,
+            transparent calc(100% - var(--background-size)),
+            var(--background-color) calc(100% - var(--background-size)),
+            var(--background-color)
+        );
+    border-radius: 10px;
+    margin: 1.5em 2em;
+    box-shadow: 5px 5px 0 rgba(16, 185, 129, 0.1);
+}
+
+.ck-content span.marker {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+.ck-content span.spoiler {
+    background: #000;
+    color: #000;
+}
+
+.ck-content span.spoiler:hover {
+    background: #000;
+    color: #fff;
+}
+
+.ck-content .button {
+    display: inline-block;
+    width: 260px;
+    border-radius: 8px;
+    margin: 0 auto;
+    padding: 12px;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.ck-content .button--green {
+    background-color: var(--editor-primary);
+}
+
+.ck-content .button--black {
+    background-color: #141517;
+}
+
+.ck .ck-sticky-panel__content {
+    border-radius: 10px 10px 0px 0px !important;
+}
+.ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
+    border : 1px solid var(--color-border) !important;
+}
+
+.ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+    border : 1px solid var(--color-border) !important;
+}
+
+.ck-content .ck-sticky-panel__content {
+    border: 1px solid var(--color-border) !important;
+    background-color: var(--color-bg-elevated) !important;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+        0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+}
+.ck-content .ck-sticky-panel__content {
+    border-radius: 10px 10px 0px 0px !important;
+}
+.ck-content .ck-sticky-panel__content {
+    border: 1px solid var(--color-border) !important;
+    background-color: var(--color-bg-elevated) !important;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.48),
+        0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Table styles */
+.ck-content .table table {
+    border-color: #e5e7eb !important;
+}
+
+.ck-content .table table th {
+    background-color: rgba(16, 185, 129, 0.05);
+    font-weight: 600;
+}
+
+/* Link styles */
+.ck-content a {
+    color: var(--editor-primary);
+    text-decoration: none;
+}
+
+.ck-content a:hover {
+    text-decoration: underline;
+}
+
+.ck-rounded-corners {
+    border-radius: 10px;
+}
+
+/* List styles */
+.ck-content ul,
+.ck-content ol {
+    padding-left: 2em;
+}
+
+.ck-content ul > li {
+    list-style-type: disc;
+}
+
+/* Blockquote styles */
+.ck-content blockquote {
+    border-left: 4px solid var(--editor-primary);
+    padding-left: 1em;
+    margin-left: 0;
+    font-style: italic;
+}
+
+.ck .ck-sticky-panel {
+    border-radius: 10px;
+}
+
+/*  */
+
+.marker-green {
+    background-color: #62f962;
+    color: #14532d;
+}
+
+.marker-pink {
+    background-color: #fc7899;
+    color: #831843;
+}
+.marker-blue {
+    background-color: #72ccfd;
+    color: #1e3a8a;
+}
+.marker-yellow {
+    background-color: #fdfd77;
+    color: #78350f;
+}
+.pen-red {
+    color: #e71313;
+}
+.pen-green {
+    color: #128a00;
+}
+
+.ck-content .ad-placeholder {
+  background: #fef9c3;
+  border: 1px dashed #eab308;
+  padding: 12px;
+  margin: 16px 0;
+  text-align: center;
+  font-style: italic;
+}
+
+:where(.css-dev-only-do-not-override-48wv4a).ant-table-wrapper .ant-table-pagination.ant-pagination {
+    margin: 16px 15px !important;
+}
+
+/* Dark mode styles for Select */
+.ant-select-dark .ant-select-selector {
+  background-color: #2c2c2c !important;
+  color: #fff !important;
+  border-color: #555 !important;
+}
+
+.ant-select-dark .ant-select-arrow,
+.ant-select-dark .ant-select-clear {
+  color: #95de64 !important; /* Green for dark mode */
+}
+
+/* Dark mode styles for DatePicker */
+.ant-picker-dark .ant-picker-input > input {
+  color: #fff !important;
+}
+
+.ant-picker-dark {
+  background-color: #2c2c2c !important;
+  border-color: #555 !important;
+}
+
+.ant-picker-dark .ant-picker-suffix,
+.ant-picker-dark .ant-picker-clear {
+  color: #95de64 !important; /* Green for dark mode */
+}
+
+/* Hover effects for buttons */
+.ant-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Smooth transitions for Select and DatePicker */
+.ant-select-selector,
+.ant-picker {
+  transition: all 0.3s ease;
+}
+
+/* Ensure Collapse panel content has proper padding */
+.ant-collapse-content-box {
+  padding: 16px !important;
+}

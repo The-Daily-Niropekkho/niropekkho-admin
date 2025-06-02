@@ -1,0 +1,165 @@
+/* Position Editor Wrapper */
+.position-editor {
+  margin-bottom: 30px;
+}
+
+/* Header Section Title */
+.position-editor__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  position: relative;
+  display: inline-block;
+}
+
+.position-editor__title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 3px;
+}
+
+.position-editor__title--dark {
+  color: #e5e7eb;
+}
+
+/* Items Container */
+.position-editor__items {
+  margin-top: 25px;
+}
+
+/* Empty State */
+.position-editor__empty {
+  padding: 40px 0;
+}
+
+/* Sortable Item Card */
+.position-editor__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  min-height: 80px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.position-editor__item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: var(--color-primary);
+  border-radius: 4px 0 0 4px;
+}
+
+.position-editor__item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.position-editor__item--dark {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.position-editor__item--dark::before {
+  background: var(--color-primary);
+}
+
+/* Sortable Item Content */
+.position-editor__item-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Drag Handle */
+.position-editor__drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  margin-right: 16px;
+  cursor: move;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.position-editor__drag-handle:hover {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.position-editor__drag-handle--dark {
+  background-color: #374151;
+  color: #9ca3af;
+}
+
+.position-editor__drag-handle--dark:hover {
+  background-color: #4b5563;
+  color: #d1d5db;
+}
+
+/* Item Name */
+.position-editor__item-name {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Item Actions */
+.position-editor__item-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Position Badge */
+.position-editor__position-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.position-editor__position-badge--dark {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+/* Remove Button */
+.position-editor__remove-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
