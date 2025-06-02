@@ -3,6 +3,7 @@
 import { GeneralSection } from "@/components/features/news/general-section";
 import { MediaSection } from "@/components/features/news/media-section";
 import { SEOSection } from "@/components/features/news/seo-section";
+import Loader from "@/components/shared/loader";
 import { useTheme } from "@/components/theme-context";
 import { EnumIds } from "@/constants/enum-ids";
 import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
@@ -47,21 +48,7 @@ import { useEffect, useState } from "react";
 // Dynamically import the CKEditor component
 const CKEditor = dynamic(() => import("@/components/ck-editor"), {
     ssr: false,
-    loading: () => (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "400px",
-                border: "1px solid #d9d9d9",
-                borderRadius: "6px",
-                background: "#f5f5f5",
-            }}
-        >
-            <Spin size="large" />
-        </div>
-    ),
+    loading: () => <Loader/>
 });
 
 const { TextArea } = Input;

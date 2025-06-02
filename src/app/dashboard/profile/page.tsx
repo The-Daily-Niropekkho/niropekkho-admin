@@ -4,6 +4,7 @@
 import ActivityLogs from "@/components/features/profile/activity-logs";
 import ChangePassword from "@/components/features/profile/change-password";
 import ProfileInformation from "@/components/features/profile/profile-information";
+import Loader from "@/components/shared/loader";
 import { useTheme } from "@/components/theme-context";
 import { useGetUserProfileQuery } from "@/redux/features/auth/authApi";
 import type { Admin, Moderator, Writer } from "@/types/user";
@@ -14,7 +15,7 @@ import {
     PhoneOutlined,
     UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Card, Col, Divider, Row, Spin, Tabs, Tag } from "antd";
+import { Avatar, Card, Col, Divider, Row, Tabs, Tag } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -57,18 +58,7 @@ export default function ProfilePage() {
     };
 
     if (isLoading) {
-        return (
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100vh",
-                }}
-            >
-                <Spin size="large" />
-            </div>
-        );
+        return <Loader/>
     }
 
     if (!user || !profileData) {

@@ -3,6 +3,7 @@
 
 import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
+import { useSession } from "@/provider/session-provider";
 import {
     BarChartOutlined,
     BarsOutlined,
@@ -12,7 +13,6 @@ import {
     FormOutlined,
     GlobalOutlined,
     IdcardOutlined,
-    MenuOutlined,
     NotificationOutlined,
     PictureOutlined,
     ScheduleOutlined,
@@ -20,6 +20,7 @@ import {
     TagsOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -31,13 +32,24 @@ interface SidebarProps {
     setCollapsed: (collapsed: boolean) => void;
 }
 
+interface MenuItem {
+    key: string;
+    icon?: React.ReactNode;
+    label: React.ReactNode;
+    children?: MenuItem[];
+}
+
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     const pathname = usePathname();
     const isMobile = useMobile();
     const { theme } = useTheme();
-    const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+    const isDark = theme === "dark";
+    const { session } = useSession();
 
-    const menuItems = [
+    const primaryColor = "#10b981";
+    const secondaryColor = "#8b5cf6";
+
+    const menuItems: MenuItem[] = [
         {
             key: "/dashboard",
             icon: <DashboardOutlined />,
@@ -81,29 +93,19 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/media">Media Library</Link>,
         },
         {
-            key: "/dashboard/menus",
-            icon: <MenuOutlined />,
-            label: <Link href="/dashboard/menus">Menu</Link>,
-        },
-        {
             key: "/dashboard/categories",
             icon: <TagsOutlined />,
             label: <Link href="/dashboard/categories">Categories</Link>,
         },
-        {
-            key: "/dashboard/sub-categories",
-            icon: <TagsOutlined />,
-            label: <Link href="/dashboard/sub-categories">Sub Categories</Link>,
-        },
+        // {
+        //     key: "/dashboard/sub-categories",
+        //     icon: <TagsOutlined />,
+        //     label: <Link href="/dashboard/sub-categories">Sub Categories</Link>,
+        // },
         {
             key: "/dashboard/topics",
             icon: <BarsOutlined />,
             label: <Link href="/dashboard/topics">Topics</Link>,
-        },
-        {
-            key: "/dashboard/advertisement",
-            icon: <NotificationOutlined />,
-            label: <Link href="/dashboard/advertisement">Advertisement</Link>,
         },
         {
             key: "/dashboard/polls",
@@ -111,45 +113,41 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             label: <Link href="/dashboard/polls">Polls</Link>,
         },
         {
-            key: "/dashboard/reports",
-            icon: <BarChartOutlined />,
-            label: <Link href="/dashboard/reports">Reports</Link>,
-        },
-        // {
-        //     key: "/dashboard/pages",
-        //     icon: <FileOutlined />,
-        //     label: "Pages",
-        //     children: [
-        //         {
-        //             key: "/dashboard/pages/all",
-        //             label: <Link href="/dashboard/pages/all">All Pages</Link>,
-        //         },
-        //         {
-        //             key: "/dashboard/pages/create",
-        //             label: (
-        //                 <Link href="/dashboard/pages/create">Create Page</Link>
-        //             ),
-        //         },
-        //     ],
-        // },
-        {
             key: "epaper",
             icon: <DiffOutlined />,
             label: "EPaper",
             children: [
                 {
                     key: "/dashboard/epaper/categories",
-                    label: <Link href="/dashboard/epaper/categories">Manage Categories</Link>,
+                    label: (
+                        <Link href="/dashboard/epaper/categories">
+                            Manage Categories
+                        </Link>
+                    ),
                 },
                 {
                     key: "/dashboard/epaper/pages",
-                    label: <Link href="/dashboard/epaper/pages">Manage Page</Link>,
+                    label: (
+                        <Link href="/dashboard/epaper/pages">Manage Page</Link>
+                    ),
                 },
                 {
                     key: "/dashboard/epaper/add",
-                    label: <Link href="/dashboard/epaper/add">Create User</Link>,
+                    label: (
+                        <Link href="/dashboard/epaper/add">Create User</Link>
+                    ),
                 },
             ],
+        },
+        {
+            key: "/dashboard/advertisement",
+            icon: <NotificationOutlined />,
+            label: <Link href="/dashboard/advertisement">Advertisement</Link>,
+        },
+        {
+            key: "/dashboard/reports",
+            icon: <BarChartOutlined />,
+            label: <Link href="/dashboard/reports">Reports</Link>,
         },
         {
             key: "/dashboard/reporters",
@@ -196,7 +194,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                         <Link href="/dashboard/zone/division">Division</Link>
                     ),
                 },
-
                 {
                     key: "/dashboard/zone/district",
                     label: (
@@ -220,38 +217,64 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         },
     ];
 
-    interface LevelKeysProps {
-        key?: string;
-        children?: LevelKeysProps[];
-    }
+    const nonAdminAllowedKeys = [
+        "/dashboard",
+        "news",
+        "/dashboard/posts",
+        "/dashboard/media",
+        "/dashboard/categories",
+        "/dashboard/topics",
+        "/dashboard/polls",
+        "epaper",
+    ];
 
-    const getLevelKeys = (items1: LevelKeysProps[]) => {
-        const key: Record<string, number> = {};
-        const func = (items2: LevelKeysProps[], level = 1) => {
-            items2.forEach((item) => {
-                if (item.key) {
-                    key[item.key] = level;
-                }
+    const filterMenuByRole = (
+        items: MenuItem[],
+        userType: string
+    ): MenuItem[] => {
+        if (userType === "admin") return items;
+
+        return items
+            .filter((item) => nonAdminAllowedKeys.includes(item.key))
+            .map((item) => {
                 if (item.children) {
-                    func(item.children, level + 1);
+                    const filteredChildren = filterMenuByRole(
+                        item.children,
+                        userType
+                    );
+                    return { ...item, children: filteredChildren };
                 }
+                return item;
+            })
+            .filter((item) => !item.children || item.children.length > 0);
+    };
+
+    const filteredMenuItems = filterMenuByRole(
+        menuItems,
+        session?.user_type ?? ""
+    );
+
+    const getLevelKeys = (items: MenuItem[]) => {
+        const key: Record<string, number> = {};
+        const func = (items2: MenuItem[], level = 1) => {
+            items2.forEach((item) => {
+                if (item.key) key[item.key] = level;
+                if (item.children) func(item.children, level + 1);
             });
         };
-        func(items1);
+        func(items);
         return key;
     };
 
-    const levelKeys = getLevelKeys(menuItems as LevelKeysProps[]);
-
+    const levelKeys = getLevelKeys(menuItems);
     const [stateOpenKeys, setStateOpenKeys] = useState([
         pathname.split("/")[1],
     ]);
 
     const onOpenChange: MenuProps["onOpenChange"] = (openKeys) => {
         const currentOpenKey = openKeys.find(
-            (key) => stateOpenKeys.indexOf(key) === -1
+            (key) => !stateOpenKeys.includes(key)
         );
-        // open
         if (currentOpenKey !== undefined) {
             const repeatIndex = openKeys
                 .filter((key) => key !== currentOpenKey)
@@ -261,23 +284,15 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
             setStateOpenKeys(
                 openKeys
-                    // remove repeat key
                     .filter((_, index) => index !== repeatIndex)
-                    // remove current level all child
                     .filter(
                         (key) => levelKeys[key] <= levelKeys[currentOpenKey]
                     )
             );
         } else {
-            // close
             setStateOpenKeys(openKeys);
         }
     };
-
-    const isDark = theme === "dark";
-
-    const primaryColor = "#10b981"; // Green color for primary elements
-    const secondaryColor = "#8b5cf6"; // Purple for secondary elements
 
     return (
         <Sider
@@ -296,7 +311,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 borderRight: `1px solid ${
                     isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"
                 }`,
-                // background: isDark ? "#111827" : "#ffffff",
                 background: isDark ? "#1f2937" : "#ffffff",
                 transition: "all 0.3s ease",
             }}
@@ -321,37 +335,28 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     transition: "all 0.3s ease",
                 }}
             >
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: collapsed ? "40px" : "48px",
-                        height: collapsed ? "40px" : "48px",
-                        borderRadius: "12px",
-                        background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-                        marginRight: collapsed ? 0 : "16px",
-                        transition: "all 0.3s ease",
-                    }}
-                >
-                    <GlobalOutlined
-                        style={{ fontSize: "20px", color: "#ffffff" }}
+                {collapsed && (
+                    <Image
+                        width={50}
+                        height={50}
+                        src={
+                            isDark
+                                ? "/logo-square-dark.png"
+                                : "/logo-square.png"
+                        }
+                        alt="Niropekkho Logo"
+                        className={isDark ? "invert" : ""}
                     />
-                </div>
+                )}
                 {!collapsed && (
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                        <span
-                            style={{
-                                fontSize: "18px",
-                                fontWeight: "bold",
-                                letterSpacing: "0.5px",
-                            }}
-                        >
-                            নিরপেক্ষ
-                        </span>
-                        <span style={{ fontSize: "12px", opacity: 0.7 }}>
-                            Newspaper Admin
-                        </span>
+                        <Image
+                            width={180}
+                            height={50}
+                            src={isDark ? "/logo-dark.png" : "/logo.png"}
+                            alt="Niropekkho Logo"
+                            className={isDark ? "invert" : ""}
+                        />
                     </div>
                 )}
             </div>
@@ -368,67 +373,14 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     mode="inline"
                     defaultOpenKeys={[pathname.split("/")[1]]}
                     selectedKeys={[pathname]}
-                    style={{
-                        borderRight: 0,
-                        background: "transparent",
-                    }}
+                    style={{ borderRight: 0, background: "transparent" }}
                     openKeys={stateOpenKeys}
                     onOpenChange={onOpenChange}
-                    items={menuItems}
+                    items={filteredMenuItems as MenuProps["items"]}
                     theme={isDark ? "dark" : "light"}
                     className="custom-sidebar-menu"
                 />
             </div>
-
-            {/* {!collapsed && (
-                <div
-                    style={{
-                        padding: "20px 24px",
-                        borderTop: `1px solid ${
-                            isDark
-                                ? "rgba(255, 255, 255, 0.1)"
-                                : "rgba(0, 0, 0, 0.05)"
-                        }`,
-                    }}
-                >
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                        <Avatar
-                            size={50}
-                            src="/placeholder.png"
-                            style={{
-                                border: `2px solid ${primaryColor}`,
-                                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                            }}
-                        />
-                        <div style={{ marginLeft: "12px" }}>
-                            <div
-                                style={{
-                                    fontWeight: "bold",
-                                    color: isDark ? "#ffffff" : "#111827",
-                                    fontSize: "15px",
-                                }}
-                            >
-                                Admin User
-                            </div>
-                            <div
-                                style={{
-                                    fontSize: "13px",
-                                    color: isDark
-                                        ? "rgba(255, 255, 255, 0.6)"
-                                        : "rgba(0, 0, 0, 0.6)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "4px",
-                                }}
-                            >
-                                <Badge status="success" />
-                                <span>Editor</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )} */}
-
             <style jsx global>{`
                 .custom-sidebar-menu .ant-menu-item {
                     margin: 4px 5px !important;

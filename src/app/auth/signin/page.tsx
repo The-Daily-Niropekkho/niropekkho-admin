@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/components/shared/loader";
 import { useTheme } from "@/components/theme-context";
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -11,7 +12,7 @@ import {
 import { signin } from "@/service/auth";
 import { TError } from "@/types";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Spin, Typography } from "antd";
+import { Button, Form, Input, message, Typography } from "antd";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -145,19 +146,7 @@ export default function LoginPage() {
     };
 
     if (!mounted) {
-        return (
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100vh",
-                    background: isDark ? "#1A2231" : "#ffffff",
-                }}
-            >
-                <Spin size="large" />
-            </div>
-        );
+        return <Loader/>
     }
 
     return (

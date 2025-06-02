@@ -2,7 +2,6 @@ import PerformanceCharts from "@/components/dashboard/performance-charts";
 import PopularPosts from "@/components/dashboard/popular-posts";
 import RecentPosts from "@/components/dashboard/recent-posts";
 import StatsSection from "@/components/dashboard/stats-section";
-import TodayStats from "@/components/dashboard/today-stats";
 import { Col, Row } from "antd";
 
 export default function DashboardPage() {
@@ -12,7 +11,7 @@ export default function DashboardPage() {
             <StatsSection />
 
             {/* Today's Stats */}
-            <TodayStats />
+            {/* <TodayStats /> */}
 
             {/* Performance Charts */}
             <PerformanceCharts />

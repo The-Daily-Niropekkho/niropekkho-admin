@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { tags } from "@/constants";
-import { News, TArgsParam, TResponseRedux } from "@/types";
+import { News, TArgsParam, TopNews, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const url = `/news`;
+const urlTop = `/news-utils/top-read-news`;
 
 const newsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -30,6 +31,36 @@ const newsApi = baseApi.injectEndpoints({
                 };
             },
             transformResponse: (response: TResponseRedux<News[]>) => {
+                return {
+                    data: response.data,
+                    meta: response.meta,
+                };
+            },
+            providesTags: [tags.newsTag],
+        }),
+        getAllTopNews: builder.query({
+            query: (args: TArgsParam) => {
+                const cleanedParams = Object.entries(args || {}).reduce(
+                    (acc, [key, value]) => {
+                        if (
+                            value !== null &&
+                            value !== undefined &&
+                            value !== "" &&
+                            value !== "all"
+                        ) {
+                            acc[key] = value;
+                        }
+                        return acc;
+                    },
+                    {} as TArgsParam
+                );
+
+                return {
+                    url: urlTop,
+                    params: cleanedParams,
+                };
+            },
+            transformResponse: (response: TResponseRedux<TopNews[]>) => {
                 return {
                     data: response.data,
                     meta: response.meta,
@@ -92,6 +123,7 @@ const newsApi = baseApi.injectEndpoints({
 
 export const {
     useGetAllNewsQuery,
+    useGetAllTopNewsQuery,
     useGetNewsDetailsQuery,
     useCreateNewsMutation,
     useUpdateNewsMutation,

@@ -72,3 +72,14 @@ export interface BreakingNews {
     updatedAt: string;
     news: News;
 }
+
+
+export interface TopNews {
+  id: string
+  news_id: string
+  total_share: number
+  total_like: number
+  total_comment: number
+  total_view: number
+  news: News
+}
