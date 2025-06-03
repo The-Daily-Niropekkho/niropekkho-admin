@@ -326,7 +326,7 @@ export const GeneralSection = ({
                     placeholder="Select a topic"
                     allowClear
                     mode="multiple"
-                    disabled={isTopicLoading}
+                    disabled={isTopicLoading || !selectedCategory}
                     popupRender={(menu) => (
                         <>
                             <div style={{ padding: "4px" }}>
@@ -349,6 +349,7 @@ export const GeneralSection = ({
                             ?.toLowerCase()
                             .includes(input.toLowerCase())
                     }
+                    
                 >
                     {topics?.map((topic: Topic) => (
                         <Select.Option key={topic.id} value={topic.id}>

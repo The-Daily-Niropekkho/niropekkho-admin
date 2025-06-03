@@ -108,24 +108,6 @@ export default function TopicsPage() {
             sorter: true,
         },
         {
-            title: "Description",
-            dataIndex: "description",
-            key: "description",
-            render: (text: string) => text || "-",
-        },
-        {
-            title: "Meta Title",
-            dataIndex: "meta_title",
-            key: "meta_title",
-            render: (text: string) => text || "-",
-        },
-        {
-            title: "Meta Description",
-            dataIndex: "meta_description",
-            key: "meta_description",
-            render: (text: string) => text || "-",
-        },
-        {
             title: "Status",
             dataIndex: "status",
             key: "status",

@@ -88,10 +88,14 @@ export default function CreateNewsPage() {
     const { data: categories, isLoading: isCategoryLoading } =
         useGetAllCategoriesQuery({ limit: 999, status: "active" });
 
-    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery({
-        limit: 999,
-        status: "active",
-    });
+    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery(
+        {
+            limit: 999,
+            status: "active",
+            category_id: selectedCategory,
+        },
+        { skip: !selectedCategory }
+    );
 
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(

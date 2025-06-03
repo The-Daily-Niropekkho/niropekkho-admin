@@ -29,7 +29,16 @@ const EpaperMapper = () => {
     );
     const [region, setRegion] = useState<Region | null>(null);
     const [regions, setRegions] = useState<Region[]>([]);
-    const [selected, setSelected] = useState(false);
+    const [selectedRegionId, setSelectedRegionId] = useState<number | null>(
+        null
+    );
+
+    const [isDragging, setIsDragging] = useState(false);
+    const [startPoint, setStartPoint] = useState<{
+        x: number;
+        y: number;
+    } | null>(null);
+    const [dragBox, setDragBox] = useState<Region | null>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem(LOCAL_KEY);
@@ -38,24 +47,20 @@ const EpaperMapper = () => {
         }
     }, []);
 
-    const addRegion = () => {
-        if (region) {
-            message.warning("একটি সেভ না করে আরেকটি যোগ করা যাবে না।");
-            return;
-        }
-
-        const newRegion: Region = {
-            x: 100,
-            y: 100,
-            width: 200,
-            height: 100,
-            relation: "No Relation",
-            linkedPage: "",
-            id: Date.now(),
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Delete") {
+                // শুধুমাত্র unsaved region (নতুন region) থাকলে Delete কাজ করবে
+                if (region) {
+                    setRegion(null);
+                    message.info("নতুন বক্সটি বাতিল হয়েছে।");
+                }
+                // সেভ করা region কীবোর্ড দিয়ে ডিলিট হবে না
+            }
         };
-        setRegion(newRegion);
-        setSelected(true);
-    };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [region]);
 
     const updateRegion = (updates: Partial<Region>) => {
         if (!region) return;
@@ -72,7 +77,6 @@ const EpaperMapper = () => {
         setRegions(updatedRegions);
         localStorage.setItem(LOCAL_KEY, JSON.stringify(updatedRegions));
         setRegion(null);
-        setSelected(false);
         message.success("বক্স সেভ হয়েছে!");
     };
 
@@ -86,13 +90,9 @@ const EpaperMapper = () => {
     return (
         <div>
             <h2>Epaper Mapping</h2>
-
             <div className="flex justify-between" style={{ marginBottom: 16 }}>
-                <Button type="primary" onClick={addRegion}>
-                    Add New Box
-                </Button>
 
-                {region && selected && (
+                {region && (
                     <Space direction="horizontal" size="middle">
                         <Select
                             value={region.relation}
@@ -124,21 +124,57 @@ const EpaperMapper = () => {
                         <Button type="primary" onClick={saveRegion}>
                             Save This Box
                         </Button>
+                        <Button danger onClick={() => setRegion(null)}>
+                            Cancel
+                        </Button>
                     </Space>
                 )}
             </div>
 
             <div
                 className="relative block border border-gray-200"
-                style={{ position: "relative", width: "100%" }}
+                style={{ position: "relative", width: DISPLAY_WIDTH }}
+                onMouseDown={(e) => {
+                    if (region) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / scale;
+                    const y = (e.clientY - rect.top) / scale;
+                    setStartPoint({ x, y });
+                    setIsDragging(true);
+                }}
+                onMouseMove={(e) => {
+                    if (!isDragging || !startPoint) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const currentX = (e.clientX - rect.left) / scale;
+                    const currentY = (e.clientY - rect.top) / scale;
+
+                    const x = Math.min(startPoint.x, currentX);
+                    const y = Math.min(startPoint.y, currentY);
+                    const width = Math.abs(currentX - startPoint.x);
+                    const height = Math.abs(currentY - startPoint.y);
+
+                    setDragBox({
+                        x,
+                        y,
+                        width,
+                        height,
+                        relation: "No Relation",
+                        linkedPage: "",
+                        id: Date.now(),
+                    });
+                }}
+                onMouseUp={() => {
+                    if (!dragBox) return;
+                    setIsDragging(false);
+                    setStartPoint(null);
+                    setRegion(dragBox);
+                    setDragBox(null);
+                }}
             >
                 <Image
                     src={imageUrl}
                     alt="Full Page"
-                    style={{
-                        width: "100%",
-                        display: "block",
-                    }}
+                    style={{ width: "100%", display: "block" }}
                     width={1248}
                     height={2016}
                 />
@@ -153,15 +189,37 @@ const EpaperMapper = () => {
                             top: reg.y * scale,
                             width: reg.width * scale,
                             height: reg.height * scale,
-                            backgroundColor: "rgba(0, 0, 0, 0.3)",
+                            backgroundColor:
+                                selectedRegionId === reg.id
+                                    ? "rgba(255, 0, 0, 0.3)"
+                                    : "rgba(0, 0, 0, 0.3)",
                             border: "2px dashed #52c41a",
-                            pointerEvents: "none",
+                            cursor: "pointer",
+                        }}
+                        onClick={() => {
+                            setSelectedRegionId(reg.id);
                         }}
                         title={`Linked: ${reg.linkedPage}, Relation: ${reg.relation}`}
                     />
                 ))}
 
-                {/* New region */}
+                {/* Temporary drag box */}
+                {dragBox && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            left: dragBox.x * scale,
+                            top: dragBox.y * scale,
+                            width: dragBox.width * scale,
+                            height: dragBox.height * scale,
+                            backgroundColor: "rgba(24, 144, 255, 0.3)",
+                            border: "2px solid #1890ff",
+                            pointerEvents: "none",
+                        }}
+                    />
+                )}
+
+                {/* Active region with Rnd */}
                 {region && (
                     <Rnd
                         size={{
@@ -191,12 +249,10 @@ const EpaperMapper = () => {
                             backgroundColor: "rgba(0, 0, 0, 0.3)",
                             cursor: "pointer",
                         }}
-                        onClick={() => setSelected(true)}
                     />
                 )}
             </div>
 
-            {/* Table */}
             <h3 style={{ marginTop: 32 }}>🧾 Saved Regions</h3>
             <Table
                 dataSource={regions}
