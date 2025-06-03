@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/components/theme-context";
+import CustomImage from "@/components/ui/image";
 import { Typography } from "antd";
 import { motion } from "framer-motion";
 const { Title, Text } = Typography;
@@ -83,45 +84,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             width: "120px",
                             height: "120px",
                             borderRadius: "24px",
-                            background: "rgba(255, 255, 255, 0.2)",
+                            // background: "rgba(255, 255, 255, 0.2)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             margin: "0 auto 2rem",
                             backdropFilter: "blur(10px)",
-                            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
+                            // boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
                         }}
                     >
-                        <svg
-                            width="60"
-                            height="60"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            style={{ color: "white" }}
-                        >
-                            <path
-                                d="M12 2L2 7L12 12L22 7L12 2Z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                            <path
-                                d="M2 17L12 22L22 17"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                            <path
-                                d="M2 12L12 17L22 12"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
+                        <CustomImage src={"/logo-square.png"} width={400} height={400}/>
                     </div>
 
                     <Title
