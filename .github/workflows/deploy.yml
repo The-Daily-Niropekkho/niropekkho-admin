@@ -34,7 +34,7 @@ jobs:
 
       # 4) Install dependencies only if package.json or yarn.lock changed this push
       - name: Install Dependencies
-        if: steps.deps_changes.outputs.dependencies == 'true'
+        # if: steps.deps_changes.outputs.dependencies == 'true'
         run: yarn install
 
       # 5) Build the project (you probably want to build even if deps didn’t change—
