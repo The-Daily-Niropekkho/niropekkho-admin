@@ -5,7 +5,7 @@ import { useTheme } from "@/components/theme-context";
 import { TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import { PictureOutlined } from "@ant-design/icons";
-import { Col, Form, FormInstance, Input, Row, Typography } from "antd";
+import { Col, Form, FormInstance, Input, message, Row, Typography } from "antd";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
 import { GlobalFilePicker } from "../media/global-file-picker";
@@ -35,6 +35,19 @@ export const MediaSection = ({
 
     const handleFileSelect = (files: TFileDocument[]) => {
         const file = files[0];
+        const maxSizeInBytes =
+            pickerState === "banner" ? 5 * 1024 * 1024 : 2 * 1024 * 1024; // 5MB or 2MB
+
+        if (file.size > maxSizeInBytes) {
+            const fileType = pickerState === "banner" ? "Banner" : "OG";
+            message.error(
+                `${fileType} image must be less than ${
+                    maxSizeInBytes / (1024 * 1024)
+                } MB`
+            );
+            return;
+        }
+
         if (pickerState === "banner") {
             setBannerImage(file);
             form.setFieldsValue({ banner_image: file });
@@ -42,6 +55,7 @@ export const MediaSection = ({
             setOgImage(file);
             form.setFieldsValue({ og_image: file });
         }
+
         setPickerState(null);
     };
 
@@ -61,7 +75,10 @@ export const MediaSection = ({
 
     return (
         <>
-            <Form.Item name="banner_image" label="Banner Image">
+            <Form.Item
+                name="banner_image"
+                label="Banner Image (Maximum Size : 5 MB)"
+            >
                 <div
                     onClick={() => setPickerState("banner")}
                     style={{ ...uploadBoxStyle, position: "relative" }}
@@ -188,7 +205,7 @@ export const MediaSection = ({
                                         message: "Banner height is required",
                                     },
                                 ]}
-                            initialValue={600}
+                                initialValue={600}
                             >
                                 <Input placeholder="e.g., 600" type="number" />
                             </Form.Item>
@@ -196,7 +213,7 @@ export const MediaSection = ({
                     </Row>
                 </>
             )}
-            <Form.Item name="og_image" label="OG Image">
+            <Form.Item name="og_image" label="OG Image (Maximum Size : 2 MB)">
                 <div
                     onClick={() => setPickerState("og")}
                     style={uploadBoxStyle}
