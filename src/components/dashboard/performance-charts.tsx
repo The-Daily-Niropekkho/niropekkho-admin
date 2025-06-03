@@ -15,25 +15,38 @@ export default function PerformanceCharts() {
 
     // Dynamic month name labels
     const monthNames = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
     ];
 
     // Bar chart data from API
-    const barData = data?.monthlyViewer?.map((item: { month_num: number; view_count: number }) => {
-        const monthLabel = `${monthNames[item.month_num - 1]}`;
-        return {
-            month: monthLabel,
-            value: item.view_count,
-        };
-    }) ?? [];
+    const barData =
+        data?.monthlyViewer?.map(
+            (item: { month_num: number; view_count: number }) => {
+                const monthLabel = `${monthNames[item.month_num - 1]}`;
+                return {
+                    month: monthLabel,
+                    value: item.view_count,
+                };
+            }
+        ) ?? [];
 
     // Pie chart data from API
     const pieData = data?.lastWeek
         ? [
-            { type: "Views", value: data.lastWeek.view },
-            { type: "Shares", value: data.lastWeek.share },
-        ]
+              { type: "Views", value: data.lastWeek.view },
+              { type: "Shares", value: data.lastWeek.share },
+          ]
         : [];
 
     const pieConfig = {
@@ -59,7 +72,11 @@ export default function PerformanceCharts() {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                 },
-                formatter: () => `total\n${(data?.lastWeek?.view ?? 0) + (data?.lastWeek?.share ?? 0)}`,
+                formatter: () =>
+                    `total\n${
+                        (data?.lastWeek?.view ?? 0) +
+                        (data?.lastWeek?.share ?? 0)
+                    }`,
             },
         },
         theme: isDark ? "dark" : "light",

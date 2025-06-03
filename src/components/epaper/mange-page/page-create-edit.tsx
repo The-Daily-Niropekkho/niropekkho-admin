@@ -9,7 +9,16 @@ import {
 import { EpaperPage, TError, TFileDocument } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import { PictureOutlined } from "@ant-design/icons";
-import { Col, DatePicker, Form, message, Modal, Row, Select, Typography } from "antd";
+import {
+    Col,
+    DatePicker,
+    Form,
+    message,
+    Modal,
+    Row,
+    Select,
+    Typography,
+} from "antd";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -136,7 +145,7 @@ export default function EpaperPageEditCreateModal({
             okButtonProps={{ loading: isCreating || isUpdating }}
             width={650}
         >
-            <Form form={form} layout="vertical" style={{margin: "20px 0"}}>
+            <Form form={form} layout="vertical" style={{ margin: "20px 0" }}>
                 <Row gutter={[32, 32]}>
                     <Col span={12}>
                         <Form.Item
