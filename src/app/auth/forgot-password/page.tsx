@@ -80,7 +80,9 @@ export default function ForgotPasswordAntd() {
                 setCountdown(59);
                 message.success("OTP sent to your email.");
             } else {
-                message.error(res?.error?.data?.message || "Failed to send OTP");
+                message.error(
+                    res?.error?.data?.message || "Failed to send OTP"
+                );
             }
         } catch {
             message.error("Something went wrong");
@@ -126,10 +128,14 @@ export default function ForgotPasswordAntd() {
             });
 
             if (res.data?.success) {
-                message.success("Password changed successfully. Redirecting...");
+                message.success(
+                    "Password changed successfully. Redirecting..."
+                );
                 router.push("/auth/signin");
             } else {
-                message.error(res?.error?.data?.message || "Failed to reset password");
+                message.error(
+                    res?.error?.data?.message || "Failed to reset password"
+                );
             }
         } catch {
             message.error("Error resetting password");
@@ -180,7 +186,11 @@ export default function ForgotPasswordAntd() {
             </Typography.Title>
 
             {step === 1 && (
-                <Form form={form} layout="vertical" onFinish={handleEmailSubmit}>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleEmailSubmit}
+                >
                     <Form.Item
                         name="email"
                         rules={[
@@ -201,7 +211,10 @@ export default function ForgotPasswordAntd() {
                         />
                     </Form.Item>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -222,7 +235,11 @@ export default function ForgotPasswordAntd() {
             )}
 
             {step === 2 && (
-                <Form form={otpForm} layout="vertical" onFinish={handleOtpSubmit}>
+                <Form
+                    form={otpForm}
+                    layout="vertical"
+                    onFinish={handleOtpSubmit}
+                >
                     <Form.Item
                         name="otp"
                         rules={[
@@ -249,7 +266,10 @@ export default function ForgotPasswordAntd() {
                         )}
                     </div>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -270,15 +290,25 @@ export default function ForgotPasswordAntd() {
             )}
 
             {step === 3 && (
-                <Form form={passwordForm} layout="vertical" onFinish={handlePasswordSubmit}>
+                <Form
+                    form={passwordForm}
+                    layout="vertical"
+                    onFinish={handlePasswordSubmit}
+                >
                     <Form.Item
                         name="newPassword"
-                        rules={[{ required: true, message: "Enter a new password" }]}
+                        rules={[
+                            { required: true, message: "Enter a new password" },
+                        ]}
                     >
                         <Input.Password
                             placeholder="New Password"
                             iconRender={(visible) =>
-                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                                visible ? (
+                                    <EyeTwoTone />
+                                ) : (
+                                    <EyeInvisibleOutlined />
+                                )
                             }
                         />
                     </Form.Item>
@@ -287,10 +317,16 @@ export default function ForgotPasswordAntd() {
                         name="confirmPassword"
                         dependencies={["newPassword"]}
                         rules={[
-                            { required: true, message: "Confirm your password" },
+                            {
+                                required: true,
+                                message: "Confirm your password",
+                            },
                             ({ getFieldValue }) => ({
                                 validator(_, value) {
-                                    if (!value || getFieldValue("newPassword") === value) {
+                                    if (
+                                        !value ||
+                                        getFieldValue("newPassword") === value
+                                    ) {
                                         return Promise.resolve();
                                     }
                                     return Promise.reject(
@@ -303,12 +339,19 @@ export default function ForgotPasswordAntd() {
                         <Input.Password
                             placeholder="Confirm Password"
                             iconRender={(visible) =>
-                                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                                visible ? (
+                                    <EyeTwoTone />
+                                ) : (
+                                    <EyeInvisibleOutlined />
+                                )
                             }
                         />
                     </Form.Item>
 
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             type="primary"
                             htmlType="submit"
