@@ -203,6 +203,10 @@ export default function CreateNewsPage() {
             message.error("অনুগ্রহ করে নিউজ কন্টেন্ট লিখুন।");
             return;
         }
+        if (!bannerImage) {
+            message.error("অনুগ্রহ করে ব্যানার ইমেজ যোগ করুন।");
+            return;
+        }
         values.details_html = editorContent;
         const {
             caption_title,
