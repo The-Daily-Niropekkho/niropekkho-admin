@@ -59,7 +59,6 @@ export default function NotFound() {
         },
     };
 
-
     return (
         <div style={styles.pageContainer}>
             <Card style={styles.card} variant="outlined">
@@ -114,7 +113,7 @@ export default function NotFound() {
                                     Back to Home
                                 </Button>
                             </Link>
-                            <BackButton/>
+                            <BackButton />
                         </div>
                     </Space>
                 </div>
