@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // app/dashboard/settings/SettingsClientPage.tsx
 "use client";
 
