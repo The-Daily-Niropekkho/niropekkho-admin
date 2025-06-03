@@ -4,11 +4,12 @@ import TopicEditCreateModal from "@/components/features/topic/create-edit-modal"
 import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
 import { useDebounced } from "@/hooks/use-debounce";
+import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
 import {
     useDeleteTopicMutation,
     useGetAllTopicsQuery,
 } from "@/redux/features/topic/topicApi";
-import { TArgsParam, TError, Topic } from "@/types";
+import { Category, TArgsParam, TError, Topic } from "@/types";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -42,6 +43,8 @@ export default function TopicsPage() {
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
     const [status, setStatus] = useState<string | undefined>(undefined);
+
+    const { data: categories } = useGetAllCategoriesQuery({ limit: 9999 });
 
     const query: TArgsParam = {};
     query["page"] = page;
@@ -102,10 +105,15 @@ export default function TopicsPage() {
             sorter: true,
         },
         {
-            title: "Position",
-            dataIndex: "position",
-            key: "position",
-            sorter: true,
+            title: "Parent Category",
+            dataIndex: "category_id",
+            key: "category_id",
+            render: (categoryId: string) => {
+                const category = categories?.data?.find(
+                    (cat: Category) => cat.id === categoryId
+                );
+                return category?.title || "N/A";
+            },
         },
         {
             title: "Status",

@@ -989,11 +989,6 @@ html {
   text-align: center;
   font-style: italic;
 }
-
-:where(.css-dev-only-do-not-override-48wv4a).ant-table-wrapper .ant-table-pagination.ant-pagination {
-    margin: 16px 15px !important;
-}
-
 /* Dark mode styles for Select */
 .ant-select-dark .ant-select-selector {
   background-color: #2c2c2c !important;
@@ -1036,4 +1031,8 @@ html {
 /* Ensure Collapse panel content has proper padding */
 .ant-collapse-content-box {
   padding: 16px !important;
+}
+
+:where(.css-dev-only-do-not-override-48wv4a).ant-table-wrapper .ant-table-pagination.ant-pagination {
+    margin: 16px 15px !important;
 }

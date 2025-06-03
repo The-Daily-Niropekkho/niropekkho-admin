@@ -129,7 +129,7 @@ export default function AppHeader({
         >
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Button
-                    type="text"
+                    type="link"
                     icon={
                         collapsed ? (
                             <MenuUnfoldOutlined />

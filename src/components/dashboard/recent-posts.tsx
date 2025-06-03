@@ -49,7 +49,7 @@ export default function RecentPosts() {
                 <Link
                     href={`${config?.host_front}/${record?.category?.slug}/${record?.id}/${record?.slug}`}
                     target="_blank"
-                    style={{ maxWidth: "250px", display: "block" }}
+                     style={{ maxWidth: "150px", display: "block" }}
                 >
                     {text}
                 </Link>
@@ -97,13 +97,13 @@ export default function RecentPosts() {
                         Boolean
                     )[0];
                     return (
-                        <span style={{ maxWidth: "80px" }}>{`${
+                        <span style={{ maxWidth: "80px", display: "block" }}>{`${
                             user?.first_name || ""
                         } ${user?.last_name || ""}`}</span>
                     );
                 } else if (data?.generic_reporter) {
                     return (
-                        <span style={{ maxWidth: "80px" }}>
+                        <span style={{ maxWidth: "80px", display: "block" }}>
                             {data?.generic_reporter.name}
                         </span>
                     );
