@@ -1,5 +1,5 @@
 import { tags } from "@/constants";
-import { DashboardSatistics, TResponseRedux } from "@/types";
+import { DashboardChart, DashboardSatistics, TResponseRedux } from "@/types";
 import { baseApi } from "../../api/baseApi";
 
 const url = `/dashboard`;
@@ -19,7 +19,20 @@ const dashboardApi = baseApi.injectEndpoints({
             },
             providesTags: [tags.dashboardSatisticsTag],
         }),
+        getChartData: builder.query({
+            query: () => {
+                return {
+                    url: `${url}/chart`,
+                };
+            },
+            transformResponse: (
+                response: TResponseRedux<DashboardChart>
+            ) => {
+                return response.data;
+            },
+            providesTags: [tags.dashboardChartTag],
+        }),
     }),
 });
 
-export const { useGetStatisticsQuery } = dashboardApi;
+export const { useGetStatisticsQuery, useGetChartDataQuery } = dashboardApi;
