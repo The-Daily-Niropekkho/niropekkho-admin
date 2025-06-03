@@ -96,14 +96,22 @@ export default function RecentPosts() {
                     const user = Object.values(data?.reporter).filter(
                         Boolean
                     )[0];
-                    return <span style={{maxWidth: "80px"}}>{`${user?.first_name || ""} ${user?.last_name || ""}`}</span>;
+                    return (
+                        <span style={{ maxWidth: "80px" }}>{`${
+                            user?.first_name || ""
+                        } ${user?.last_name || ""}`}</span>
+                    );
                 } else if (data?.generic_reporter) {
-                    return <span style={{maxWidth: "80px"}}>{data?.generic_reporter.name}</span>;
+                    return (
+                        <span style={{ maxWidth: "80px" }}>
+                            {data?.generic_reporter.name}
+                        </span>
+                    );
                 } else {
                     return "N/A";
                 }
             },
-        }
+        },
     ];
 
     return (

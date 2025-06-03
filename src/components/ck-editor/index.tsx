@@ -600,7 +600,6 @@ export default function Editor({ value, onChange }: CKEditorProps) {
         if (editorInstance && value !== editorInstance.getData()) {
             editorInstance.setData(value || "");
         }
-
     }, [value, editorInstance]);
 
     return (
