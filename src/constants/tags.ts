@@ -18,4 +18,5 @@ export const tags = {
     epaperCategoryTag: "epapercategoryPosistion" as const,
     postTag: "postTag" as const,
     dashboardSatisticsTag: "dashboardSatisticsTag" as const,
+    dashboardChartTag: "dashboardChartTag" as const,
 };
