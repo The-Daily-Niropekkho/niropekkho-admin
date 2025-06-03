@@ -37,7 +37,7 @@ export default function SubcategoriesPage() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingSubcategory, setEditingSubcategory] = useState<Subcategory | null>(null);
     const [subcategoryImage, setSubcategoryImage] = useState<TFileDocument | undefined>(undefined);
-
+    
     const { isDark } = useTheme();
 
     const [page, setPage] = useState(1);

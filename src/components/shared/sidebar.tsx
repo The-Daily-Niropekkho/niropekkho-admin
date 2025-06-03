@@ -238,15 +238,14 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             .filter((item) => nonAdminAllowedKeys.includes(item.key))
             .map((item) => {
                 if (item.children) {
-                    const filteredChildren = filterMenuByRole(
-                        item.children,
-                        userType
+                    // Only filter children if parent is allowed
+                    const filteredChildren = item.children.filter(
+                        (child) => nonAdminAllowedKeys.includes(item.key) // only keep children if parent is allowed
                     );
                     return { ...item, children: filteredChildren };
                 }
                 return item;
-            })
-            .filter((item) => !item.children || item.children.length > 0);
+            });
     };
 
     const filteredMenuItems = filterMenuByRole(

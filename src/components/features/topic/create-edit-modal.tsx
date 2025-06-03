@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCreateTopicMutation, useUpdateTopicMutation } from "@/redux/features/topic/topicApi";
-import { TError, Topic } from "@/types";
-import { Col, Form, Input, message, Modal, Row } from "antd";
+import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
+import {
+    useCreateTopicMutation,
+    useUpdateTopicMutation,
+} from "@/redux/features/topic/topicApi";
+import { Category, TError, Topic } from "@/types";
+import { Col, Form, Input, message, Modal, Row, Select } from "antd";
 import { useEffect } from "react";
 
 interface TopicEditCreateModalInterface {
@@ -17,8 +21,15 @@ export default function TopicEditCreateModal({
 }: TopicEditCreateModalInterface) {
     const [form] = Form.useForm();
 
+    const {
+        data: categories,
+        isLoading: isCategoryLoading,
+        isFetching: isCategoryFetching,
+    } = useGetAllCategoriesQuery({ limit: 9999 });
+
     useEffect(() => {
         form.setFieldsValue({
+            category_id: editingTopic?.category_id,
             title: editingTopic?.title,
             slug: editingTopic?.slug,
             description: editingTopic?.description,
@@ -29,10 +40,8 @@ export default function TopicEditCreateModal({
         });
     }, [editingTopic, form]);
 
-    const [createTopic, { isLoading: isCreating }] =
-        useCreateTopicMutation();
-    const [updateTopic, { isLoading: isUpdating }] =
-        useUpdateTopicMutation();
+    const [createTopic, { isLoading: isCreating }] = useCreateTopicMutation();
+    const [updateTopic, { isLoading: isUpdating }] = useUpdateTopicMutation();
 
     const handleModalOk = async () => {
         try {
@@ -58,15 +67,15 @@ export default function TopicEditCreateModal({
                     delta.status = values.status;
                 if (values.position !== editingTopic.position)
                     delta.position = values.position;
+                if (values.category_id !== editingTopic.category_id)
+                    delta.category_id = values.category_id;
 
                 if (Object.keys(delta).length > 0) {
                     await updateTopic({
                         id: editingTopic.id,
                         data: delta,
                     }).unwrap();
-                    message.success(
-                        `Topic "${values.title}" has been updated`
-                    );
+                    message.success(`Topic "${values.title}" has been updated`);
                 } else {
                     message.info("No changes detected");
                 }
@@ -95,6 +104,26 @@ export default function TopicEditCreateModal({
             width={600}
         >
             <Form form={form} layout="vertical">
+                <Form.Item
+                    name="category_id"
+                    label="Parent Category"
+                    rules={[
+                        { required: true, message: "Please select a category" },
+                    ]}
+                >
+                    <Select
+                        placeholder="Select a category"
+                        loading={isCategoryLoading || isCategoryFetching}
+                        showSearch
+                        optionFilterProp="children"
+                    >
+                        {(categories?.data || []).map((cat: Category) => (
+                            <Select.Option key={cat.id} value={cat.id}>
+                                {cat.title}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -116,7 +145,7 @@ export default function TopicEditCreateModal({
                             label="Slug"
                             rules={[
                                 {
-                                    required: true,
+                                    required: false,
                                     message: "Please enter slug",
                                 },
                             ]}
