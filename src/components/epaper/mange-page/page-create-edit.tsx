@@ -100,8 +100,6 @@ export default function EpaperPageEditCreateModal({
                     message.info("No changes detected");
                 }
             } else {
-                console.log(pageData);
-                
                 // await createCategory(pageData).unwrap();
                 message.success(`New epaper page has been created`);
                 form.resetFields();

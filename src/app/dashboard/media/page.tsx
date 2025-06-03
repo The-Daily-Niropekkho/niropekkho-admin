@@ -8,7 +8,7 @@ import { useTheme } from "@/components/theme-context";
 import { FileType } from "@/constants";
 import { useDebounced } from "@/hooks/use-debounce";
 import { useGetMediaQuery } from "@/redux/features/media/mediaApi";
-import { TArgsParam, TFileDocument } from "@/types";
+import { TArgsParam } from "@/types";
 import {
     AppstoreOutlined,
     CloudUploadOutlined,
@@ -289,9 +289,7 @@ export default function MediaLibraryPage() {
             <GlobalFilePicker
                 open={openFilePicker}
                 onCancel={() => setOpenFilePicker(false)}
-                onSelect={(selectedFiles: TFileDocument[]) => {
-                    console.log(selectedFiles);
-                }}
+                onSelect={() => {}}
             />
         </>
     );

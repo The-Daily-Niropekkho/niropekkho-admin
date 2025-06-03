@@ -55,7 +55,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 const { TabPane } = Tabs;
 
@@ -486,12 +486,6 @@ const MenuEditor: React.FC<MenuEditorProps> = ({ params }) => {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
-
-    useEffect(() => {
-        // In a real app, fetch the menu data based on params.id
-        console.log("Fetching menu with ID:", params.id);
-        // For now, we'll use the mock data
-    }, [params.id]);
 
     // Get all item IDs for the root level
     const rootItemIds = useMemo(

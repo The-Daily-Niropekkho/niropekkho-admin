@@ -154,8 +154,6 @@ export default function EditNewsPage() {
     const isBreaking = Form.useWatch("is_breaking", form);
     const isTopBreakingNews = Form.useWatch("is_top_breaking_news", form);
 
-    console.log(news);
-
     useEffect(() => {
         if (news) {
             const initialValues = {

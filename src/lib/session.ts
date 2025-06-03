@@ -26,8 +26,7 @@ export async function decrypt(session: string | undefined = "") {
             throw new Error("Session token expired");
         }
         return payload;
-    } catch (error) {
-        console.log("Failed to decode session:", error);
+    } catch {
         return null;
     }
 }

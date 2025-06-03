@@ -114,10 +114,6 @@ export function GlobalFilePicker({
 
     useEffect(() => {
         if (mediaItems?.data) {
-            console.log(
-                `Fetched page ${currentPage}: ${mediaItems.data.length} items`,
-                mediaItems.data
-            ); // Debug log
             setAllMediaItems((prev) =>
                 currentPage === 1
                     ? mediaItems.data
@@ -126,7 +122,6 @@ export function GlobalFilePicker({
             setHasMore(mediaItems.data.length === itemsPerPage);
             isFetchingRef.current = false;
         } else if (mediaItems && !mediaItems.data) {
-            console.log(`No data for page ${currentPage}`); // Debug log
             setHasMore(false);
             isFetchingRef.current = false;
         }
@@ -134,10 +129,8 @@ export function GlobalFilePicker({
 
     const loadMoreFiles = useCallback(() => {
         if (isFetchingRef.current || !hasMore || isLoading) {
-            console.log("Skipping load: isFetching, no more items, or loading"); // Debug log
             return;
         }
-        console.log("Triggering load more files"); // Debug log
         isFetchingRef.current = true;
         setCurrentPage((prev) => prev + 1);
     }, [hasMore, isLoading]);
@@ -148,7 +141,6 @@ export function GlobalFilePicker({
         observerRef.current = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
-                    console.log("Sentinel visible, loading more"); // Debug log
                     loadMoreFiles();
                 }
             },

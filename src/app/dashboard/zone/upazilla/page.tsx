@@ -5,27 +5,27 @@ import { useTheme } from "@/components/theme-context";
 import Table from "@/components/ui/data-table";
 import { useDebounced } from "@/hooks/use-debounce";
 import {
-  useDeleteUpazillaMutation,
-  useGetAllUpazillasQuery,
+    useDeleteUpazillaMutation,
+    useGetAllUpazillasQuery,
 } from "@/redux/features/zone/upazillaApi";
 import { TArgsParam, Upazilla } from "@/types";
 import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  SearchOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    PlusOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
-  Button,
-  Card,
-  Col,
-  Input,
-  message,
-  Popconfirm,
-  Row,
-  Space,
-  Tag,
-  Tooltip,
+    Button,
+    Card,
+    Col,
+    Input,
+    message,
+    Popconfirm,
+    Row,
+    Space,
+    Tag,
+    Tooltip,
 } from "antd";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -89,8 +89,6 @@ export default function UpazillasPage() {
         setIsModalVisible(true);
     };
 
-    console.log(upazillas);
-    
     const columns = [
         {
             title: "Name",
