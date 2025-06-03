@@ -201,10 +201,12 @@ export default function CreateNewsPage() {
         setLoading(true);
         if (!editorContent) {
             message.error("অনুগ্রহ করে নিউজ কন্টেন্ট লিখুন।");
+            setLoading(false);
             return;
         }
         if (!bannerImage) {
             message.error("অনুগ্রহ করে ব্যানার ইমেজ যোগ করুন।");
+            setLoading(false);
             return;
         }
         values.details_html = editorContent;
