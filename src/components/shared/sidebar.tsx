@@ -430,7 +430,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 }
 
                 .custom-sidebar-menu .ant-menu-sub {
-                    background: transparent !important;
+                    background: ${collapsed ? "" : "transparent"} !important;
                 }
 
                 .custom-sidebar-menu .ant-menu-sub .ant-menu-item {
@@ -438,6 +438,14 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     height: 40px !important;
                     line-height: 40px !important;
                 }
+                // .ant-tooltip-inner {
+                //     background-color: white !important;
+                //     color: black !important;
+                // }
+
+                // .ant-tooltip-arrow::before {
+                //     background-color: white !important;
+                // }
             `}</style>
         </Sider>
     );

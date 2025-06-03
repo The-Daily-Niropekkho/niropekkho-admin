@@ -43,9 +43,9 @@ export default function PopularPosts() {
                 key: "headline",
                 render: (_: any, record: TopNews) => (
                     <Link
-                        href={`${config.host_front}/${record.news?.category?.slug}/${record.id}/${record?.news?.slug}`}
+                        href={`${config.host_front}/${record.news?.category?.slug}/${record?.news?.id}/${record?.news?.slug || record?.news?.headline}`}
                         target="_blank"
-                        style={{ maxWidth: "200px", display: "block" }}
+                        style={{ maxWidth: "150px", display: "block" }}
                     >
                         {record?.news?.headline}
                     </Link>
@@ -63,12 +63,18 @@ export default function PopularPosts() {
                 dataIndex: "total_share",
                 key: "total_share",
                 render: (total_share: number) => total_share,
+                sorter: (a: TopNews, b: TopNews) =>
+                    new Date(a.total_share).getTime() -
+                    new Date(b.total_share).getTime(),
             },
             {
                 title: "Total View",
                 dataIndex: "total_view",
                 key: "total_view",
                 render: (total_view: number) => total_view,
+                sorter: (a: TopNews, b: TopNews) =>
+                    new Date(a.total_view).getTime() -
+                    new Date(b.total_view).getTime(),
             },
             {
                 title: "Publish Date",
@@ -86,11 +92,17 @@ export default function PopularPosts() {
                     const generic_reporter = data?.news?.generic_reporter;
                     if (reporter) {
                         const user = Object.values(reporter).find(Boolean);
-                        return user
-                            ? `${user.first_name || ""} ${user.last_name || ""}`
-                            : "N/A";
+                        return (
+                            <span style={{ maxWidth: "80px", display: "block" }}>
+                                {user
+                                    ? `${user.first_name || ""} ${
+                                          user.last_name || ""
+                                      }`
+                                    : "N/A"}
+                            </span>
+                        );
                     }
-                    return generic_reporter?.name || "N/A";
+                    return <span style={{ maxWidth: "80px", display: "block" }}>{generic_reporter?.name || "N/A"}</span>;
                 },
             },
         ],
