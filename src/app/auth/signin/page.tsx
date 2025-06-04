@@ -4,7 +4,6 @@ import { useTheme } from "@/components/theme-context";
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import useAuth from "@/hooks/useAuth";
 import { useSession } from "@/provider/session-provider";
 import {
     useResendOtpMutation,
@@ -34,7 +33,6 @@ export default function LoginPage() {
     const [otpForm] = Form.useForm();
 
     const router = useRouter();
-    const { login } = useAuth();
 
     const [getLoginOTP] = useSendLoginRequestMutation();
     const [resendOtp] = useResendOtpMutation();
@@ -127,7 +125,6 @@ export default function LoginPage() {
             });
             if (response.success) {
                 localStorage.setItem("token", response.data.accessToken);
-                login(response.data.userData);
                 message.success("Logged In Successfully");
                 router.replace(redirect);
             } else {

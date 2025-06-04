@@ -17,6 +17,7 @@ import { useGetAllDivisionsQuery } from "@/redux/features/zone/divisionApi";
 import { useGetAllUnionsQuery } from "@/redux/features/zone/unionApi";
 import { useGetAllUpazillasQuery } from "@/redux/features/zone/upazillaApi";
 import { ErrorResponse, TFileDocument } from "@/types";
+import { ObjectCleaner } from "@/utils/object-cleaner";
 import {
     DeleteOutlined,
     FileTextOutlined,
@@ -309,7 +310,9 @@ export default function EditNewsPage() {
             setLoading(false);
             return;
         }
-        await updateNews({ id: id, data: payload }).unwrap();
+        const finalData = new ObjectCleaner(payload)
+        finalData.clean()
+        await updateNews({ id: id, data: finalData.getResult() }).unwrap();
     };
 
     const onReset = () => {

@@ -70,13 +70,15 @@ export default function StatsDashboard() {
                 <Col xs={24} sm={12} md={8} key={index}>
                     <Card
                         className="dashboard-card"
-                        bodyStyle={{
-                            padding: "20px",
-                            background: isDark ? "#1f2937" : "#ffffff",
-                            borderRadius: "16px",
-                            boxShadow: isDark
-                                ? "0 4px 14px rgba(255, 255, 255, 0.05)"
-                                : "0 4px 14px rgba(0, 0, 0, 0.05)",
+                        styles={{
+                            body: {
+                                padding: "20px",
+                                background: isDark ? "#1f2937" : "#ffffff",
+                                borderRadius: "16px",
+                                boxShadow: isDark
+                                    ? "0 4px 14px rgba(255, 255, 255, 0.05)"
+                                    : "0 4px 14px rgba(0, 0, 0, 0.05)",
+                            },
                         }}
                     >
                         {isLoading ? (

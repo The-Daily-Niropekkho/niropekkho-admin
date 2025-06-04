@@ -5,6 +5,7 @@ import config from "@/config";
 import { passwordSetSchema, PasswordSetValues } from "@/schema/change-password.schema";
 import { loginSchema, otpSchema } from "@/schema/signin.schema";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 interface SigninFormValues {
     token_id: string;
@@ -245,5 +246,15 @@ export async function signup(formData: SignupFormValues) {
 }
 
 export async function signout() {
+    const sessionCookie = cookies().get("session");
+    fetch(config.host + '/api/v1/auth/logout', {
+        headers: {
+            "Authorization": `Bearer ${sessionCookie?.value}` || ""
+        }
+        ,
+        method: "POST",
+        cache: "no-store"
+    });
     cookies().delete("session");
+    redirect('/auth/signin')
 }

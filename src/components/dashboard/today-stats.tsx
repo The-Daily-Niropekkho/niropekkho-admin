@@ -50,9 +50,11 @@ export default function TodayStats() {
                 <Col xs={24} sm={12} md={6} key={index}>
                     <Card
                         className="dashboard-card"
-                        bodyStyle={{
-                            padding: "20px",
-                            background: isDark ? "#1f2937" : "#ffffff",
+                        styles={{
+                            body: {
+                                padding: "20px",
+                                background: isDark ? "#1f2937" : "#ffffff",
+                            },
                         }}
                     >
                         <div

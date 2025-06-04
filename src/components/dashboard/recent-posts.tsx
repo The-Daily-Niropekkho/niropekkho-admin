@@ -116,12 +116,8 @@ export default function RecentPosts() {
 
     return (
         <Card
-            title="Recent Posts"
+            title="Recent News"
             className="dashboard-card"
-            bodyStyle={{
-                padding: "0",
-                background: isDark ? "#1f2937" : "#ffffff",
-            }}
             extra={
                 <Input
                     type="text"
@@ -132,6 +128,12 @@ export default function RecentPosts() {
             style={{
                 paddingLeft: 0,
                 paddingRight: 0,
+            }}
+            styles={{
+                body: {
+                padding: "0",
+                background: isDark ? "#1f2937" : "#ffffff",
+            }
             }}
         >
             <Table<News>

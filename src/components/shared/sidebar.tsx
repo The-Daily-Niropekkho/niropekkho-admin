@@ -5,6 +5,7 @@ import { useTheme } from "@/components/theme-context";
 import { useMobile } from "@/hooks/use-mobile";
 import { useSession } from "@/provider/session-provider";
 import {
+    AuditOutlined,
     BarChartOutlined,
     BarsOutlined,
     DashboardOutlined,
@@ -45,8 +46,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const { session } = useSession();
-    console.log(session);
-    
+
     const primaryColor = "#10b981";
     const secondaryColor = "#8b5cf6";
 
@@ -179,6 +179,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     label: <Link href="/dashboard/users/add">Create User</Link>,
                 },
             ],
+        },
+        {
+            key: "/dashboard/department",
+            icon: <AuditOutlined />,
+            label: <Link href="/dashboard/department">Department</Link>,
         },
         {
             key: "zone",

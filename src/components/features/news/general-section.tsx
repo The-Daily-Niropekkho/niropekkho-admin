@@ -122,19 +122,6 @@ export const GeneralSection = ({
         }
     };
 
-    const tags = [
-        "Breaking News",
-        "Exclusive",
-        "Feature",
-        "Opinion",
-        "Analysis",
-        "Interview",
-        "Investigation",
-        "Review",
-        "Profile",
-        "Report",
-    ];
-
     return (
         <>
             <Form.Item
@@ -343,7 +330,7 @@ export const GeneralSection = ({
                             {menu}
                         </>
                     )}
-                    maxCount={5}
+                    maxCount={20}
                     filterOption={(input, option) =>
                         (option?.children as unknown as string)
                             ?.toLowerCase()
@@ -360,12 +347,8 @@ export const GeneralSection = ({
             </Form.Item>
 
             <Form.Item name="tags" label="Tags">
-                <Select mode="tags" placeholder="Select or create tags">
-                    {tags.map((tag) => (
-                        <Select.Option key={tag} value={tag}>
-                            {tag}
-                        </Select.Option>
-                    ))}
+                <Select mode="tags" placeholder="Select or create tags" maxCount={5}>
+                    
                 </Select>
             </Form.Item>
 

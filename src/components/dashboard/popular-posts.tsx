@@ -20,19 +20,20 @@ export default function PopularPosts() {
     const [sortBy, setSortBy] = useState("total_view");
     const [sortOrder, setSortOrder] = useState<string>("desc");
 
+    const query: TArgsParam = {};
+    query["page"] = page;
+    query["limit"] = limit;
+    query["sortBy"] = sortBy;
+    query["sortOrder"] = sortOrder;
+    query["fields"] = "category,publisher";
+
     const debouncedSearchTerm = useDebounced({
         searchQuery: searchText,
         delay: 600,
     });
-
-    const query: TArgsParam = {
-        page,
-        limit,
-        sortBy,
-        sortOrder,
-        ...(debouncedSearchTerm && { searchTerm: debouncedSearchTerm }),
-        fields: "category,publisher",
-    };
+    if (!!debouncedSearchTerm) {
+        query["searchTerm"] = debouncedSearchTerm;
+    }
 
     const { data: news, isLoading, isFetching } = useGetAllTopNewsQuery(query);
 
@@ -43,7 +44,11 @@ export default function PopularPosts() {
                 key: "headline",
                 render: (_: any, record: TopNews) => (
                     <Link
-                        href={`${config.host_front}/${record.news?.category?.slug}/${record?.news?.id}/${record?.news?.slug || record?.news?.headline}`}
+                        href={`${config.host_front}/${
+                            record.news?.category?.slug
+                        }/${record?.news?.id}/${
+                            record?.news?.slug || record?.news?.headline
+                        }`}
                         target="_blank"
                         style={{ maxWidth: "150px", display: "block" }}
                     >
@@ -93,7 +98,9 @@ export default function PopularPosts() {
                     if (reporter) {
                         const user = Object.values(reporter).find(Boolean);
                         return (
-                            <span style={{ maxWidth: "80px", display: "block" }}>
+                            <span
+                                style={{ maxWidth: "80px", display: "block" }}
+                            >
                                 {user
                                     ? `${user.first_name || ""} ${
                                           user.last_name || ""
@@ -102,7 +109,11 @@ export default function PopularPosts() {
                             </span>
                         );
                     }
-                    return <span style={{ maxWidth: "80px", display: "block" }}>{generic_reporter?.name || "N/A"}</span>;
+                    return (
+                        <span style={{ maxWidth: "80px", display: "block" }}>
+                            {generic_reporter?.name || "N/A"}
+                        </span>
+                    );
                 },
             },
         ],
@@ -111,12 +122,8 @@ export default function PopularPosts() {
 
     return (
         <Card
-            title="Popular Posts"
+            title="Popular News"
             className="dashboard-card"
-            bodyStyle={{
-                padding: 0,
-                background: isDark ? "#1f2937" : "#ffffff",
-            }}
             extra={
                 <Input
                     placeholder="Search here ..."
@@ -127,6 +134,12 @@ export default function PopularPosts() {
             style={{
                 paddingLeft: 0,
                 paddingRight: 0,
+            }}
+            styles={{
+                body: {
+                    padding: 0,
+                    background: isDark ? "#1f2937" : "#ffffff",
+                },
             }}
         >
             <Table<TopNews>

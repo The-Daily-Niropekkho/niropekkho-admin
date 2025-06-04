@@ -886,11 +886,11 @@ html {
     border-radius: 10px 10px 0px 0px !important;
 }
 .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
-    border : 1px solid var(--color-border) !important;
+    border: 1px solid var(--color-border) !important;
 }
 
 .ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
-    border : 1px solid var(--color-border) !important;
+    border: 1px solid var(--color-border) !important;
 }
 
 .ck-content .ck-sticky-panel__content {
@@ -982,57 +982,58 @@ html {
 }
 
 .ck-content .ad-placeholder {
-  background: #fef9c3;
-  border: 1px dashed #eab308;
-  padding: 12px;
-  margin: 16px 0;
-  text-align: center;
-  font-style: italic;
+    background: #fef9c3;
+    border: 1px dashed #eab308;
+    padding: 12px;
+    margin: 16px 0;
+    text-align: center;
+    font-style: italic;
 }
 /* Dark mode styles for Select */
 .ant-select-dark .ant-select-selector {
-  background-color: #2c2c2c !important;
-  color: #fff !important;
-  border-color: #555 !important;
+    background-color: #2c2c2c !important;
+    color: #fff !important;
+    border-color: #555 !important;
 }
 
 .ant-select-dark .ant-select-arrow,
 .ant-select-dark .ant-select-clear {
-  color: #95de64 !important; /* Green for dark mode */
+    color: #95de64 !important; /* Green for dark mode */
 }
 
 /* Dark mode styles for DatePicker */
 .ant-picker-dark .ant-picker-input > input {
-  color: #fff !important;
+    color: #fff !important;
 }
 
 .ant-picker-dark {
-  background-color: #2c2c2c !important;
-  border-color: #555 !important;
+    background-color: #2c2c2c !important;
+    border-color: #555 !important;
 }
 
 .ant-picker-dark .ant-picker-suffix,
 .ant-picker-dark .ant-picker-clear {
-  color: #95de64 !important; /* Green for dark mode */
+    color: #95de64 !important; /* Green for dark mode */
 }
 
 /* Hover effects for buttons */
 .ant-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Smooth transitions for Select and DatePicker */
 .ant-select-selector,
 .ant-picker {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 /* Ensure Collapse panel content has proper padding */
 .ant-collapse-content-box {
-  padding: 16px !important;
+    padding: 16px !important;
 }
 
-:where(.css-dev-only-do-not-override-48wv4a).ant-table-wrapper .ant-table-pagination.ant-pagination {
-    margin: 16px 15px !important;
+:where(.css-dev-only-do-not-override-1g7ns12).ant-table-wrapper
+    .ant-table-pagination.ant-pagination {
+    margin: 16px 10px !important;
 }

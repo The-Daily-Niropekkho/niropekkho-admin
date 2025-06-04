@@ -28,9 +28,7 @@ import {
     Tooltip,
 } from "antd";
 
-import useAuth from "@/hooks/useAuth";
 import { useSession } from "@/provider/session-provider";
-import { baseApi } from "@/redux/api/baseApi";
 import { useGetUserProfileQuery } from "@/redux/features/auth/authApi";
 import { useAppDispatch } from "@/redux/hooks";
 import { signout } from "@/service/auth";
@@ -76,17 +74,13 @@ export default function AppHeader({
 
     const router = useRouter();
     const { setIsLoading } = useSession();
-    const { logout } = useAuth();
     const dispatch = useAppDispatch();
     
     async function handleLogout() {
         setIsLoading(true);
-        localStorage.removeItem("token");
+        localStorage.clear();
         await signout();
-        router.push("/auth/signin");
-        router.refresh();
-        logout();
-        dispatch(baseApi.util.resetApiState());
+        // dispatch(baseApi.util.resetApiState());
         message.success("Logged out successfully");
     }
 
