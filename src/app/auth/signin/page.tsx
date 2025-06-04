@@ -5,6 +5,7 @@ import { useTheme } from "@/components/theme-context";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import useAuth from "@/hooks/useAuth";
+import { useSession } from "@/provider/session-provider";
 import {
     useResendOtpMutation,
     useSendLoginRequestMutation,
@@ -19,15 +20,16 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function LoginPage() {
+    const [userType, setUserType] = useState("admin")
     const [mounted, setMounted] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [localLoading, setLocalLoading] = useState(false);
     const [otpLoading, setOtpLoading] = useState(false);
     const [showOtpForm, setShowOtpForm] = useState(false);
     const [tokenID, setTokenID] = useState("");
     const [countdown, setCountdown] = useState(59);
     const [redirect, setRedirect] = useState("/dashboard");
     const { isDark } = useTheme();
-
+    const { setIsLoading } = useSession();
     const [loginForm] = Form.useForm();
     const [otpForm] = Form.useForm();
 
@@ -68,12 +70,26 @@ export default function LoginPage() {
         }
     }, [showOtpForm, countdown]);
 
+    
+    useEffect(()=>{
+        const USER_TYPE = ["admin", "moderator", "writer"]
+        if (window.location.host) {
+            const type = window.location.host.split(".")[0]
+            if (USER_TYPE.includes(type)) {
+                setUserType(type)
+            } else {
+                setUserType("admin")
+            }
+        }
+    },[])
+
     const handleLogin = async (values: { email: string; password: string }) => {
-        setLoading(true);
+        setLocalLoading(true);
+        setIsLoading(true);
         try {
             const response: any = await getLoginOTP({
                 ...values,
-                user_type: "admin",
+                user_type: userType,
             }).unwrap();
 
             if (response?.success) {
@@ -96,18 +112,19 @@ export default function LoginPage() {
                 errorResponse?.data?.message || "Something went wrong"
             );
         } finally {
-            setLoading(false);
+            setLocalLoading(false);
         }
     };
 
     const handleOtpVerify = async (values: { otp: string }) => {
         setOtpLoading(true);
+        setLocalLoading(true);
+        setIsLoading(true);
         try {
             const response = await signin({
                 token_id: tokenID,
                 otp: values.otp,
             });
-
             if (response.success) {
                 localStorage.setItem("token", response.data.accessToken);
                 login(response.data.userData);
@@ -122,6 +139,7 @@ export default function LoginPage() {
                 errorResponse?.data?.message || "Something went wrong"
             );
         } finally {
+            setLocalLoading(false);
             setOtpLoading(false);
         }
     };
@@ -146,7 +164,7 @@ export default function LoginPage() {
     };
 
     if (!mounted) {
-        return <Loader/>
+        return <Loader />;
     }
 
     return (
@@ -238,7 +256,7 @@ export default function LoginPage() {
                             type="primary"
                             htmlType="submit"
                             block
-                            loading={loading}
+                            loading={localLoading}
                             style={{
                                 height: "50px",
                                 borderRadius: "10px",

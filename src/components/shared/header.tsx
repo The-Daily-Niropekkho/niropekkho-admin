@@ -34,6 +34,7 @@ import { baseApi } from "@/redux/api/baseApi";
 import { useGetUserProfileQuery } from "@/redux/features/auth/authApi";
 import { useAppDispatch } from "@/redux/hooks";
 import { signout } from "@/service/auth";
+import { Admin, Moderator, Writer } from "@/types";
 import fileObjectToLink from "@/utils/fileObjectToLink";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -55,6 +56,24 @@ export default function AppHeader({
     const { theme, toggleTheme } = useTheme();
     const isMobile = useMobile();
     const { data: user, isLoading } = useGetUserProfileQuery(undefined);
+
+    const getProfileData = (): Admin | Writer | Moderator | null => {
+        if (!user) return null;
+
+        switch (user.user_type) {
+            case "admin":
+                return user.admin;
+            case "writer":
+                return user.writer;
+            case "moderator":
+                return user.moderator;
+            default:
+                return null;
+        }
+    };
+
+    const profileData = getProfileData();
+
     const router = useRouter();
     const { setIsLoading } = useSession();
     const { logout } = useAuth();
@@ -264,7 +283,7 @@ export default function AppHeader({
                             ) : (
                                 <>
                                     <Avatar
-                                        src={fileObjectToLink(user?.admin?.profile_image || null)}
+                                        src={fileObjectToLink(profileData?.profile_image || null)}
                                         size={32}
                                         style={{
                                             marginRight: !isMobile ? "8px" : 0,
@@ -290,8 +309,8 @@ export default function AppHeader({
                                                         fontSize: "14px",
                                                     }}
                                                 >
-                                                    {user?.admin?.first_name}{" "}
-                                                    {user?.admin?.last_name}
+                                                    {profileData?.first_name}{" "}
+                                                    {profileData?.last_name}
                                                 </span>
                                                 <span
                                                     style={{

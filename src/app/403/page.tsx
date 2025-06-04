@@ -1,9 +1,7 @@
 import { Button, Result } from "antd";
 import Link from "next/link";
 
-export default function NotFound() {
-
-
+export default function ForbiddenPage() {
     return (
         <div
             style={{
@@ -14,11 +12,11 @@ export default function NotFound() {
             }}
         >
             <Result
-                status="404"
-                title="404"
+                status="403"
+                title="403"
                 subTitle="Sorry, you are not authorized to access this page."
                 extra={
-                    <Link href={"/dashboard"}>
+                    <Link href={'/dashboard'}>
                         <Button type="primary">Back Home</Button>
                     </Link>
                 }

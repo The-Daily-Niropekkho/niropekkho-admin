@@ -11,21 +11,12 @@ import {
     useCreateTempUserMutation,
     useCreateWriterMutation,
 } from "@/redux/features/auth/authApi";
+import { useGetAllDepartmentsQuery } from "@/redux/features/department/departmentApi";
 import { TFileDocument } from "@/types";
 import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Form, Steps, message } from "antd";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-// Types based on the database schema
-interface Department {
-    id: string;
-    title: string;
-    is_deleted: boolean;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import { useState } from "react";
 
 type UserType = "admin" | "moderator" | "writer";
 type Gender = "male" | "female" | "other";
@@ -108,113 +99,26 @@ interface FinalPayload {
 export default function AddReporterPage() {
     const [form] = Form.useForm();
     const [currentStep, setCurrentStep] = useState(0);
-    const [departments, setDepartments] = useState<Department[]>([]);
     const [loading, setLoading] = useState(false);
     const [tempUserId, setTempUserId] = useState<string | null>(null);
     const router = useRouter();
+
+    const { data: department, isLoading: isDepartmentLoading } =
+        useGetAllDepartmentsQuery(
+            {
+                limit: 999,
+                status: "active",
+            },
+            {
+                skip: currentStep !== 3,
+            }
+        );
 
     // RTK Query mutations
     const [createTempUser] = useCreateTempUserMutation();
     const [createSubAdmin] = useCreateSubAdminMutation();
     const [createWriter] = useCreateWriterMutation();
     const [createModerator] = useCreateModeratorMutation();
-
-    // Mock data loading for departments
-    useEffect(() => {
-        const mockDepartments: Department[] = [
-            {
-                id: "clwdep0010000a01m0abcxyz01",
-                title: "Engineering",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:00:00Z",
-                updatedAt: "2025-05-20T10:00:00Z",
-            },
-            {
-                id: "clwdep0020000a01m0abcxyz02",
-                title: "Human Resources",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:01:00Z",
-                updatedAt: "2025-05-20T10:01:00Z",
-            },
-            {
-                id: "clwdep0030000a01m0abcxyz03",
-                title: "Marketing",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:02:00Z",
-                updatedAt: "2025-05-20T10:02:00Z",
-            },
-            {
-                id: "clwdep0040000a01m0abcxyz04",
-                title: "Finance",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:03:00Z",
-                updatedAt: "2025-05-20T10:03:00Z",
-            },
-            {
-                id: "clwdep0050000a01m0abcxyz05",
-                title: "Legal",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:04:00Z",
-                updatedAt: "2025-05-20T10:04:00Z",
-            },
-            {
-                id: "clwdep0060000a01m0abcxyz06",
-                title: "Product",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:05:00Z",
-                updatedAt: "2025-05-20T10:05:00Z",
-            },
-            {
-                id: "clwdep0070000a01m0abcxyz07",
-                title: "Customer Support",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:06:00Z",
-                updatedAt: "2025-05-20T10:06:00Z",
-            },
-            {
-                id: "clwdep0080000a01m0abcxyz08",
-                title: "Operations",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:07:00Z",
-                updatedAt: "2025-05-20T10:07:00Z",
-            },
-            {
-                id: "clwdep0090000a01m0abcxyz09",
-                title: "Sales",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:08:00Z",
-                updatedAt: "2025-05-20T10:08:00Z",
-            },
-            {
-                id: "clwdep0100000a01m0abcxyz10",
-                title: "IT Services",
-
-                is_deleted: false,
-                status: "active",
-                createdAt: "2025-05-20T10:09:00Z",
-                updatedAt: "2025-05-20T10:09:00Z",
-            },
-        ];
-        setDepartments(mockDepartments);
-    }, []);
 
     // Define required fields per step and user_type
     const getRequiredFields = (step: number, userType: UserType): string[] => {
@@ -408,7 +312,8 @@ export default function AddReporterPage() {
                     {currentStep === 3 && (
                         <AddressAndAdditionalInfoForm
                             step={3}
-                            departments={departments}
+                            departments={department?.data || []}
+                            isDepartmentLoading={isDepartmentLoading}
                         />
                     )}
                     {currentStep === 4 && <OtpForm />}

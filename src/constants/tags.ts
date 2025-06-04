@@ -19,4 +19,5 @@ export const tags = {
     postTag: "postTag" as const,
     dashboardSatisticsTag: "dashboardSatisticsTag" as const,
     dashboardChartTag: "dashboardChartTag" as const,
+    departmentTag: "departmentTag" as const,
 };

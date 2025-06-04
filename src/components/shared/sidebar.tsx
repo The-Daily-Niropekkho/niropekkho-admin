@@ -45,7 +45,8 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const { session } = useSession();
-
+    console.log(session);
+    
     const primaryColor = "#10b981";
     const secondaryColor = "#8b5cf6";
 
