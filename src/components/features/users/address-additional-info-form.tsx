@@ -6,11 +6,13 @@ interface AddressAndAdditionalInfoFormProps {
         id: string;
         title: string;
     }[];
+    isDepartmentLoading?: boolean
 }
 
 export default function AddressAndAdditionalInfoForm({
     step,
     departments = [],
+    isDepartmentLoading
 }: AddressAndAdditionalInfoFormProps) {
     return (
         <Form.Item
@@ -105,7 +107,7 @@ export default function AddressAndAdditionalInfoForm({
                                             },
                                         ]}
                                     >
-                                        <Select placeholder="Select department">
+                                        <Select placeholder="Select department" disabled={isDepartmentLoading}>
                                             {departments.map((dept) => (
                                                 <Select.Option
                                                     key={dept.id}
