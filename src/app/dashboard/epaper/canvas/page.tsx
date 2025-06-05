@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // CanvasMapper.tsx
 "use client";
 
@@ -67,7 +68,8 @@ const CanvasMapper = () => {
 
   const drawCanvas = (savedRegions = regions, tempRegion = drawingRegion) => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
     if (!ctx || !imageRef.current) return;
 
     canvas.width = ORIGINAL_WIDTH;

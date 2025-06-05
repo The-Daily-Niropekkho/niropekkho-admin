@@ -71,16 +71,15 @@ export const GeneralSection = ({
     isDivisionsLoading,
     districts,
     isDistrictsLoading,
-
     upazillas,
     isUpazillaLoading,
     unions,
     isUnionLoading,
 }: GeneralSectionProps) => {
     const { data: writers, isLoading: isWriterLoading } =
-        useGetAllWriterUserQuery([{ name: "status", value: "active" }]);
+        useGetAllWriterUserQuery({ status : "active"});
     const { data: genericReporter, isLoading: isGenericReporterLoading } =
-        useGetAllGenericReportersQuery([{ name: "status", value: "active" }]);
+        useGetAllGenericReportersQuery({ status : "active"});
     const [isTopicModalVisible, setIsTopicModalVisible] = useState(false);
     const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
     const [isReporterModalVisible, setIsReporterModalVisible] = useState(false);
@@ -269,7 +268,7 @@ export const GeneralSection = ({
                                     .includes(input.toLowerCase())
                             }
                         >
-                            {Array.from({ length: 20 }, (_, i) => i + 1).map(
+                            {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(
                                 (position) => (
                                     <Select.Option
                                         key={position}
@@ -279,6 +278,16 @@ export const GeneralSection = ({
                                     </Select.Option>
                                 )
                             )}
+                            {/* {Array.from({ length: 20 }, (_, i) => i + 1).map(
+                                (position) => (
+                                    <Select.Option
+                                        key={position}
+                                        value={position}
+                                    >
+                                        {position}
+                                    </Select.Option>
+                                )
+                            )} */}
                         </Select>
                     </Form.Item>
                 </Col>
@@ -293,7 +302,17 @@ export const GeneralSection = ({
                                     .includes(input.toLowerCase())
                             }
                         >
-                            {Array.from({ length: 20 }, (_, i) => i + 1).map(
+                            {/* {Array.from({ length: 20 }, (_, i) => i + 1).map(
+                                (position) => (
+                                    <Select.Option
+                                        key={position}
+                                        value={position}
+                                    >
+                                        {position}
+                                    </Select.Option>
+                                )
+                            )} */}
+                            {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(
                                 (position) => (
                                     <Select.Option
                                         key={position}

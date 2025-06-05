@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { message } from "antd";
@@ -76,7 +79,8 @@ const CanvasViewer = () => {
 
     const drawCanvas = () => {
         const canvas = canvasRef.current;
-        const ctx = canvas?.getContext("2d");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
         if (!ctx) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (hoveredRegion) {
@@ -122,7 +126,7 @@ const CanvasViewer = () => {
 
     return (
         <div style={{ display: "flex", gap: 16, padding: 24 }}>
-            <div ref={containerRef} style={{ flex: 3, position: "relative" }}>
+            <div ref={containerRef} style={{ flex: 1, position: "relative" }}>
                 <h3>📰 Page Viewer</h3>
                 <div style={{ position: "relative" }}>
                     <img
@@ -154,16 +158,24 @@ const CanvasViewer = () => {
                 </div>
             </div>
 
-            <div style={{ flex: 1 }}>
-                <h3>🔍 Preview</h3>
-                {selectedRegion ? (
+            <div
+                style={{
+                    flex: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                {selectedRegion && (
                     <div
                         style={{
-                            position: "relative",
-                            width: "100%",
-                            aspectRatio: `${selectedRegion.width} / ${selectedRegion.height}`,
-                            border: "1px solid #ccc",
+                            width: `${selectedRegion.width}px`,
+                            height: `${selectedRegion.height}px`,
                             overflow: "hidden",
+                            position: "relative",
+                            border: "1px solid #ccc",
+                            borderRadius: "8px",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                         }}
                     >
                         <img
@@ -171,17 +183,13 @@ const CanvasViewer = () => {
                             alt="Preview"
                             style={{
                                 position: "absolute",
-                                top: -selectedRegion.y,
-                                left: -selectedRegion.x,
-                                width: ORIGINAL_WIDTH,
-                                height: ORIGINAL_HEIGHT,
+                                top: `-${selectedRegion.y}px`,
+                                left: `-${selectedRegion.x}px`,
+                                width: `${ORIGINAL_WIDTH}px`,
+                                height: `${ORIGINAL_HEIGHT}px`,
                             }}
                         />
                     </div>
-                ) : (
-                    <p style={{ color: "#999" }}>
-                        Click on a region to preview
-                    </p>
                 )}
             </div>
         </div>

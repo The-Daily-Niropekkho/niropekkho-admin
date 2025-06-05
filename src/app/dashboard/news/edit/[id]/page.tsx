@@ -79,7 +79,7 @@ export default function EditNewsPage() {
     const [changedValues, setChangedValues] = useState<any>({});
 
     const { data: news, isLoading: isNewsLoading } = useGetNewsDetailsQuery(
-        id,
+        `${id}?is_home_serial=true`,
         {
             skip: !id,
             refetchOnMountOrArgChange: true,
@@ -175,8 +175,13 @@ export default function EditNewsPage() {
                 district_id: news?.district_id,
                 upazilla_id: news?.upazilla_id,
                 union_id: news?.union_id,
-                category_serial: news?.category_serial,
-                home_serial: news?.home_serial,
+                category_serial:
+                    news?.allHomeDataNews.find(
+                        (item) => item.type === "category"
+                    )?.serial_number || 0,
+                home_serial:
+                    news?.allHomeDataNews.find((item) => item.type === "news")
+                        ?.serial_number || 0,
                 topics: news?.topics?.map((topic: any) => topic.id),
                 tags: news?.tags,
                 generic_reporter_id: news?.generic_reporter_id,
@@ -234,7 +239,9 @@ export default function EditNewsPage() {
             message.success("News updated successfully!");
             setLoading(false);
             resetMutation();
-            router.push("/dashboard/news/all");
+            if (process.env.NODE_ENV === "production") {
+                router.push("/dashboard/news/all");
+            }
         }
     }, [isError, isSuccess, error, resetMutation, router]);
 
@@ -310,10 +317,12 @@ export default function EditNewsPage() {
             setLoading(false);
             return;
         }
-        const finalData = new ObjectCleaner(payload)
-        finalData.clean()
+        const finalData = new ObjectCleaner(payload);
+        finalData.clean();
         await updateNews({ id: id, data: finalData.getResult() }).unwrap();
     };
+
+    console.log(news);
 
     const onReset = () => {
         if (news) {

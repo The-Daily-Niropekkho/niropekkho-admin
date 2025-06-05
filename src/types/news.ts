@@ -13,6 +13,7 @@ export interface News {
         thumb_image_size: { width: number; height: number };
         large_image_size: { width: number; height: number };
     };
+    allHomeDataNews: allHomeSerial[];
     headline: string;
     short_headline: string;
     slug: string;
@@ -73,13 +74,17 @@ export interface BreakingNews {
     news: News;
 }
 
-
 export interface TopNews {
-  id: string
-  news_id: string
-  total_share: number
-  total_like: number
-  total_comment: number
-  total_view: number
-  news: News
+    id: string;
+    news_id: string;
+    total_share: number;
+    total_like: number;
+    total_comment: number;
+    total_view: number;
+    news: News;
+}
+
+export interface allHomeSerial {
+    serial_number: number;
+    type: "category" | "news";
 }

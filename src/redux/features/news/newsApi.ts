@@ -77,7 +77,10 @@ const newsApi = baseApi.injectEndpoints({
             transformResponse: (response: TResponseRedux<News>) => {
                 return response.data;
             },
-            providesTags: [tags.newsTag],
+            providesTags: (result, error, id) => [
+                tags.newsTag,
+                { type: tags.newsTag, id },
+            ],
         }),
         createNews: builder.mutation({
             query: (data) => {
@@ -107,7 +110,9 @@ const newsApi = baseApi.injectEndpoints({
                     data: response.data,
                 };
             },
-            invalidatesTags: [tags.newsTag],
+            invalidatesTags: (result, error, arg) => [
+                { type: tags.newsTag, id: arg },
+            ],
         }),
         deleteNews: builder.mutation({
             query: (id) => {
