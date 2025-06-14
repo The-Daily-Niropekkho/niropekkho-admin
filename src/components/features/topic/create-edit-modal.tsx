@@ -10,6 +10,7 @@ import { useEffect } from "react";
 
 interface TopicEditCreateModalInterface {
     editingTopic: Topic | null;
+    categoryId?: string;
     open: boolean;
     close: () => void;
 }
@@ -18,9 +19,9 @@ export default function TopicEditCreateModal({
     editingTopic,
     open,
     close,
+    categoryId
 }: TopicEditCreateModalInterface) {
     const [form] = Form.useForm();
-
     const {
         data: categories,
         isLoading: isCategoryLoading,
@@ -29,16 +30,16 @@ export default function TopicEditCreateModal({
 
     useEffect(() => {
         form.setFieldsValue({
-            category_id: editingTopic?.category_id,
+            category_id: editingTopic?.category_id || categoryId,
             title: editingTopic?.title,
             slug: editingTopic?.slug,
-            description: editingTopic?.description,
+            description: editingTopic?.description, 
             meta_title: editingTopic?.meta_title,
             meta_description: editingTopic?.meta_description,
             status: editingTopic?.status,
             position: editingTopic?.position,
         });
-    }, [editingTopic, form]);
+    }, [categoryId, editingTopic, form]);
 
     const [createTopic, { isLoading: isCreating }] = useCreateTopicMutation();
     const [updateTopic, { isLoading: isUpdating }] = useUpdateTopicMutation();

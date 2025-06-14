@@ -19,7 +19,7 @@ interface Region {
 
 const LOCAL_KEY = "epaper-mapping-data";
 
-const ORIGINAL_WIDTH = 800;
+const ORIGINAL_WIDTH = 1600;
 const DISPLAY_WIDTH = 1000;
 const scale = DISPLAY_WIDTH / ORIGINAL_WIDTH;
 

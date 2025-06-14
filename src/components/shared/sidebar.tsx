@@ -47,8 +47,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     const isDark = theme === "dark";
     const { session } = useSession();
 
-    const primaryColor = "#10b981";
-    const secondaryColor = "#8b5cf6";
 
     const menuItems: MenuItem[] = [
         {
@@ -79,6 +77,12 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     key: "/dashboard/news/breakings",
                     label: (
                         <Link href="/dashboard/news/breakings">Breakings</Link>
+                    ),
+                },
+                {
+                    key: "/dashboard/news/featured",
+                    label: (
+                        <Link href="/dashboard/news/featured">Featured News</Link>
                     ),
                 },
             ],

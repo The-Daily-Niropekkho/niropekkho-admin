@@ -89,10 +89,14 @@ export default function EditNewsPage() {
     const { data: categories, isLoading: isCategoryLoading } =
         useGetAllCategoriesQuery({ limit: 999 });
 
-    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery({
-        limit: 999,
-        status: "active",
-    });
+    const { data: topics, isLoading: isTopicLoading } = useGetAllTopicsQuery(
+        {
+            limit: 999,
+            status: "active",
+            category_id: selectedCategory || news?.category_id,
+        },
+        { skip: !selectedCategory }
+    );
 
     const { data: divisions, isLoading: isDivisionsLoading } =
         useGetAllDivisionsQuery(
@@ -180,9 +184,9 @@ export default function EditNewsPage() {
                         (item) => item.type === "category"
                     )?.serial_number || 0,
                 home_serial:
-                    news?.allHomeDataNews.find((item) => item.type === "news")
+                    news?.allHomeDataNews.find((item) => item.type === "top_home")
                         ?.serial_number || 0,
-                topics: news?.topics?.map((topic: any) => topic.id),
+                topics: news?.allTopics?.map((topic: any) => topic.id),
                 tags: news?.tags,
                 generic_reporter_id: news?.generic_reporter_id,
                 reporter_id: news?.reporter_id,
@@ -341,8 +345,13 @@ export default function EditNewsPage() {
                 district_id: news.district_id,
                 upazilla_id: news.upazilla_id,
                 union_id: news.union_id,
-                category_serial: news.category_serial,
-                home_serial: news.home_serial,
+                category_serial:
+                    news?.allHomeDataNews.find(
+                        (item) => item.type === "category"
+                    )?.serial_number || 0,
+                home_serial:
+                    news?.allHomeDataNews.find((item) => item.type === "top_home")
+                        ?.serial_number || 0,
                 topics: news.allTopics?.map((topic: any) => topic.id),
                 tags: news.tags,
                 generic_reporter_id: news.generic_reporter_id,

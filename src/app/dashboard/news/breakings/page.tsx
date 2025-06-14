@@ -63,19 +63,19 @@ export default function AllNewsPage() {
         }
     };
 
-    const handleStatusChange = async (record: BreakingNews) => {
-        try {
-            await updateNews({
-                id: record.id,
-                data: {
-                    status: record.status === "active" ? "inactive" : "active",
-                },
-            }).unwrap();
-            message.success("Status updated successfully");
-        } catch (error) {
-            message.error((error as TError)?.data?.message);
-        }
-    };
+    // const handleStatusChange = async (record: BreakingNews) => {
+    //     try {
+    //         await updateNews({
+    //             id: record.id,
+    //             data: {
+    //                 status: record.status === "active" ? "inactive" : "active",
+    //             },
+    //         }).unwrap();
+    //         message.success("Status updated successfully");
+    //     } catch (error) {
+    //         message.error((error as TError)?.data?.message);
+    //     }
+    // };
 
     const handleTopBreakingChange = async (record: BreakingNews) => {
         try {
@@ -145,29 +145,29 @@ export default function AllNewsPage() {
                 <Tag>{record?.news?.category?.title}</Tag>
             ),
         },
-        {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-            render: (_text, record) => (
-                <Popconfirm
-                    title={`Are you sure you want to mark as ${
-                        record.status === "active" ? "inactive" : "active"
-                    }?`}
-                    onConfirm={() => handleStatusChange(record)}
-                    okText="Yes"
-                    cancelText="No"
-                    disabled={isUpdating}
-                >
-                    <Switch
-                        checked={record.status === "active"}
-                        checkedChildren="Active"
-                        unCheckedChildren="Inactive"
-                        loading={isUpdating}
-                    />
-                </Popconfirm>
-            ),
-        },
+        // {
+        //     title: "Status",
+        //     dataIndex: "status",
+        //     key: "status",
+        //     render: (_text, record) => (
+        //         <Popconfirm
+        //             title={`Are you sure you want to mark as ${
+        //                 record.status === "active" ? "inactive" : "active"
+        //             }?`}
+        //             onConfirm={() => handleStatusChange(record)}
+        //             okText="Yes"
+        //             cancelText="No"
+        //             disabled={isUpdating}
+        //         >
+        //             <Switch
+        //                 checked={record.status === "active"}
+        //                 checkedChildren="Active"
+        //                 unCheckedChildren="Inactive"
+        //                 loading={isUpdating}
+        //             />
+        //         </Popconfirm>
+        //     ),
+        // },
         {
             title: "Top Breaking",
             dataIndex: "is_top_breaking_news",

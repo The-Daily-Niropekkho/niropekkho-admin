@@ -86,5 +86,5 @@ export interface TopNews {
 
 export interface allHomeSerial {
     serial_number: number;
-    type: "category" | "news";
+    type: "category" | "top_home";
 }

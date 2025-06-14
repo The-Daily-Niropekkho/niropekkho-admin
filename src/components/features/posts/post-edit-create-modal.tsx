@@ -3,6 +3,7 @@ import {
     useUpdatePostMutation,
 } from "@/redux/features/posts/postsApi";
 import { Post, TError, TFileDocument } from "@/types";
+import { ObjectCleaner } from "@/utils/object-cleaner";
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import {
     Avatar,
@@ -53,7 +54,7 @@ export default function PostEditCreateModal({
             head_line: editingPost?.head_line,
             short_head: editingPost?.short_head,
             slug: editingPost?.slug,
-            serial_number: editingPost?.serial_number,
+            serial_number: editingPost?.homeData?.serial_number ?? 0,
             url: editingPost?.url,
             file_type: editingPost?.file_type,
             type: editingPost?.type,
@@ -85,6 +86,7 @@ export default function PostEditCreateModal({
                 ...values,
                 file: values.file || undefined,
                 url: values.url || undefined,
+                serial_number: values?.serial_number || undefined,
                 thumbnail: values.thumbnail || undefined,
             };
 
@@ -118,19 +120,29 @@ export default function PostEditCreateModal({
                     }
                 }
 
+                // 🛠 Fix: Force thumbnail comparison using ID
+                const newThumb = form.getFieldValue("thumbnail");
+                if (newThumb?.id !== editingPost?.thumbnail?.id) {
+                    delta.thumbnail = newThumb;
+                }
+
                 if (Object.keys(delta).length > 0) {
+                    const cleaner = new ObjectCleaner(delta);
+                    cleaner.clean();
+                    const finalData = cleaner.getResult();
+
                     await updatePost({
                         id: editingPost.id,
-                        data: delta,
+                        data: finalData,
                     }).unwrap();
-                    message.success(
-                        `Post has been updated`
-                    );
+                    message.success(`Post has been updated`);
                 } else {
                     message.info("No changes detected");
                 }
             } else {
-                await createPost(postData).unwrap();
+                const clenaer = new ObjectCleaner(postData);
+                clenaer.clean();
+                await createPost(clenaer.getResult()).unwrap();
                 message.success(`Post has been created`);
                 form.resetFields();
             }
@@ -203,7 +215,7 @@ export default function PostEditCreateModal({
                 </Row> */}
 
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={8}>
                         <Form.Item
                             name="file_type"
                             label="File Type"
@@ -243,7 +255,7 @@ export default function PostEditCreateModal({
                         </Form.Item>
                     </Col>
 
-                    <Col span={12}>
+                    <Col span={8}>
                         <Form.Item
                             name="type"
                             label="Media Type"
@@ -261,6 +273,21 @@ export default function PostEditCreateModal({
                                 </Select.Option>
                                 {/* <Select.Option value="photo">Photo</Select.Option> */}
                             </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                        <Form.Item name="serial_number" label="Serial Number">
+                            <Select
+                                options={[
+                                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+                                    14, 15, 16, 17, 18, 19, 20,
+                                ].map((position) => {
+                                    return {
+                                        label: position,
+                                        value: position,
+                                    };
+                                })}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -349,7 +376,7 @@ export default function PostEditCreateModal({
                     </Form.Item>
                 )}
 
-                {fileType === "custom" &&
+                {fileType !== "youtube" &&
                     form.getFieldValue("type") === "video" && (
                         <Form.Item name="thumbnail" label="Thumbnail Image">
                             <div
@@ -359,9 +386,9 @@ export default function PostEditCreateModal({
                                     gap: 16,
                                 }}
                             >
-                                {thumbnailFile?.url ? (
+                                {thumbnailFile?.originalUrl ? (
                                     <Image
-                                        src={thumbnailFile.url}
+                                        src={thumbnailFile.originalUrl}
                                         alt="Thumbnail Preview"
                                         width={80}
                                         height={80}

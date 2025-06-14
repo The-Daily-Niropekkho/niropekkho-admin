@@ -4,6 +4,7 @@
 import { useGetChartDataQuery } from "@/redux/features/dashboard/dashboardApi";
 import { Column, Pie } from "@ant-design/charts";
 import { Card, Col, Row } from "antd";
+import React from "react";
 import { useTheme } from "../theme-context";
 
 export default function PerformanceCharts() {
@@ -37,6 +38,7 @@ export default function PerformanceCharts() {
                 return {
                     month: monthLabel,
                     value: item.view_count,
+                    type: "Views", // <-- এটা যোগ করো
                 };
             }
         ) ?? [];
@@ -79,6 +81,59 @@ export default function PerformanceCharts() {
                     }`,
             },
         },
+        tooltip: ({ type, value }: { type: string; value: number }) => {
+            // Extra fields
+            return { type, value };
+        },
+        interaction: {
+            tooltip: {
+                render: (
+                    e: unknown,
+                    {
+                        items,
+                    }: {
+                        items: Array<{
+                            type: string;
+                            value: number;
+                            color: string;
+                        }>;
+                    }
+                ) => {
+                    return (
+                        <React.Fragment>
+                            {items.map((item) => {
+                                const { type, value, color } = item;
+                                return (
+                                    <div
+                                        key={type}
+                                        style={{
+                                            margin: 0,
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}
+                                    >
+                                        <div>
+                                            <span
+                                                style={{
+                                                    display: "inline-block",
+                                                    width: 6,
+                                                    height: 6,
+                                                    borderRadius: "50%",
+                                                    backgroundColor: color,
+                                                    marginRight: 6,
+                                                }}
+                                            ></span>
+                                            <span>{type}</span>
+                                        </div>
+                                        <b>{value}</b>
+                                    </div>
+                                );
+                            })}
+                        </React.Fragment>
+                    );
+                },
+            },
+        },
         theme: isDark ? "dark" : "light",
     };
 
@@ -91,6 +146,7 @@ export default function PerformanceCharts() {
             fill: primaryColor,
             radius: [4, 4, 0, 0],
         },
+        seriesField: "type",
         widthRatio: 0.6,
         xAxis: {
             title: null,
@@ -138,8 +194,8 @@ export default function PerformanceCharts() {
         tooltip: {
             title: "Month",
             formatter: (datum: any) => ({
-                name: "Views",
-                value: datum.value.toLocaleString(),
+                name: datum.type ?? "Views",
+                value: Number(datum?.value ?? 0).toLocaleString(),
             }),
         },
         theme: isDark ? "dark" : "light",

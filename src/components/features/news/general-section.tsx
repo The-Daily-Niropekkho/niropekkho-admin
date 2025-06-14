@@ -77,9 +77,9 @@ export const GeneralSection = ({
     isUnionLoading,
 }: GeneralSectionProps) => {
     const { data: writers, isLoading: isWriterLoading } =
-        useGetAllWriterUserQuery({ status : "active"});
+        useGetAllWriterUserQuery({ status: "active" });
     const { data: genericReporter, isLoading: isGenericReporterLoading } =
-        useGetAllGenericReportersQuery({ status : "active"});
+        useGetAllGenericReportersQuery({ status: "active" });
     const [isTopicModalVisible, setIsTopicModalVisible] = useState(false);
     const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
     const [isReporterModalVisible, setIsReporterModalVisible] = useState(false);
@@ -268,16 +268,14 @@ export const GeneralSection = ({
                                     .includes(input.toLowerCase())
                             }
                         >
-                            {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(
-                                (position) => (
-                                    <Select.Option
-                                        key={position}
-                                        value={position}
-                                    >
-                                        {position}
-                                    </Select.Option>
-                                )
-                            )}
+                            {[
+                                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                15, 16, 17, 18, 19, 20,
+                            ].map((position) => (
+                                <Select.Option key={position} value={position}>
+                                    {position}
+                                </Select.Option>
+                            ))}
                             {/* {Array.from({ length: 20 }, (_, i) => i + 1).map(
                                 (position) => (
                                     <Select.Option
@@ -312,22 +310,20 @@ export const GeneralSection = ({
                                     </Select.Option>
                                 )
                             )} */}
-                            {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(
-                                (position) => (
-                                    <Select.Option
-                                        key={position}
-                                        value={position}
-                                    >
-                                        {position}
-                                    </Select.Option>
-                                )
-                            )}
+                            {[
+                                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                15, 16, 17, 18, 19, 20,
+                            ].map((position) => (
+                                <Select.Option key={position} value={position}>
+                                    {position}
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
                 </Col>
             </Row>
 
-            <Form.Item name="topics" label="Topic">
+            <Form.Item name="topics" label="Topics">
                 <Select
                     placeholder="Select a topic"
                     allowClear
@@ -349,13 +345,12 @@ export const GeneralSection = ({
                             {menu}
                         </>
                     )}
-                    maxCount={20}
+                    maxCount={5}
                     filterOption={(input, option) =>
                         (option?.children as unknown as string)
                             ?.toLowerCase()
                             .includes(input.toLowerCase())
                     }
-                    
                 >
                     {topics?.map((topic: Topic) => (
                         <Select.Option key={topic.id} value={topic.id}>
@@ -365,10 +360,19 @@ export const GeneralSection = ({
                 </Select>
             </Form.Item>
 
-            <Form.Item name="tags" label="Tags">
-                <Select mode="tags" placeholder="Select or create tags" maxCount={5}>
-                    
-                </Select>
+            <Form.Item
+                name="tags"
+                label="Tags"
+                rules={[
+                    { required: true, message: "Please write minimum one tag" },
+                ]}
+                tooltip="ট্যাগ সর্বোচ্চ ৫ টা লেখা যাবে"
+            >
+                <Select
+                    mode="tags"
+                    placeholder="Select or create tags"
+                    maxCount={5}
+                />
             </Form.Item>
 
             <Row gutter={8}>
@@ -486,6 +490,7 @@ export const GeneralSection = ({
             </Form.Item>
             <TopicEditCreateModal
                 editingTopic={null}
+                categoryId={selectedCategory}
                 open={isTopicModalVisible}
                 close={() => setIsTopicModalVisible(false)}
             />

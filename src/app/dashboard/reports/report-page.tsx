@@ -6,8 +6,8 @@ import CustomImage from "@/components/ui/image";
 import config from "@/config";
 import { useGetAllCategoriesQuery } from "@/redux/features/categories/categoriesApi";
 import { useGetAllNewsQuery } from "@/redux/features/news/newsApi";
-import { useGetAllGenericReportersQuery } from "@/redux/features/reporter/reporterApi";
 import {
+    useGetAllAdminUserQuery,
     useGetAllModeratorUserQuery,
     useGetAllWriterUserQuery,
 } from "@/redux/features/user/userApi";
@@ -110,9 +110,7 @@ const filterVariants = {
 };
 
 export default function AllReportsPage() {
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
-
+    const { isDark } = useTheme();
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -143,8 +141,8 @@ export default function AllReportsPage() {
         useGetAllModeratorUserQuery({ limit: 9999 });
     const { data: writerUsers, isLoading: isWriterLoading } =
         useGetAllWriterUserQuery({ limit: 9999 });
-    const { data: genericReporters, isLoading: isGenericLoading } =
-        useGetAllGenericReportersQuery({ limit: 9999 });
+    const { data: admins, isLoading: isGenericLoading } =
+        useGetAllAdminUserQuery({ limit: 9999 });
 
     const query: TArgsParam = {
         page,
@@ -164,8 +162,8 @@ export default function AllReportsPage() {
     if (selectedUser) {
         if (userTab === "moderator") query["created_by_id"] = selectedUser;
         else if (userTab === "writer") query["reporter_id"] = selectedUser;
-        else if (userTab === "generic")
-            query["generic_reporter_id"] = selectedUser;
+        else if (userTab === "admin")
+            query["created_by_id"] = selectedUser;
     }
 
     const {
@@ -264,7 +262,12 @@ export default function AllReportsPage() {
                         fontSize: 18,
                         bold: true,
                         alignment: "center" as const,
-                        margin: [0, 0, 0, 10] as [number, number, number, number],
+                        margin: [0, 0, 0, 10] as [
+                            number,
+                            number,
+                            number,
+                            number
+                        ],
                     },
                 },
                 // defaultStyle: {
@@ -401,7 +404,7 @@ export default function AllReportsPage() {
                         rotate={isActive ? 90 : 0}
                         style={{
                             fontSize: 16,
-                            color: isDark ? "#95de64" : "#52c41a",
+                            color: isDark ? "#95de64" : "#0EA774",
                         }}
                     />
                 )}
@@ -421,7 +424,7 @@ export default function AllReportsPage() {
                                 style={{
                                     backgroundColor: isDark
                                         ? "#0EA774"
-                                        : "#52c41a",
+                                        : "#0EA774",
                                 }}
                             />
                         </Space>
@@ -440,7 +443,7 @@ export default function AllReportsPage() {
                         >
                             {/* User Filter First */}
                             <Space wrap size="middle" align="center">
-                                <Tooltip title="Filter by user (Moderator, Writer, or Generic Reporter)">
+                                <Tooltip title="Filter by user (Moderator, Writer, or Admin)">
                                     <Select
                                         showSearch
                                         placeholder="Select User"
@@ -513,14 +516,23 @@ export default function AllReportsPage() {
                                                 )
                                             )}
                                         </Select.OptGroup>
-                                        <Select.OptGroup label="Generic Reporter">
-                                            {(genericReporters?.data || []).map(
+                                        <Select.OptGroup label="Admins">
+                                            {(admins?.data || []).map(
                                                 (user: any) => (
                                                     <Select.Option
-                                                        key={`generic-${user.id}`}
+                                                        key={`admin-${user.id}`}
                                                         value={user.id}
                                                     >
-                                                        {user.name}
+                                                        {
+                                                            user[
+                                                                user?.user_type
+                                                            ]?.first_name
+                                                        }{" "}
+                                                        {
+                                                            user[
+                                                                user?.user_type
+                                                            ]?.last_name
+                                                        }
                                                     </Select.Option>
                                                 )
                                             )}
@@ -565,14 +577,17 @@ export default function AllReportsPage() {
                                         >
                                             Total News :
                                         </span>
-                                        <Badge
-                                            count={news?.meta?.total}
+                                        <span
                                             style={{
-                                                backgroundColor: isDark
+                                                color: isDark
                                                     ? "#0EA774"
-                                                    : "#52c41a",
+                                                    : "#0EA774",
+
                                             }}
-                                        />
+                                            className="font-bold px-3 py-1"
+                                        >
+                                            {news?.meta?.total}
+                                        </span>
                                     </Space>
                                 )}
                             </Space>

@@ -25,7 +25,7 @@ import {
     Popconfirm,
     Row,
     Space,
-    Tooltip
+    Tooltip,
 } from "antd";
 import { useState } from "react";
 
@@ -49,6 +49,7 @@ export default function PostsPage() {
         limit,
         sortBy,
         sortOrder,
+        isSerial: true,
     };
 
     const debouncedSearchTerm = useDebounced({
@@ -60,6 +61,8 @@ export default function PostsPage() {
     const { data: posts, isLoading, isFetching } = useGetAllPostsQuery(query);
     const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
 
+    console.log(posts);
+    
     const handleEdit = (record: Post) => {
         setEditingPost(record);
         setPostFile(record.file ?? undefined);
@@ -88,7 +91,21 @@ export default function PostsPage() {
             title: "Thumbnail",
             dataIndex: "thumbnail",
             key: "thumbnail",
-            render: (media: TFileDocument) => <CustomImage src={media} width={80} height={80} />
+            render: (_: any, record: Post) => {
+                let src: string | TFileDocument = record.thumbnail ?? "";
+
+                if (record.file_type === "youtube" && record.url) {
+                    const match = record.url.match(
+                        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+                    );
+                    const videoId = match?.[1];
+                    if (videoId) {
+                        src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                    }
+                }
+
+                return <CustomImage src={src} width={80} height={80} />;
+            },
         },
         {
             title: "File Type",
